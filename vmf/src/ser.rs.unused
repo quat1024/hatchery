@@ -1,0 +1,255 @@
+use error::SerializeError;
+use serde::ser;
+
+mod error;
+
+//None of the locations of things in here are final
+//This prototype is built using the Serde Serializer example at https://serde.rs/impl-serializer.html
+
+pub struct Serializer {
+	always_quote_keys: bool,
+	always_quote_numbers: bool,
+	indentation: usize,
+	
+	output: String,
+}
+
+impl Serializer {
+	fn serialize_str_without_escaping(self, s: &str) -> Result<(), SerializeError> {
+		if self.always_quote_numbers || s.is_empty() {
+			self.output += "\"";
+			self.output += s;
+			self.output += "\"";
+		} else {
+			self.output += s;
+		}
+		
+		Ok(())
+	}
+	
+	fn serialize_str_with_escaping(self, s: &str) -> Result<(), SerializeError> {
+		//TODO actually escape it LOLLLLL
+		self.serialize_str_without_escaping(s)
+	}
+}
+
+impl<'a> ser::Serializer for &'a mut Serializer {
+	type Ok = ();
+
+	type Error = SerializeError;
+
+	type SerializeSeq = Self;
+	type SerializeTuple = Self;
+	type SerializeTupleStruct = Self;
+	type SerializeTupleVariant = Self;
+	type SerializeMap = Self;
+	type SerializeStruct = Self;
+	type SerializeStructVariant = Self;
+
+	fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
+		self.output += if v { "true" } else { "false" };
+		Ok(())
+	}
+
+	//"A more performance approach would be to use the `itoa` crate." - serde example documentation
+	fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_i16(self, v: i16) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_i32(self, v: i32) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_without_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
+		//TODO slow
+		self.serialize_str_with_escaping(&v.to_string())?;
+		Ok(())
+	}
+
+	fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
+		self.serialize_str_with_escaping(v)?;
+		Ok(())
+	}
+
+	fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
+		todo!("serialize bytes")
+	}
+
+	fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
+		self.serialize_unit()
+	}
+
+	fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		value.serialize(self)
+	}
+
+	fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
+		self.output += "\"\""; //Empty string
+
+		Ok(())
+	}
+
+	fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
+		//"A named value contianing no data"
+		self.serialize_unit()
+	}
+
+	fn serialize_unit_variant(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+	) -> Result<Self::Ok, Self::Error> {
+		//"For example the `E::A` and `E::B` in `enum E { A, B }`"
+		//I should record their name.
+		self.serialize_str(variant)
+	}
+
+	fn serialize_newtype_struct<T: ?Sized>(
+		self,
+		name: &'static str,
+		value: &T,
+	) -> Result<Self::Ok, Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		//"For example struct Millimeters(u8)"
+		//Treat the newtype struct like a transparent wrapper.
+		value.serialize(self)
+	}
+
+	fn serialize_newtype_variant<T: ?Sized>(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+		value: &T,
+	) -> Result<Self::Ok, Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		//"For example the `E::N` in `enum E { N(u8) }`"
+		todo!("serialize newtype variant")
+	}
+
+	fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
+		//Start of a heterogenous sequence of values of variable size.
+		//Just begin a double-quote.
+		self.output += "\"";
+		Ok(self)
+	}
+
+	fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
+		//Start of a heterogenous sequence of values of known size
+		todo!("serialize tuple start")
+	}
+
+	fn serialize_tuple_struct(
+		self,
+		name: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeTupleStruct, Self::Error> {
+		//Named tuple "for example `struct Rgb(u8, u8, u8)`"
+		todo!("serialize tuple struct")
+	}
+
+	fn serialize_tuple_variant(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeTupleVariant, Self::Error> {
+		//"For example the `E::T` in `enum E { T(u8, u8) }`"
+		todo!("serialize tuple variant")
+	}
+
+	fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
+		//Start of a heterogenous key-value pairing of possibly-unknown length
+		todo!("serialize map")
+	}
+
+	fn serialize_struct(
+		self,
+		name: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeStruct, Self::Error> {
+		//Start of a named, heterogenous key-value pairing of known length
+		todo!("serialize struct")
+	}
+
+	fn serialize_struct_variant(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeStructVariant, Self::Error> {
+		// "For example the `E::S` in `enum E { S { r: u8, g: u8, b: u8 } }`"
+		todo!("serialize struct variant")
+	}
+}
+
+//Continuation and ending of a heterogenous sequence of values with possibly unknown size.
+//It's possible to change this struct btw if i need some more state.
+impl<'a> ser::SerializeSeq for &'a mut Serializer {
+	type Ok = ();
+
+	type Error = SerializeError;
+
+	fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		todo!()
+	}
+
+	fn end(self) -> Result<Self::Ok, Self::Error> {
+		todo!()
+	}
+}
