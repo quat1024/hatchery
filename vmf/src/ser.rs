@@ -340,6 +340,7 @@ impl<'a> ser::SerializeSeq for VdfSeqSerializer<'a> {
     where
         T: serde::Serialize {
         self.ser.serialize_u32(self.index)?;
+		self.index += 1;
 		value.serialize(&mut *self.ser)
     }
 
