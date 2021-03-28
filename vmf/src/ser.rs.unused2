@@ -1,0 +1,504 @@
+#![allow(unused_variables)] //for now
+
+use serde::{Serializer, ser};
+use serde::ser::Impossible;
+use serde::serde_if_integer128;
+use std::fmt;
+use thiserror::Error;
+
+pub fn to_string<T>(value: &T) -> Result<String, SerializeErr>
+where
+	T: serde::Serialize,
+{
+	let mut ser = VdfSerializer {
+		out: "".into(),
+		indent: 0,
+		depth: Depth::Key
+	};
+	value.serialize(&mut ser)?;
+	Ok(ser.out)
+}
+
+pub struct VdfSerializer {
+	/// The output string as built up by the serializer.
+	out: String,
+	
+	/// The current level of indentation.
+	indent: usize,
+	
+	last_key: Option<String>,
+}
+
+enum Depth {
+	Key,
+	Value(usize)
+}
+
+impl VdfSerializer {
+	fn begin_value(&mut self) {
+		if !self.key_time && self.value_depth == 0 {
+			self.out.push('\t');
+			self.key_time = true;
+		}
+	}
+	
+	fn simple_str(&mut self, s: &str) -> Result<(), SerializeErr> {
+		if self.value_depth == 0 {
+			//Quote the string
+			self.out.push('"');
+			self.out.push_str(s);
+			self.out.push('"');
+			Ok(())
+		} else {
+			//Leave the string unquoted and, I guess, hope it doesn't have any whitespace
+			self.out.push_str(s);
+			Ok(())
+		}
+	}
+
+	fn empty_string(&mut self) {
+		self.out.push_str("\"\"");
+	}
+
+	fn render_indent(&mut self) {
+		for _ in 0..self.indent {
+			self.out.push('\t');
+		}
+	}
+}
+
+macro_rules! simple_str {
+	( $func:ident $type:ty ) => {
+		fn $func(self, v: $type) -> Result<Self::Ok, Self::Error> {
+			self.begin_value();
+			self.simple_str(&v.to_string())
+		}
+	};
+}
+
+impl<'a> ser::Serializer for &'a mut VdfSerializer {
+	type Ok = ();
+	type Error = SerializeErr;
+
+	type SerializeSeq = SeqSer<'a>;
+	type SerializeTuple = Impossible<(), Self::Error>;
+	type SerializeTupleStruct = Impossible<(), Self::Error>;
+	type SerializeTupleVariant = Impossible<(), Self::Error>;
+	type SerializeMap = Self;
+	type SerializeStruct = Self;
+	type SerializeStructVariant = Impossible<(), Self::Error>;
+
+	simple_str!(serialize_bool bool);
+	simple_str!(serialize_i8 i8);
+	simple_str!(serialize_i16 i16);
+	simple_str!(serialize_i32 i32);
+	simple_str!(serialize_i64 i64);
+	simple_str!(serialize_u8 u8);
+	simple_str!(serialize_u16 u16);
+	simple_str!(serialize_u32 u32);
+	simple_str!(serialize_u64 u64);
+	simple_str!(serialize_f32 f32);
+	simple_str!(serialize_f64 f64);
+
+	serde_if_integer128! {
+		simple_str!(serialize_i128 i128);
+		simple_str!(serialize_u128 u128);
+	}
+
+	simple_str!(serialize_char char);
+
+	//This is zero-copyable probably if i wanna be cool
+	simple_str!(serialize_str &str);
+
+	fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
+		self.begin_value();
+		
+		self.value_depth += 1;
+		self.out += "[";
+		
+		for i in 0..v.len() {
+			self.serialize_u8(v[i])?;
+			if i != v.len() - 1 {
+				self.out += " ";
+			}
+		}
+		
+		self.out += "]";
+		self.value_depth -= 1;
+		
+		Ok(())
+	}
+
+	fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
+		//Discard the wrapper, as is conventional with json-like formats.
+		self.serialize_unit()
+	}
+
+	fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		//Discard the wrapper, as is conventional with json-like formats.
+		value.serialize(self)
+	}
+
+	fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
+		//Use the empty string.
+		self.empty_string();
+		Ok(())
+	}
+
+	fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
+		//Discard the wrapper and ignore its name, as is convention with unit structs.
+		self.serialize_unit()
+	}
+
+	fn serialize_unit_variant(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+	) -> Result<Self::Ok, Self::Error> {
+		//Just record the name.
+		self.serialize_str(variant)
+	}
+
+	fn serialize_newtype_struct<T: ?Sized>(
+		self,
+		name: &'static str,
+		value: &T,
+	) -> Result<Self::Ok, Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		//Discard the wrapper, as is convention with newtype structs.
+		value.serialize(self)
+	}
+
+	fn serialize_newtype_variant<T: ?Sized>(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+		value: &T,
+	) -> Result<Self::Ok, Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		todo!("newtype variant")
+	}
+
+	fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
+		self.out += "{\n";
+		self.indent += 1;
+
+		Ok(SeqSer {
+			ser: self,
+			index: 0
+		})
+	}
+
+	fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
+		todo!("tuple")
+	}
+
+	fn serialize_tuple_struct(
+		self,
+		name: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeTupleStruct, Self::Error> {
+		todo!("tuple struct")
+	}
+
+	fn serialize_tuple_variant(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeTupleVariant, Self::Error> {
+		todo!("tuple variant")
+	}
+
+	fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
+		self.out += "{\n";
+		self.indent += 1;
+
+		Ok(self)
+	}
+
+	fn serialize_struct(
+		self,
+		name: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeStruct, Self::Error> {
+		if !self.out.is_empty() {
+			self.out += "\n";
+		}
+		self.render_indent();
+		self.out += "{";
+		self.indent += 1;
+
+		Ok(self)
+	}
+
+	fn serialize_struct_variant(
+		self,
+		name: &'static str,
+		variant_index: u32,
+		variant: &'static str,
+		len: usize,
+	) -> Result<Self::SerializeStructVariant, Self::Error> {
+		todo!("struct variant")
+	}
+}
+
+pub struct SeqSer<'a> {
+	ser: &'a mut VdfSerializer,
+	index: usize
+}
+
+impl<'a> ser::SerializeSeq for SeqSer<'a> {
+    type Ok = ();
+    type Error = SerializeErr;
+
+    fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: serde::Serialize {
+		self.ser.render_indent();
+		self.ser.simple_string(&self.index.to_string())?;
+		self.ser.out += "\t";
+		value.serialize(&mut *self.ser)?;
+		self.ser.out += "\n";
+		
+		self.index += 1;
+		
+		Ok(())
+    }
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        self.ser.indent -= 1;
+		self.ser.render_indent();
+		self.ser.out += "}\n";
+		Ok(())
+    }
+}
+
+impl<'a> ser::SerializeStruct for &'a mut VdfSerializer {
+	type Ok = ();
+	type Error = SerializeErr;
+
+	fn serialize_field<T: ?Sized>(
+		&mut self,
+		key: &'static str,
+		value: &T,
+	) -> Result<(), Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		self.render_indent();
+		self.simple_string(key)?;
+		self.out += "\t";
+		value.serialize(&mut **self)?;
+		self.out += "\n";
+		Ok(())
+	}
+
+	fn end(self) -> Result<Self::Ok, Self::Error> {
+		self.indent -= 1;
+		self.render_indent();
+		self.out += "}\n";
+		Ok(())
+	}
+}
+
+impl<'a> ser::SerializeMap for &'a mut VdfSerializer {
+	type Ok = ();
+	type Error = SerializeErr;
+
+	fn serialize_key<T: ?Sized>(&mut self, key: &T) -> Result<(), Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		self.render_indent();
+		//TODO: validate that the key is actually a string
+		key.serialize(&mut **self)?;
+		self.out += "\t";
+		
+		Ok(())
+	}
+
+	fn serialize_value<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+	where
+		T: serde::Serialize,
+	{
+		value.serialize(&mut **self)?;
+		self.out += "\n";
+		Ok(())
+	}
+
+	fn end(self) -> Result<Self::Ok, Self::Error> {
+		self.indent -= 1;
+		self.render_indent();
+		self.out += "}\n";
+		Ok(())
+	}
+}
+
+#[derive(Error, Debug)]
+pub enum SerializeErr {
+	#[error("{0}")]
+	Message(String),
+}
+
+impl ser::Error for SerializeErr {
+	fn custom<T>(msg: T) -> Self
+	where
+		T: fmt::Display,
+	{
+		SerializeErr::Message(msg.to_string())
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use serde::Serialize;
+	use std::collections::HashMap;
+
+	#[test]
+	fn serialize_simple_structs() {
+		#[derive(serde::Serialize)]
+		struct Hello {
+			hello: String,
+			my_name_is: String,
+			small_number: u8,
+			medium_number: i32,
+			big_number: u64,
+			yea: Yea,
+		}
+
+		#[derive(serde::Serialize)]
+		struct Yea {
+			yeah_woo: String,
+			wooo_yeah: bool,
+		}
+
+		let hello = Hello {
+			hello: "world".into(),
+			my_name_is: "jeff".into(),
+			small_number: 69,
+			medium_number: 621,
+			big_number: 123456789,
+			yea: Yea {
+				yeah_woo: "yeah woo yea woooo yeah woo".into(),
+				wooo_yeah: true,
+			},
+		};
+
+		let result = to_string(&hello).unwrap();
+		println!("{}", result);
+	}
+	
+	#[test]
+	fn im_the_map() {
+		let mut themap: HashMap<&'static str, char> = HashMap::new();
+		themap.insert("ayy", 'a');
+		themap.insert("bee", 'b');
+		themap.insert("see", 'c');
+		
+		let themap = to_string(&themap).unwrap();
+		
+		println!("{}", themap);
+	}
+	
+	#[test]
+	fn seq() {
+		let funny = vec!["asd", "ghj", "ahdjahds"];
+		println!("{}", to_string(&funny).unwrap());
+	}
+	
+	#[test]
+	fn seq_of_structs() {
+		#[derive(serde::Serialize)]
+		struct Yea {
+			yeah_woo: &'static str,
+			wooo_yeah: u32,
+		}
+		
+		let funny = vec![
+			Yea {
+				yeah_woo: "yeah woo!",
+				wooo_yeah: 123
+			},
+			Yea {
+				yeah_woo: "yasdadeah woo!",
+				wooo_yeah: 12345
+			},
+			Yea {
+				yeah_woo: "yeah woasdadasdo!",
+				wooo_yeah: 12345678
+			},
+		];
+		
+		println!("{}", to_string(&funny).unwrap());
+	}
+
+	#[test]
+	fn show_gameinfo_like() {
+		#[derive(Serialize)]
+		#[serde(rename = "GameInfo")]
+		struct Gameinfo {
+			game: String,
+			title: String,
+			#[serde(rename = "GameData")]
+			game_data: String,
+			#[serde(rename = "gamelogo")]
+			game_logo: bool, //actually int
+			#[serde(rename = "SupportsDX8")]
+			supports_dx8: bool, //actually int
+			#[serde(rename = "SupportsXbox360")]
+			supports_xbox_360: bool, //actually int
+			#[serde(rename = "FileSystem")]
+			filesystem: Filesystem,
+		}
+
+		#[derive(Serialize)]
+		#[serde(rename_all = "PascalCase")]
+		struct Filesystem {
+			steam_app_id: u32,
+			tools_app_id: u32,
+			search_paths: Vec<(SearchPathType, String)>,
+		}
+
+		#[derive(Serialize)]
+		enum SearchPathType {
+			Game,
+			GameBin,
+			#[serde(rename = "MOD")]
+			Mod,
+			#[serde(rename = "DEFAULT_WRITE_PATH")]
+			DefaultWritePath,
+		} //at least i assume this is how this works
+
+		let portal2_gameinfo = Gameinfo {
+			game: "PORTAL 2".into(),
+			title: "PORTAL 2".into(),
+			game_data: "portal2.fgd".into(),
+			game_logo: true,
+			supports_dx8: false,
+			supports_xbox_360: true,
+			filesystem: Filesystem {
+				steam_app_id: 620,
+				tools_app_id: 211,
+				search_paths: vec![
+					(SearchPathType::Game, "|gameinfo_path|.".into()),
+					(SearchPathType::Game, "BEE2".into()),
+				],
+			},
+		};
+		
+		let asdf = to_string(&portal2_gameinfo).unwrap();
+		println!("{}", asdf);
+	}
+}

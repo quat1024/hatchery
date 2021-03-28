@@ -87,5 +87,7 @@ mod test {
 		let my_key_2 = Kv::new_str("k2", "my other value");
 
 		let obj: VmfObject = Kv::new_obj("My Keys", vec![my_key_1, my_key_2]).into();
+
+		obj.print()
 	}
 }
