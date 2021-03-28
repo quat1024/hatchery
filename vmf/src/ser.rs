@@ -1,8 +1,11 @@
 #![allow(unused_variables)] //for now
 
-use serde::{Serialize, ser::{Impossible, SerializeMap}};
 use serde::serde_if_integer128;
 use serde::{ser, Serializer};
+use serde::{
+	ser::{Impossible, SerializeMap},
+	Serialize,
+};
 use std::fmt;
 use thiserror::Error;
 
@@ -18,7 +21,11 @@ where
 #[macro_export]
 macro_rules! named_seq_func {
 	( $func:ident $name:literal ) => {
-		fn $func<S, T>(value: &[T], s: S) -> Result<S::Ok, S::Error> where S: Serializer, T: Serialize {
+		fn $func<S, T>(value: &[T], s: S) -> Result<S::Ok, S::Error>
+		where
+			S: Serializer,
+			T: Serialize,
+		{
 			named_seq_serialize($name, value, s)
 		}
 	};
@@ -27,11 +34,11 @@ macro_rules! named_seq_func {
 fn named_seq_serialize<S, T>(name: &str, slice: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
 	S: Serializer,
-	T: Serialize
+	T: Serialize,
 {
 	let iter = slice.iter();
 	let (_, size_hint) = iter.size_hint();
-	
+
 	let mut map = serializer.serialize_map(size_hint)?;
 	for i in iter {
 		map.serialize_entry(name, &i)?;
@@ -515,55 +522,52 @@ mod test {
 
 		println!("{}", to_string(&funny).unwrap());
 	}
-	
+
 	#[test]
 	fn named_seq() {
 		named_seq_func!(steve "steve");
-		
+
 		#[derive(serde::Serialize)]
 		struct Hey {
 			name: &'static str,
 			#[serde(serialize_with = "steve")]
 			#[serde(flatten)]
-			things: Vec<Thing>
+			things: Vec<Thing>,
 		}
-		
+
 		#[derive(serde::Serialize)]
 		struct Thing {
 			abc: u32,
-			xyz: u32
+			xyz: u32,
 		}
-		
+
 		let hey = Hey {
 			name: "Name!!!!!!!",
 			things: vec![
-				Thing {
-					abc: 30,
-					xyz: 30
-				},
+				Thing { abc: 30, xyz: 30 },
 				Thing {
 					abc: 70,
-					xyz: 19093
+					xyz: 19093,
 				},
 				Thing {
 					abc: 924024,
-					xyz: 621
+					xyz: 621,
 				},
 				Thing {
 					abc: 525,
-					xyz: 123123
+					xyz: 123123,
 				},
 				Thing {
 					abc: 36546,
-					xyz: 36356
+					xyz: 36356,
 				},
 				Thing {
 					abc: 5476576,
-					xyz: 23424
-				}
-			]
+					xyz: 23424,
+				},
+			],
 		};
-		
+
 		println!("{}", to_string(&hey).unwrap());
 	}
 }
