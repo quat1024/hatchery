@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
-use std::{collections::BTreeMap, u32};
+use std::collections::BTreeMap;
+use std::u32;
 
 use serde::Serialize;
 use vdf::named_seq_func;
@@ -9,63 +10,70 @@ use vdf::named_seq_func;
 fn main() {
 	let mut props: BTreeMap<String, PropertySettings> = BTreeMap::new();
 	//todo find out what "index" means
-	props.insert("TimerDelay".into(), PropertySettings {
-		default_value: "3".into(),
-		index: 1
-	});
-	
-	props.insert("TimerSound".into(), PropertySettings {
-		default_value: "0".into(),
-		index: 2
-	});
-	
+	props.insert(
+		"TimerDelay".into(),
+		PropertySettings {
+			default_value: "3".into(),
+			index: 1,
+		},
+	);
+
+	props.insert(
+		"TimerSound".into(),
+		PropertySettings {
+			default_value: "0".into(),
+			index: 2,
+		},
+	);
+
 	let pedestal_button = Item {
 		item_class: ItemClass::PedestalButton,
 		item_type: "ITEM_BUTTON_PEDESTAL".into(),
 		editor: EditorBlock {
 			sub_type_property: None, //todo, no typing relation between the amount of subtypes and the subtypeproperty key (const gens?)
-			sub_types: vec![ SubTypeBlock {
+			sub_types: vec![SubTypeBlock {
 				name: "PORTAL2_PuzzleEditor_Item_pedestal_button".into(),
 				model: Model {
 					name: "switch.3ds".into(),
-					texture: "buttonpedestal.png".into()
+					texture: "buttonpedestal.png".into(),
 				},
 				palette: Palette {
 					tooltip: "PORTAL2_PuzzleEditor_Palette_pedestal_button".into(),
 					image: "palette/pedestal_button.png".into(),
-					position: "0 0 0".into()
+					position: "0 0 0".into(),
 				},
 				sounds: Sounds {
 					create: "P2Editor.PlaceButton".into(),
 					activate: "P2Editor.ExpandButton".into(),
 					deactivate: "P2Editor.CollapseButton".into(),
-					delete: "P2Editor.RemoveButton".into()
-				}
+					delete: "P2Editor.RemoveButton".into(),
+				},
 			}],
-			movement_handle: MovementHandle::FourDirections
+			movement_handle: MovementHandle::FourDirections,
 		},
 		properties: props,
 		exporting: ExportingBlock {
-			instances: vec![ Instance {
+			instances: vec![Instance {
 				name: "instances/p2editor/pedestal_button.vmf".into(),
 				entity_count: 7,
 				brush_count: 1,
-				brush_side_count: 6
+				brush_side_count: 6,
 			}],
-		    target_name: "button".into(),
-		    offset: "64 64 64".into(),
-		    occupied_voxels: (), //todo
-		    embedded_voxels: (), //todo
-		}
+			target_name: "button".into(),
+			offset: "64 64 64".into(),
+			occupied_voxels: (), //todo
+			embedded_voxels: (), //todo
+		},
 	};
-	
+
 	let data = ItemData {
-		items: vec![pedestal_button]
+		items: vec![pedestal_button],
 	};
-	
-	let serialized = vdf::ser::to_string_with_toplevel_block(&data, "ItemData").expect("could not serialize");
+
+	let serialized =
+		vdf::ser::to_string_with_toplevel_block(&data, "ItemData").expect("could not serialize");
 	println!("{}", serialized);
-	
+
 	let mut funny = vdf::ser::VdfSerializer::with_settings(vdf::ser::FormatSettings::beemod_like());
 	data.serialize(&mut funny).expect("could not serialize");
 	println!("{}", funny.out);
@@ -76,7 +84,7 @@ named_seq_func!(item_seq "Item");
 struct ItemData {
 	#[serde(flatten)]
 	#[serde(serialize_with = "item_seq")]
-	items: Vec<Item>
+	items: Vec<Item>,
 }
 
 #[derive(Serialize)]
@@ -87,7 +95,7 @@ struct Item {
 	item_type: String,
 	editor: EditorBlock,
 	properties: BTreeMap<String, PropertySettings>,
-	exporting: ExportingBlock
+	exporting: ExportingBlock,
 }
 
 #[derive(Serialize)]
@@ -109,7 +117,7 @@ struct EditorBlock {
 	#[serde(flatten)]
 	#[serde(serialize_with = "subtype_seq")]
 	sub_types: Vec<SubTypeBlock>,
-	movement_handle: MovementHandle
+	movement_handle: MovementHandle,
 }
 
 #[derive(Serialize)]
@@ -123,7 +131,7 @@ enum SubTypeProperty {
 	#[serde(rename = "BarrierType")]
 	Barrier,
 	#[serde(rename = "PaintType")]
-	Paint
+	Paint,
 }
 
 #[derive(Serialize)]
@@ -132,7 +140,7 @@ struct SubTypeBlock {
 	name: String,
 	model: Model,
 	palette: Palette,
-	sounds: Sounds
+	sounds: Sounds,
 }
 
 #[derive(Serialize)]
@@ -160,7 +168,7 @@ struct Sounds {
 	#[serde(rename = "SOUND_EDITING_DEACTIVATE")]
 	deactivate: String,
 	#[serde(rename = "SOUND_DELETED")]
-	delete: String
+	delete: String,
 }
 
 #[derive(Serialize)]
@@ -178,14 +186,14 @@ enum MovementHandle {
 	#[serde(rename = "HANDLE_36_DIRECTIONS")]
 	ThirtySixDirections,
 	#[serde(rename = "HANDLE_CATAPULT")]
-	Catapult
+	Catapult,
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "PascalCase")]
 struct PropertySettings {
 	default_value: String,
-	index: usize
+	index: usize,
 }
 
 #[derive(Serialize)]
@@ -193,9 +201,9 @@ struct PropertySettings {
 struct ExportingBlock {
 	instances: Vec<Instance>,
 	target_name: String,
-	offset: String, //TODO vec3
+	offset: String,      //TODO vec3
 	occupied_voxels: (), //TODO
-	embedded_voxels: ()  //TODO
+	embedded_voxels: (), //TODO
 }
 
 #[derive(Serialize)]
@@ -204,5 +212,5 @@ struct Instance {
 	name: String,
 	entity_count: u32,
 	brush_count: u32,
-	brush_side_count: u32
+	brush_side_count: u32,
 }

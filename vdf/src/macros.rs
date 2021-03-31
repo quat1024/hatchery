@@ -3,7 +3,7 @@
 use serde::ser::SerializeMap;
 
 /// Creates a helper function that serializes items of a slice under blocks of a given name, useful for "internally named" structures.
-/// 
+///
 /// Since VDF doesn't have any special array syntax, Valve often uses repeated keys to accomplish this. This macro helps you specify the name of the repeated key.
 ///
 /// ```text
@@ -18,7 +18,7 @@ macro_rules! named_seq_func {
 			T: serde::Serialize,
 		{
 			//TODO can I simply call the below function? Qualifying the name is hard...
-			
+
 			use serde::ser::SerializeMap;
 			let mut map = s.serialize_map(Some(value.len()))?;
 			for i in value {

@@ -64,7 +64,7 @@ pub struct VdfSerializer {
 
 impl VdfSerializer {
 	/// Create a serializer with the given Settings.
-	/// 
+	///
 	/// Note that `VdfSerializer::default` can be used to create one with the default `editoritems.txt`-like settings.
 	pub fn with_settings(settings: FormatSettings) -> Self {
 		VdfSerializer {
@@ -108,7 +108,7 @@ pub struct FormatSettings {
 
 impl FormatSettings {
 	/// A new `FormatSettings` that formats files like a Hammer .vmf map file.
-	/// 
+	///
 	/// * Keys quoted only if they don't precede blocks
 	/// * Values always quoted.
 	/// * Numeric bools.
@@ -122,17 +122,17 @@ impl FormatSettings {
 			bool_format: BoolFormat::Numeric,
 			bump_braces: false,
 			indent_str: "\t",
-			inter_str: " "
+			inter_str: " ",
 		}
 	}
 
 	/// A new `FormatSettings` that formats files like a Portal 2 .p2c puzzle file.
-	/// 
+	///
 	/// * Keys and values always quoted.
 	/// * Numeric bools.
 	/// * Tab indentation.
 	/// * Tabs separate keys and values.
-	/// 
+	///
 	/// This is also how the vanilla `editoritems.txt` is formatted, and seems to be the format that a lot of Valve's more modern stuff uses,
 	/// like steam controller .vdf files.
 	pub fn p2c_like() -> Self {
@@ -146,9 +146,9 @@ impl FormatSettings {
 			inter_str: "\t",
 		}
 	}
-	
+
 	/// A new `FormatSettings` that formats files in a way resembling BEEMOD's vdf serializer.
-	/// 
+	///
 	/// * Keys and values always quoted.
 	/// * Numeric bools.
 	/// * Tab indentation.
@@ -167,7 +167,7 @@ impl FormatSettings {
 	}
 
 	/// A new `FormatSettings` that formats files like a Source Engine gameinfo.txt data file. It's not entirely accurate...
-	/// 
+	///
 	/// * Keys never quoted.
 	/// * Nonnumeric values quoted.
 	/// * Tab indentation.
@@ -180,7 +180,7 @@ impl FormatSettings {
 			bool_format: BoolFormat::Numeric,
 			bump_braces: false,
 			indent_str: "\t",
-			inter_str: "\t"
+			inter_str: "\t",
 		}
 	}
 }
@@ -252,7 +252,7 @@ impl VdfSerializer {
 
 	fn write_key(&mut self, key: &str, is_block: bool) {
 		//Spaghetti lmao I'm sorry.
-		
+
 		let top = &self.format_settings.toplevel_key_quote_rule;
 		let rule = if top.is_some() && self.indent_depth == 0 {
 			//Unwrap safety: is_some was just checked above
@@ -260,7 +260,7 @@ impl VdfSerializer {
 		} else {
 			&self.format_settings.key_quote_rule
 		};
-		
+
 		let quote_key = *rule == KeyQuoteRule::Always
 			|| (*rule == KeyQuoteRule::NotBlocks && !is_block)
 			|| key.is_empty()
@@ -277,12 +277,12 @@ impl VdfSerializer {
 
 	fn write_value(&mut self, value: &str, numeric: bool) {
 		let rule = &self.format_settings.value_quote_rule;
-		
+
 		let quote_value = *rule == ValueQuoteRule::Always
 			|| (*rule == ValueQuoteRule::Nonnumeric && !numeric)
 			|| value.is_empty()
 			|| value.chars().any(|c| c.is_ascii_whitespace());
-		
+
 		if quote_value {
 			self.out.push('"');
 			self.out.push_str(value);
@@ -290,7 +290,6 @@ impl VdfSerializer {
 		} else {
 			self.out.push_str(value);
 		}
-		
 	}
 
 	fn begin_block(&mut self) {
@@ -314,7 +313,7 @@ impl VdfSerializer {
 			self.out.push('{');
 			self.increase_indent();
 		}
-		
+
 		self.newline();
 	}
 
@@ -327,7 +326,7 @@ impl VdfSerializer {
 			self.decrease_indent();
 			self.indent();
 		}
-		
+
 		self.out.push('}');
 		self.newline();
 	}
@@ -608,10 +607,9 @@ mod test {
 	use super::*;
 	use crate::named_seq_func;
 
-	
 	//N.B All of these are "toy" tests that just println some things and always pass, instead of actually testing anything, right now.
 	//Run with `cargo test -- --show-output`
-	
+
 	#[test]
 	fn toy_serialize_simple_structs() {
 		#[derive(serde::Serialize)]
