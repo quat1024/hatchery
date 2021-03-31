@@ -1,0 +1,8 @@
+# I don't actually use this editorconfig, but github does!
+# I'm a huge advocate of hard tabs, but the Rust community seems to disagree lol.
+# I use hard tabs in my Rust code with the tab width set to 4 spaces.
+# (although in basically everything else I use 2 spaces.)
+# Getting to the point - by default github displays them as 8 spaces though, and it looks really really bad
+[*.rs]
+indent_style=space
+indent_size=4
