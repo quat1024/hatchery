@@ -8,6 +8,7 @@ use vdf::named_seq_func;
 #[test]
 fn main() {
 	let mut props: BTreeMap<String, PropertySettings> = BTreeMap::new();
+	//todo find out what "index" means
 	props.insert("TimerDelay".into(), PropertySettings {
 		default_value: "3".into(),
 		index: 1
@@ -22,7 +23,7 @@ fn main() {
 		item_class: ItemClass::PedestalButton,
 		item_type: "ITEM_BUTTON_PEDESTAL".into(),
 		editor: EditorBlock {
-			sub_type_property: None,
+			sub_type_property: None, //todo, no typing relation between the amount of subtypes and the subtypeproperty key (const gens?)
 			sub_types: vec![ SubTypeBlock {
 				name: "PORTAL2_PuzzleEditor_Item_pedestal_button".into(),
 				model: Model {
@@ -53,8 +54,8 @@ fn main() {
 			}],
 		    target_name: "button".into(),
 		    offset: "64 64 64".into(),
-		    occupied_voxels: (),
-		    embedded_voxels: (),
+		    occupied_voxels: (), //todo
+		    embedded_voxels: (), //todo
 		}
 	};
 	
@@ -64,6 +65,10 @@ fn main() {
 	
 	let serialized = vdf::ser::to_string_with_toplevel_block(&data, "ItemData").expect("could not serialize");
 	println!("{}", serialized);
+	
+	let mut funny = vdf::ser::VdfSerializer::with_settings(vdf::ser::FormatSettings::beemod_like());
+	data.serialize(&mut funny).expect("could not serialize");
+	println!("{}", funny.out);
 }
 
 named_seq_func!(item_seq "Item");

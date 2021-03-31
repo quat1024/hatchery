@@ -56,7 +56,7 @@ where
 
 /// Thing what do the seralize!!!
 pub struct VdfSerializer {
-	out: String,
+	pub out: String, //todo should this be public lol. Really I should use a Writer
 	state: State,
 	indent_depth: usize,
 	format_settings: FormatSettings,
@@ -305,11 +305,12 @@ impl VdfSerializer {
 		};
 
 		self.newline();
-		self.indent();
 		if self.format_settings.bump_braces {
 			self.increase_indent();
+			self.indent();
 			self.out.push('{');
 		} else {
+			self.indent();
 			self.out.push('{');
 			self.increase_indent();
 		}
@@ -337,7 +338,7 @@ impl VdfSerializer {
 			State::WaitingForValue(key) => {
 				self.indent();
 				self.write_key(&key, false);
-				self.out.push('\t');
+				self.out.push_str(self.format_settings.inter_str);
 				self.write_value(s, numeric);
 				self.newline();
 
