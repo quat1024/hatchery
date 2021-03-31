@@ -4,7 +4,7 @@ Monorepo for assorted projects in varying stages of completion.
 
 ## Projects
 
-* `vmf/`: A VMF parser
+* `vdf/`: A VDF parser
 
 ## License bullshit
 
