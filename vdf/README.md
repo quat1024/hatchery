@@ -16,12 +16,12 @@ The .vdf format is very basic so, shoving it into Serde's very complex data mode
 * `bool`
 	* The number `0` for false and `1` for true.
 	* An option is available on the serializer to write them as the strings `"true"` and `"false"` instead.
-* `None`
+* `None`, `()`, unit structs
 	* The empty string.
 * `Some(T)`
 	* The same as `T`, i.e. the `Option` wrapper is discarded.
-* `()`
-	* The string `"()"`.
+* Unit variants
+	* By name, not by index
 * Newtype structs
 	* Are **NOT** transparent, unlike a lot of Serde data formats.
 	* If `Y` serializes as `"k" "v"`, `struct Wrapper(Y);` serializes as `"Wrapper" { "k" "v" }`.
@@ -39,7 +39,6 @@ The .vdf format is very basic so, shoving it into Serde's very complex data mode
 
 Unsupported formats, for now, while I work out what to do with em:
 * Bytes
-* Unit structs and variants
 * Tuples, tuple structs and variants
 * Struct variants
 

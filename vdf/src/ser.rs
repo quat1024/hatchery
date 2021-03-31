@@ -406,7 +406,7 @@ impl<'a> ser::Serializer for &'a mut VdfSerializer {
 	}
 
 	fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-		self.accept_str("", false)
+		self.serialize_str("")
 	}
 
 	fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
@@ -417,11 +417,11 @@ impl<'a> ser::Serializer for &'a mut VdfSerializer {
 	}
 
 	fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-		self.accept_str("()", false)
+		self.serialize_str("")
 	}
 
 	fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
-		todo!("unit struct")
+		self.serialize_unit()
 	}
 
 	fn serialize_unit_variant(
@@ -430,7 +430,7 @@ impl<'a> ser::Serializer for &'a mut VdfSerializer {
 		variant_index: u32,
 		variant: &'static str,
 	) -> Result<Self::Ok, Self::Error> {
-		todo!("unit variant")
+		self.serialize_str(variant)
 	}
 
 	fn serialize_newtype_struct<T: ?Sized>(

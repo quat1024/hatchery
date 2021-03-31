@@ -17,9 +17,14 @@ macro_rules! named_seq_func {
 			S: serde::Serializer,
 			T: serde::Serialize,
 		{
-			//TODO this makes the doctest essplode for some reason so it'll probably make real code explode too
-			//how do qualify this name correctly
-			crate::macros::named_seq_serialize($name, value, s)
+			//TODO can I simply call the below function? Qualifying the name is hard...
+			
+			use serde::ser::SerializeMap;
+			let mut map = s.serialize_map(Some(value.len()))?;
+			for i in value {
+				map.serialize_entry($name, &i)?;
+			}
+			map.end()
 		}
 	};
 }
