@@ -5,5 +5,8 @@
 #![allow(dead_code)]
 
 mod ast; //idk what to do with this
+
+pub mod de;
+pub mod error;
 pub mod macros;
 pub mod ser;

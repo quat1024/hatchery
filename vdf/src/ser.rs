@@ -2,13 +2,12 @@
 
 #![allow(unused_variables)] //for now
 
-use std::fmt;
-
 use serde::ser;
 use serde::ser::Impossible;
 use serde::serde_if_integer128;
 use serde::Serializer;
-use thiserror::Error;
+
+use crate::error::VdfErr;
 
 //a lot of these doc comments are cribbed from serde-json lol. Hey, ecosystem-wide consistency is good.
 
@@ -17,7 +16,7 @@ use thiserror::Error;
 /// # Errors
 ///
 /// Serialization can fail if `T`'s implementation of `Serialize` decides to fail.
-pub fn to_string<T>(value: &T) -> Result<String, SerializeErr>
+pub fn to_string<T>(value: &T) -> Result<String, VdfErr>
 where
 	T: serde::Serialize,
 {
@@ -44,7 +43,7 @@ where
 pub fn to_string_with_toplevel_block<T>(
 	value: &T,
 	toplevel_block_name: &str,
-) -> Result<String, SerializeErr>
+) -> Result<String, VdfErr>
 where
 	T: serde::Serialize,
 {
@@ -331,7 +330,7 @@ impl VdfSerializer {
 		self.newline();
 	}
 
-	fn accept_str(&mut self, s: &str, numeric: bool) -> Result<(), SerializeErr> {
+	fn accept_str(&mut self, s: &str, numeric: bool) -> Result<(), VdfErr> {
 		self.state = match std::mem::take(&mut self.state) {
 			State::WaitingForKey => State::WaitingForValue(s.to_string()),
 			State::WaitingForValue(key) => {
@@ -362,7 +361,7 @@ macro_rules! use_to_string {
 
 impl<'a> ser::Serializer for &'a mut VdfSerializer {
 	type Ok = ();
-	type Error = SerializeErr;
+	type Error = VdfErr;
 
 	type SerializeSeq = VdfSeqSerializer<'a>;
 	type SerializeTuple = Impossible<(), Self::Error>;
@@ -515,7 +514,7 @@ impl<'a> ser::Serializer for &'a mut VdfSerializer {
 
 impl<'a> ser::SerializeStruct for &'a mut VdfSerializer {
 	type Ok = ();
-	type Error = SerializeErr;
+	type Error = VdfErr;
 
 	fn serialize_field<T: ?Sized>(
 		&mut self,
@@ -542,7 +541,7 @@ pub struct VdfSeqSerializer<'a> {
 
 impl<'a> ser::SerializeSeq for VdfSeqSerializer<'a> {
 	type Ok = ();
-	type Error = SerializeErr;
+	type Error = VdfErr;
 
 	fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
 	where
@@ -561,7 +560,7 @@ impl<'a> ser::SerializeSeq for VdfSeqSerializer<'a> {
 
 impl<'a> ser::SerializeMap for &'a mut VdfSerializer {
 	type Ok = ();
-	type Error = SerializeErr;
+	type Error = VdfErr;
 
 	fn serialize_key<T: ?Sized>(&mut self, key: &T) -> Result<(), Self::Error>
 	where
@@ -583,22 +582,7 @@ impl<'a> ser::SerializeMap for &'a mut VdfSerializer {
 	}
 }
 
-#[derive(Error, Debug)]
-pub enum SerializeErr {
-	#[error("{0}")]
-	Message(String),
-}
-
-impl ser::Error for SerializeErr {
-	fn custom<T>(msg: T) -> Self
-	where
-		T: fmt::Display,
-	{
-		SerializeErr::Message(msg.to_string())
-	}
-}
-
-#[allow(unused_imports)] //RLS bug? These imports are used in the tests below
+#[allow(unused_imports)] //r-a bug? These imports are used in the tests below
 mod test {
 	use std::collections::HashMap;
 

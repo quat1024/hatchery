@@ -91,7 +91,7 @@ struct ItemData {
 #[serde(rename_all = "PascalCase")]
 struct Item {
 	item_class: ItemClass,
-	#[serde(rename = "type")] //reserved word in Rust
+	#[serde(rename = "Type")] //reserved word in Rust
 	item_type: String,
 	editor: EditorBlock,
 	properties: BTreeMap<String, PropertySettings>,
