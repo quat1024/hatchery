@@ -1,4 +1,8 @@
 [workspace]
 members = [
-	"vdf"
+	"vdf",
+	"tiny"
 ]
+
+[profile.test]
+opt-level = 3

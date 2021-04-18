@@ -72,6 +72,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "tiny"
+version = "0.0.0"
+
+[[package]]
 name = "unicode-xid"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,3 +1,5 @@
+#![allow(unused_variables)] //shush
+
 use serde::de;
 use serde::serde_if_integer128;
 use serde::Deserialize;
@@ -384,6 +386,7 @@ impl<'a, 'de> de::Deserializer<'de> for &'a mut VdfDeserializer<'de> {
 	}
 }
 
+#[allow(unused_imports)] //r-a bug? These imports are used in the tests below
 mod test {
 	use super::*;
 

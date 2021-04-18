@@ -1,0 +1,11 @@
+v1	spongy	fluffy	tasty
+CLASS	a	aFluffy	class_tasty_a_asdad
+CLASS	b	bFluffy	class_tasty_b_9odajd
+FIELD	a	Z	a	aFluffyField	field_tasty_a_asdad
+FIELD	a	Z	b	bFluffyField	field_tasty_b_asdad
+FIELD	b	Z	c	cFluffyField	field_tasty_c_asdad
+FIELD	b	Z	d	dFluffyField	field_tasty_d_asdad
+METHOD	a	()Z	a	aFluffyMethod	method_tasty_a_asdad
+METHOD	a	(Z)Z	b	bFluffyMethod	method_tasty_b_asdad
+METHOD	b	(J)V	c	cFluffyMethod	method_tasty_c_asdad
+METHOD	b	()V	d	dFluffyMethod	method_tasty_d_asdad
