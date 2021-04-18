@@ -5,6 +5,7 @@ Monorepo for assorted projects in varying stages of completion.
 ## Projects
 
 * `vdf/`: A VDF parser
+* `tiny/`: A tinyv1 parser
 
 ## License bullshit
 
