@@ -6,6 +6,13 @@ Monorepo for assorted projects in varying stages of completion.
 
 * `vdf/`: A VDF parser
 * `tiny/`: A tinyv1 parser
+* `wgpufun/`: Learning project for WebGPU graphics. Probably only compiles on Windows
+
+## Compiling
+
+`shaderc` is a hard crate to compile (it either needs cmake or precompiled libraries)
+
+On Windows use the `-msvc` toolchain or linking will take 10000 years for some reason
 
 ## License bullshit
 

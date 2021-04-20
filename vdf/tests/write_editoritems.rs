@@ -10,21 +10,9 @@ use vdf::named_seq_func;
 fn main() {
 	let mut props: BTreeMap<String, PropertySettings> = BTreeMap::new();
 	//todo find out what "index" means
-	props.insert(
-		"TimerDelay".into(),
-		PropertySettings {
-			default_value: "3".into(),
-			index: 1,
-		},
-	);
+	props.insert("TimerDelay".into(), PropertySettings { default_value: "3".into(), index: 1 });
 
-	props.insert(
-		"TimerSound".into(),
-		PropertySettings {
-			default_value: "0".into(),
-			index: 2,
-		},
-	);
+	props.insert("TimerSound".into(), PropertySettings { default_value: "0".into(), index: 2 });
 
 	let pedestal_button = Item {
 		item_class: ItemClass::PedestalButton,
@@ -33,10 +21,7 @@ fn main() {
 			sub_type_property: None, //todo, no typing relation between the amount of subtypes and the subtypeproperty key (const gens?)
 			sub_types: vec![SubTypeBlock {
 				name: "PORTAL2_PuzzleEditor_Item_pedestal_button".into(),
-				model: Model {
-					name: "switch.3ds".into(),
-					texture: "buttonpedestal.png".into(),
-				},
+				model: Model { name: "switch.3ds".into(), texture: "buttonpedestal.png".into() },
 				palette: Palette {
 					tooltip: "PORTAL2_PuzzleEditor_Palette_pedestal_button".into(),
 					image: "palette/pedestal_button.png".into(),
@@ -53,12 +38,7 @@ fn main() {
 		},
 		properties: props,
 		exporting: ExportingBlock {
-			instances: vec![Instance {
-				name: "instances/p2editor/pedestal_button.vmf".into(),
-				entity_count: 7,
-				brush_count: 1,
-				brush_side_count: 6,
-			}],
+			instances: vec![Instance { name: "instances/p2editor/pedestal_button.vmf".into(), entity_count: 7, brush_count: 1, brush_side_count: 6 }],
 			target_name: "button".into(),
 			offset: "64 64 64".into(),
 			occupied_voxels: (), //todo
@@ -66,12 +46,9 @@ fn main() {
 		},
 	};
 
-	let data = ItemData {
-		items: vec![pedestal_button],
-	};
+	let data = ItemData { items: vec![pedestal_button] };
 
-	let serialized =
-		vdf::ser::to_string_with_toplevel_block(&data, "ItemData").expect("could not serialize");
+	let serialized = vdf::ser::to_string_with_toplevel_block(&data, "ItemData").expect("could not serialize");
 	println!("{}", serialized);
 
 	let mut funny = vdf::ser::VdfSerializer::with_settings(vdf::ser::FormatSettings::beemod_like());

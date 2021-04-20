@@ -1,7 +1,8 @@
 [workspace]
 members = [
 	"vdf",
-	"tiny"
+	"tiny",
+	"wgpufun"
 ]
 
 [profile.test]

@@ -62,7 +62,7 @@ impl<'de> VdfDeserializer<'de> {
 				let ending_quote_pos = self.input.find('"').ok_or(VdfErr::EndOfFile)?; //todo nicer error messages more clear about the reason would be nice
 				self.input = &self.input[ending_quote_pos + 1..];
 				Ok(&self.input[0..ending_quote_pos])
-			}
+			},
 			_ => {
 				//Does not start with a double quote.
 				//Find the end of the unquoted string (first non-whitespace character).
@@ -76,7 +76,7 @@ impl<'de> VdfDeserializer<'de> {
 					//Just return all the input
 					Ok(self.input)
 				}
-			}
+			},
 		}
 	}
 }
@@ -292,22 +292,14 @@ impl<'a, 'de> de::Deserializer<'de> for &'a mut VdfDeserializer<'de> {
 		todo!("deserialize_unit")
 	}
 
-	fn deserialize_unit_struct<V>(
-		self,
-		name: &'static str,
-		visitor: V,
-	) -> Result<V::Value, Self::Error>
+	fn deserialize_unit_struct<V>(self, name: &'static str, visitor: V) -> Result<V::Value, Self::Error>
 	where
 		V: de::Visitor<'de>,
 	{
 		todo!("deserialize_unit_struct")
 	}
 
-	fn deserialize_newtype_struct<V>(
-		self,
-		name: &'static str,
-		visitor: V,
-	) -> Result<V::Value, Self::Error>
+	fn deserialize_newtype_struct<V>(self, name: &'static str, visitor: V) -> Result<V::Value, Self::Error>
 	where
 		V: de::Visitor<'de>,
 	{
@@ -328,12 +320,7 @@ impl<'a, 'de> de::Deserializer<'de> for &'a mut VdfDeserializer<'de> {
 		todo!("deserialize_tuple")
 	}
 
-	fn deserialize_tuple_struct<V>(
-		self,
-		name: &'static str,
-		len: usize,
-		visitor: V,
-	) -> Result<V::Value, Self::Error>
+	fn deserialize_tuple_struct<V>(self, name: &'static str, len: usize, visitor: V) -> Result<V::Value, Self::Error>
 	where
 		V: de::Visitor<'de>,
 	{
@@ -347,24 +334,14 @@ impl<'a, 'de> de::Deserializer<'de> for &'a mut VdfDeserializer<'de> {
 		todo!("deserialize_map")
 	}
 
-	fn deserialize_struct<V>(
-		self,
-		name: &'static str,
-		fields: &'static [&'static str],
-		visitor: V,
-	) -> Result<V::Value, Self::Error>
+	fn deserialize_struct<V>(self, name: &'static str, fields: &'static [&'static str], visitor: V) -> Result<V::Value, Self::Error>
 	where
 		V: de::Visitor<'de>,
 	{
 		todo!("deserialize_struct")
 	}
 
-	fn deserialize_enum<V>(
-		self,
-		name: &'static str,
-		variants: &'static [&'static str],
-		visitor: V,
-	) -> Result<V::Value, Self::Error>
+	fn deserialize_enum<V>(self, name: &'static str, variants: &'static [&'static str], visitor: V) -> Result<V::Value, Self::Error>
 	where
 		V: de::Visitor<'de>,
 	{

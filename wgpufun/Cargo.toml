@@ -1,0 +1,23 @@
+[package]
+name = "wgpufun"
+version = "0.0.0"
+authors = ["quat <quat1024@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+winit = "0.24"
+shaderc = "0.7"
+log = "0.4"
+env_logger = "0.7"
+wgpu = "0.7"
+futures = "0.3"
+
+# full listing from the Learn Wgpu example
+#image = "0.23"
+#winit = "0.24"
+#shaderc = "0.7"
+#cgmath = "0.18"
+#env_logger = "0.7"
+#log = "0.4"
+#wgpu = "0.7"
+#futures = "0.3"

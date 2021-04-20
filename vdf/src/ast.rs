@@ -42,20 +42,14 @@ impl<'a> From<Kv<'a>> for VmfObject<'a> {
 
 impl<'a> Kv<'a> {
 	fn new_str(key: &'a str, value: &'a str) -> Self {
-		Kv {
-			key,
-			value: Value::Str(value),
-		}
+		Kv { key, value: Value::Str(value) }
 	}
 
 	fn new_obj<I>(key: &'a str, value: I) -> Self
 	where
 		I: Into<VmfObject<'a>>,
 	{
-		Kv {
-			key,
-			value: Value::Obj(value.into()),
-		}
+		Kv { key, value: Value::Obj(value.into()) }
 	}
 
 	fn print(&self) {
@@ -67,12 +61,12 @@ impl<'a> Kv<'a> {
 				print!("\t\"");
 				print!("{}", s);
 				print!("\"");
-			}
+			},
 			Value::Obj(o) => {
 				print!("\n{{");
 				o.print();
 				println!("}}");
-			}
+			},
 		}
 	}
 }
