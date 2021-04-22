@@ -5,12 +5,13 @@ use winit::event_loop::EventLoop;
 use winit::window::WindowBuilder;
 
 mod funny;
+mod model;
 
 fn main() {
 	env_logger::init();
 
 	println!("CARGO_MANIFEST_DIR: {}", std::env::var("CARGO_MANIFEST_DIR").unwrap());
-	
+
 	let event_loop = EventLoop::new();
 	let window = WindowBuilder::new()
 		.with_resizable(true)
@@ -41,26 +42,19 @@ fn main() {
 				}
 			}
 		},
-		//NOTE: winit says this is a good event for "non-game GUIs"
-		//This seems to agree with what little I know of the Windows windowing system, as well
-		//OTOW what is the best method when I do want a game-like program?
-		//
-		//winit says drawing in "MainEventsCleared" is a good idea. I'll try that later.
-		Event::RedrawRequested(_handler) => {
+		//NOTE: winit says drawing in "redraw requested" is good for non-game UIs, but unconditionally drawing in "main events cleared"
+		//is okay too, if you actually wanna draw something every frame
+		Event::MainEventsCleared => {
 			funny.update();
 			match funny.render() {
 				Ok(_) => (),
-				Err(wgpu::SwapChainError::Lost) => funny.create_swap_chain(),
+				Err(wgpu::SwapChainError::Lost | wgpu::SwapChainError::Outdated) => funny.recreate_swap_chain(),
 				Err(wgpu::SwapChainError::OutOfMemory) => {
-					eprintln!("wgpu::SwapChainError::OutOfMemory occured!");
+					eprintln!("Swap chain error: {:?}", wgpu::SwapChainError::OutOfMemory);
 					*control_flow = ControlFlow::Exit
 				},
-				Err(something_else) => eprintln!("{:?}", something_else),
+				Err(something_else) => eprintln!("Swap chain error: {:?}", something_else),
 			}
-		},
-		Event::MainEventsCleared => {
-			//That was fun, let's request another frame!
-			window.request_redraw();
 		},
 		_ => (),
 	});

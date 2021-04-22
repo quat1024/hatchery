@@ -1,11 +1,16 @@
 #version 450
 
-vec2 positions[3] = vec2[3](
-	vec2(-0.9, 0.9),
-	vec2(-0.8, -1.2),
-	vec2(0.9, 0.9)
-);
+//See the layout in model::Vertex?
+layout(location=0) in vec3 a_position;
+layout(location=1) in vec3 a_color;
+
+layout(location=0) out vec3 v_color;
 
 void main() {
-	gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
+	//Copy the color unchanged from the vertex data I'm responsible for, into the inputs that the fragment shader's responsible for
+	v_color = a_color;
+	
+	//Set the magic gl_position variable to position this vertex in 3d space
+	//Homogenous coordinates etc etc
+	gl_Position = vec4(a_position, 1.0);
 }
