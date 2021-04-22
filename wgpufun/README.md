@@ -16,4 +16,4 @@ Unfortunately I'm a stinky Windows user and I can't really build `shaderc` from 
 * Put it... somewhere (i have it in `g:/dev/lib/`)
 * Export that path to the environment variable `SHADERC_LIB_DIR` so the shaderc crate's build script can pick it up
 
-I'm not sure how to get this environment variable into whatever happens when you click "run" in vscode so uh, build it in the terminal once
+Also uhhhhhh copy the shaderc shared DLL into `target/debug/` also probably fix that before releasing it
