@@ -54,23 +54,25 @@ impl Funny {
 
 		let sc = device.create_swap_chain(&surface, &sc_desc);
 
-		use shaderc::*;
+		let base_path =	std::path::Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| "./".to_string())).to_path_buf();
+		
+		let mut vertex_shader_path = base_path.clone();
+		vertex_shader_path.push("shader_spv/triangle.vert.spv");
+		
+		let mut fragment_shader_path = base_path;
+		fragment_shader_path.push("shader_spv/triangle.frag.spv");
+		
+		let vertex_shader_module = device.create_shader_module(&ShaderModuleDescriptor {
+			label: Some("vertex shader"),
+			source: wgpu::util::make_spirv(&std::fs::read(vertex_shader_path).expect("triangle.vert.spv")),
+			flags: Default::default(),
+		});
 
-		let mut compiler = Compiler::new().expect("shaderc compiler");
-
-		let vertex_shader_src = include_str!("res/triangle.vert");
-		let vertex_shader_spirv =
-			compiler.compile_into_spirv(vertex_shader_src, ShaderKind::Vertex, "res/triangle.vert", "main", None).expect("compile vertex shader");
-		let vertex_shader_data = wgpu::util::make_spirv(vertex_shader_spirv.as_binary_u8());
-		let vertex_shader_module =
-			device.create_shader_module(&ShaderModuleDescriptor { label: Some("vertex shader!"), source: vertex_shader_data, flags: Default::default() });
-
-		let fragment_shader_src = include_str!("res/triangle.frag");
-		let fragment_shader_spirv =
-			compiler.compile_into_spirv(fragment_shader_src, ShaderKind::Fragment, "res/triangle.frag", "main", None).expect("compile fragment shader");
-		let fragment_shader_data = wgpu::util::make_spirv(fragment_shader_spirv.as_binary_u8());
-		let fragment_shader_module =
-			device.create_shader_module(&ShaderModuleDescriptor { label: Some("fragment shader!"), source: fragment_shader_data, flags: Default::default() });
+		let fragment_shader_module = device.create_shader_module(&ShaderModuleDescriptor {
+			label: Some("fragment shader"),
+			source: wgpu::util::make_spirv(&std::fs::read(fragment_shader_path).expect("triangle.vert.spv")),
+			flags: Default::default(),
+		});
 
 		let render_pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
 			label: Some("render pipeline layout"),

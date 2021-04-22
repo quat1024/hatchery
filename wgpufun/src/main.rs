@@ -9,6 +9,8 @@ mod funny;
 fn main() {
 	env_logger::init();
 
+	println!("CARGO_MANIFEST_DIR: {}", std::env::var("CARGO_MANIFEST_DIR").unwrap());
+	
 	let event_loop = EventLoop::new();
 	let window = WindowBuilder::new()
 		.with_resizable(true)

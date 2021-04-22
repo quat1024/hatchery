@@ -6,11 +6,19 @@ edition = "2018"
 
 [dependencies]
 winit = "0.24"
-shaderc = "0.7"
+#shaderc = "0.7"
 log = "0.4"
 env_logger = "0.7"
 wgpu = "0.7"
 futures = "0.3"
+
+[build-dependencies]
+# NOPE, naga's not nearly far enough along to compile real glsl shaders (no 'const' ?)
+#naga = { version = "0.3.2", features = ["glsl-in"] }
+#bytemuck = "1.5"
+#spirv_headers = "1.5"
+anyhow = "1.0"
+shaderc = "0.7"
 
 # full listing from the Learn Wgpu example
 #image = "0.23"

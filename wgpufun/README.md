@@ -16,4 +16,8 @@ Unfortunately I'm a stinky Windows user and I can't really build `shaderc` from 
 * Put it... somewhere (i have it in `g:/dev/lib/`)
 * Export that path to the environment variable `SHADERC_LIB_DIR` so the shaderc crate's build script can pick it up
 
-Also uhhhhhh copy the shaderc shared DLL into `target/debug/` also probably fix that before releasing it
+## Uhm
+
+Also the buildscript doesn't work unless you put shaderc_shared.dll in `/target/debug` idk why
+
+Is there some standard search path for windows libraries

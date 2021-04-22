@@ -1,8 +1,8 @@
 #version 450
 
-const vec2 positions[3] = vec2[3](
+vec2 positions[3] = vec2[3](
 	vec2(-0.9, 0.9),
-	vec2(-0.9, -0.9),
+	vec2(-0.7, -0.9),
 	vec2(0.9, 0.9)
 );
 
