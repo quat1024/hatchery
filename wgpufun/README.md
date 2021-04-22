@@ -13,11 +13,12 @@ Unfortunately I'm a stinky Windows user and I can't really build `shaderc` from 
 * Get the one for Windows
 * Look in the zip and pull `install/bin/shaderc_shared.dll` out
 	* For some reason it doesn't work with `install/lib/shaderc_shared.lib`... build script just doesn't find it
-* Put it... somewhere (i have it in `g:/dev/lib/`)
+* Put it... somewhere (i have it in `g:/dev/Path/lib/`)
 * Export that path to the environment variable `SHADERC_LIB_DIR` so the shaderc crate's build script can pick it up
+	* i put this in my bashrc
 
 ## Uhm
 
-Also the buildscript doesn't work unless you put shaderc_shared.dll in `/target/debug` idk why
+~~Also the buildscript doesn't work unless you put shaderc_shared.dll in `/target/debug` idk why~~
 
-Is there some standard search path for windows libraries
+~~Is there some standard search path for windows libraries~~ I put my libraries folder on my PATH and it seems to work
