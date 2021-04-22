@@ -1,3 +1,4 @@
 /target
 
 /wgpufun/shader_spv
+*.spv
