@@ -12,6 +12,7 @@ pub struct Funny {
 	sc_desc: SwapChainDescriptor,
 	sc: SwapChain,
 	size: PhysicalSize<u32>,
+	pipeline: RenderPipeline,
 }
 
 impl Funny {
@@ -29,8 +30,6 @@ impl Funny {
 			.await
 			.expect("could not create adapter");
 
-		println!("Adapter: {:?}", adapter);
-
 		//device: An *open* connection to a graphics device
 		//queue: Command queue for this device
 		let (device, queue) = adapter
@@ -45,9 +44,6 @@ impl Funny {
 			.await
 			.expect("could not create device and queue");
 
-		println!("Device: {:?}", device);
-		println!("Queue: {:?}", queue);
-
 		let sc_desc = SwapChainDescriptor {
 			usage: TextureUsage::RENDER_ATTACHMENT,
 			format: adapter.get_swap_chain_preferred_format(&surface),
@@ -58,7 +54,56 @@ impl Funny {
 
 		let sc = device.create_swap_chain(&surface, &sc_desc);
 
-		Self { surface, device, queue, sc_desc, sc, size }
+		use shaderc::*;
+
+		let mut compiler = Compiler::new().expect("shaderc compiler");
+
+		let vertex_shader_src = include_str!("res/triangle.vert");
+		let vertex_shader_spirv =
+			compiler.compile_into_spirv(vertex_shader_src, ShaderKind::Vertex, "res/triangle.vert", "main", None).expect("compile vertex shader");
+		let vertex_shader_data = wgpu::util::make_spirv(vertex_shader_spirv.as_binary_u8());
+		let vertex_shader_module =
+			device.create_shader_module(&ShaderModuleDescriptor { label: Some("vertex shader!"), source: vertex_shader_data, flags: Default::default() });
+
+		let fragment_shader_src = include_str!("res/triangle.frag");
+		let fragment_shader_spirv =
+			compiler.compile_into_spirv(fragment_shader_src, ShaderKind::Fragment, "res/triangle.frag", "main", None).expect("compile fragment shader");
+		let fragment_shader_data = wgpu::util::make_spirv(fragment_shader_spirv.as_binary_u8());
+		let fragment_shader_module =
+			device.create_shader_module(&ShaderModuleDescriptor { label: Some("fragment shader!"), source: fragment_shader_data, flags: Default::default() });
+
+		let render_pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
+			label: Some("render pipeline layout"),
+			bind_group_layouts: &[],
+			push_constant_ranges: &[],
+		});
+
+		let pipeline = device.create_render_pipeline(&RenderPipelineDescriptor {
+			label: Some("render pipeline"),
+			layout: Some(&render_pipeline_layout),
+			vertex: VertexState { module: &vertex_shader_module, entry_point: "main", buffers: &[] },
+			fragment: Some(FragmentState {
+				module: &fragment_shader_module,
+				entry_point: "main",
+				targets: &[ColorTargetState {
+					format: sc_desc.format,
+					alpha_blend: BlendState::REPLACE,
+					color_blend: BlendState::REPLACE,
+					write_mask: ColorWrite::ALL,
+				}],
+			}),
+			primitive: PrimitiveState {
+				topology: PrimitiveTopology::TriangleList,
+				strip_index_format: None,
+				front_face: FrontFace::Ccw,
+				cull_mode: CullMode::Back,
+				polygon_mode: PolygonMode::Fill,
+			},
+			depth_stencil: None,
+			multisample: MultisampleState { count: 1, mask: !0, alpha_to_coverage_enabled: false },
+		});
+
+		Self { surface, device, queue, sc_desc, sc, size, pipeline }
 	}
 
 	pub fn resize(&mut self, new_size: PhysicalSize<u32>) {
@@ -70,7 +115,7 @@ impl Funny {
 		self.sc_desc.height = new_size.height;
 		self.create_swap_chain();
 	}
-	
+
 	pub fn create_swap_chain(&mut self) {
 		self.sc = self.device.create_swap_chain(&self.surface, &self.sc_desc);
 	}
@@ -86,39 +131,28 @@ impl Funny {
 
 	pub fn render(&mut self) -> Result<(), SwapChainError> {
 		//"Here's where the magic happens."
-		
+
 		let frame = self.sc.get_current_frame()?.output;
-		
-		let mut encoder = self.device.create_command_encoder(&CommandEncoderDescriptor {
-		    label: Some("render encoder"),
-		});
-		
+
+		let mut encoder = self.device.create_command_encoder(&CommandEncoderDescriptor { label: Some("render encoder") });
+
 		//Clear the screen
-		let render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
-		    label: Some("Clear"),
-		    color_attachments: &[
-				RenderPassColorAttachmentDescriptor {
-					attachment: &frame.view,
-					resolve_target: None,
-					ops: Operations {
-						load: LoadOp::Clear( Color {
-						    r: 1.0,
-						    g: 0.7,
-						    b: 0.2,
-						    a: 1.0,
-						}),
-						store: true
-					}
-				}
-			],
-		    depth_stencil_attachment: None,
+		let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
+			label: Some("Clear"),
+			color_attachments: &[RenderPassColorAttachmentDescriptor {
+				attachment: &frame.view,
+				resolve_target: None,
+				ops: Operations { load: LoadOp::Clear(Color { r: 0.02, g: 0.02, b: 0.02, a: 1.0 }), store: true },
+			}],
+			depth_stencil_attachment: None,
 		});
-		
-		//permit calling .finish() on the encoder
-		drop(render_pass);
-		
+
+		render_pass.set_pipeline(&self.pipeline);
+		render_pass.draw(0..3, 0..1);
+
+		drop(render_pass); //permit calling .finish() on the encoder
 		self.queue.submit(std::iter::once(encoder.finish()));
-		
+
 		Ok(())
 	}
 }

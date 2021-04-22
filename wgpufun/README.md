@@ -1,13 +1,13 @@
 wgpufun
 =======
 
-This is a toy project for playing around with `wgpu`. Mainly following this guide https://sotrh.github.io/learn-wgpu/beginner/tutorial1-window/
+This is a toy project for playing around with `wgpu`. Mainly following this guide https://sotrh.github.io/learn-wgpu/
 
-**On windows use the msvc toolchain or your head will explode from horrendously slow link times**
+**!! On windows use the msvc toolchain or your head will explode from horrendously slow link times !!**
 
 ## Compiling
 
-Unfortunately I'm a stinky Windows user and I can't really build `shaderc` from source. Like I could, but i dun wanna download cmake and stuff it'll be a huge mess
+Unfortunately I'm a stinky Windows user and I can't really build `shaderc` from source. Like I coulddddd but i dun wanna download cmake and stuff it'll be a huge mess
 
 * Go to shaderc downloads on google's github https://github.com/google/shaderc#downloads
 * Get the one for Windows

@@ -53,13 +53,13 @@ fn main() {
 					eprintln!("wgpu::SwapChainError::OutOfMemory occured!");
 					*control_flow = ControlFlow::Exit
 				},
-				Err(something_else) => eprintln!("{:?}", something_else)
+				Err(something_else) => eprintln!("{:?}", something_else),
 			}
 		},
 		Event::MainEventsCleared => {
 			//That was fun, let's request another frame!
 			window.request_redraw();
-		}
+		},
 		_ => (),
 	});
 }
