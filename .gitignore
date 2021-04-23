@@ -1,4 +1,4 @@
 /target
 
-/wgpufun/shader_spv
+/wgpufun/assets/compiled_shaders
 *.spv

@@ -4,7 +4,7 @@ use std::path::Path;
 use anyhow::*;
 
 fn main() {
-	compile(Path::new("./shader_glsl"), &mut shaderc::Compiler::new().context("cant make shaderc").unwrap()).expect("problem walking file tree");
+	compile(Path::new("./shader_src"), &mut shaderc::Compiler::new().context("cant make shaderc").unwrap()).expect("problem walking file tree");
 }
 
 fn compile(path: &Path, compiler: &mut shaderc::Compiler) -> Result<()> {
@@ -34,7 +34,7 @@ fn compile(path: &Path, compiler: &mut shaderc::Compiler) -> Result<()> {
 				let compiled = compiler.compile_into_spirv(&src, kind, &entry.path().to_string_lossy(), "main", None)?;
 
 				//choose the output path "./shader_glsl/pog.vert -> ./shader_spv/pog.vert.spv"
-				let mut out_path = Path::new("./shader_spv").join(entry.path().strip_prefix("./shader_glsl")?);
+				let mut out_path = Path::new("./assets/compiled_shaders").join(entry.path().strip_prefix("./shader_src")?);
 				let mut out_ext = out_path.extension().unwrap().to_str().unwrap().to_string();
 				out_ext.push_str(".spv");
 				out_path.set_extension(out_ext);
