@@ -184,11 +184,11 @@ impl Funny {
 			contents: bytemuck::cast_slice(model::FUNNY_RECTANGLE),
 			usage: BufferUsage::VERTEX,
 		});
-		
+
 		let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
 			label: Some("my index buffer???????"),
 			contents: bytemuck::cast_slice(model::FUNNY_RECTANGLE_INDICES),
-			usage: BufferUsage::INDEX
+			usage: BufferUsage::INDEX,
 		});
 		let index_count = model::FUNNY_RECTANGLE_INDICES.len() as u32;
 

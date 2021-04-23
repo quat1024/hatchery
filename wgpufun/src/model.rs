@@ -60,5 +60,5 @@ pub const FUNNY_RECTANGLE: &[Vertex] = &[
 
 pub const FUNNY_RECTANGLE_INDICES: &[u16] = &[
 	0, 1, 2, //upper left triangle CCW order
-	1, 3, 2 //lower right triangle CCW order
+	1, 3, 2, //lower right triangle CCW order
 ];
