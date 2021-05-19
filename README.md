@@ -4,9 +4,10 @@ Monorepo for assorted projects in varying stages of completion.
 
 ## Projects
 
-* `vdf/`: A VDF parser
-* `tiny/`: A tinyv1 parser
+* `vdf/`: A VDF parser. Not complete.
+* `tiny/`: A tinyv1 parser. Not complete.
 * `wgpufun/`: Learning project for WebGPU graphics. Probably only compiles on Windows
+* `craft/`: Experimenting with parsing Minecraft's protocol?
 
 ## Compiling
 
