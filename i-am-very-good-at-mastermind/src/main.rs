@@ -50,13 +50,9 @@ impl<T> IndexMut<char> for LetterTable<T> {
 }
 
 impl LetterTable<usize> {
-	fn count(&mut self, c: char) {
-		self[c] += 1;
-	}
-
 	fn count_word(&mut self, word: &str) {
 		for c in word.chars() {
-			self.count(c);
+			self[c] += 1;
 		}
 	}
 }
@@ -77,7 +73,7 @@ impl FrequencyTable {
 		for word in &words {
 			anywhere.count_word(word);
 			for (idx, c) in word.char_indices() {
-				positional[idx].count(c);
+				positional[idx][c] += 1;
 			}
 		}
 
@@ -122,9 +118,9 @@ impl FrequencyTable {
 
 			for c in ALPHABET.chars() {
 				if word_frequency[c] == 2 {
-					doubles_frequency.count(c);
+					doubles_frequency[c] += 1;
 				} else if word_frequency[c] == 3 {
-					triples_frequency.count(c);
+					triples_frequency[c] += 1;
 					triples_words[c].push(word);
 				}
 			}
@@ -132,7 +128,7 @@ impl FrequencyTable {
 			let word = word.chars().collect::<Vec<char>>(); // Me and the boys writing zero cost abstractions.
 			for &[a, b] in word.array_windows::<2>() {
 				if a == b {
-					adjacent_doubles_frequency.count(a);
+					adjacent_doubles_frequency[a] += 1;
 				}
 			}
 		}
