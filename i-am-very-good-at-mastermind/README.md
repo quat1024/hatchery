@@ -6,10 +6,10 @@ Warning this code is really scuffed.
 
 ## frequency table
 
-Frequency of the letter being in each position (letter 1, 2, 3, or 4), and "total" is the frequency of it appearing in the word at all.
+Frequency of the letter being in each position (letter 1, 2, 3, or 4), and "anywhere" is the frequency of it appearing in the word at all.
 
 ```console
-letter  1       2       3       4       total
+letter  1       2       3       4       anywhere
 a       100     493     231     97      921
 b       187     11      58      45      301
 c       166     26      95      16      303
@@ -36,4 +36,10 @@ w       78      26      46      42      192
 x       0       12      12      15      39 
 y       6       30      32      115     183
 z       4       1       26      12      43
+
+letter 0 frequency order:       spbtcdlmrfghawnoejvkiuyqzx
+letter 1 frequency order:       aoeiurlhnypwctmkdxgvbsfzqj
+letter 2 frequency order:       aernlositmcudpgbkfwvyzxhjq
+letter 3 frequency order:       setdklnyapmorhgfbwiucxzvjq
+all letters frequency order:    easoltrinudpmcbghkfwyvjzxq
 ```
