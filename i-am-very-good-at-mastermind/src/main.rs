@@ -11,7 +11,8 @@ fn main() -> Result<()> {
 
 	table.print_frequency_table();
 	table.print_sorted_alphabets();
-	table.print_repeated_letter_stats();
+	table.print_repeated_letter_table();
+	table.print_digraph_table();
 
 	Ok(())
 }
@@ -48,15 +49,11 @@ impl<T> IndexMut<char> for LetterTable<T> {
 }
 
 impl LetterTable<usize> {
-	fn new() -> LetterTable<usize> {
-		Default::default()
-	}
-	
 	fn count(&mut self, c: char) {
 		self[c] += 1;
 	}
 	
-	fn count_word(&mut self, word: &String) {
+	fn count_word(&mut self, word: &str) {
 		for c in word.chars() {
 			self.count(c);
 		}
@@ -122,7 +119,7 @@ impl FrequencyTable {
 		println!()
 	}
 	
-	pub fn print_repeated_letter_stats(&self) {
+	pub fn print_repeated_letter_table(&self) {
 		let mut doubles_frequency: LetterTable<usize> = Default::default();
 		let mut adjacent_doubles_frequency: LetterTable<usize> = Default::default();
 		let mut triples_frequency: LetterTable<usize> = Default::default();
@@ -161,5 +158,45 @@ impl FrequencyTable {
 			)
 		}
 		println!();
+	}
+	
+	pub fn print_digraph_table(&self) {
+		let mut digraphs: LetterTable<LetterTable<usize>> = Default::default();
+		
+		for word in &self.words {
+			let word = word.chars().collect::<Vec<char>>(); // Me and the boys writing zero cost abstractions.
+			for &[a, b] in word.array_windows::<2>() {
+				digraphs[a][b] += 1;
+			}
+		}
+		
+		//find the widest number, so i can use something shorter than \t to separate the table columns
+		//yeah i should impl iter for lettertable huh
+		let mut widest = 0;
+		for x in ALPHABET.chars() {
+			for &y in &digraphs[x].0 {
+				if y > widest {
+					widest = y;
+				}
+			}
+		}
+		let cell_width = widest.to_string().len() + 1;
+		
+		//print top row
+		let top_space: String = " ".repeat(cell_width - 1);
+		println!("left: first letter, top: second letter");
+		println!("  {}", ALPHABET.chars().map(String::from).collect::<Vec<_>>().join(&top_space)); //gahhhhh
+		
+		//print table body
+		for first in ALPHABET.chars() {
+			print!("{} ", first);
+			for next in ALPHABET.chars() {
+				let n = digraphs[first][next];
+				let n_str = n.to_string();
+				print!("{}", n_str);
+				print!("{}", " ".repeat(cell_width - n_str.len()));
+			}
+			println!();
+		}
 	}
 }
