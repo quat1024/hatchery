@@ -162,24 +162,20 @@ impl FrequencyTable {
 	
 	pub fn print_digraph_table(&self) {
 		let mut all_digraphs: LetterTable<LetterTable<usize>> = Default::default();
-		let mut start_digraphs: LetterTable<LetterTable<usize>> = Default::default();
-		let mut mid_digraphs: LetterTable<LetterTable<usize>> = Default::default();
-		let mut end_digraphs: LetterTable<LetterTable<usize>> = Default::default();
+		let mut partial_digraphs: [LetterTable<LetterTable<usize>>; 3] = Default::default();
 		
 		for word in &self.words {
 			let word = word.chars().collect::<Vec<char>>(); // Me and the boys writing zero cost abstractions.
-			for &[a, b] in word.array_windows::<2>() {
+			for (idx, &[a, b]) in word.array_windows::<2>().enumerate() {
 				all_digraphs[a][b] += 1;
+				partial_digraphs[idx][a][b] += 1;
 			}
-			start_digraphs[word[0]][word[1]] += 1;
-			mid_digraphs[word[1]][word[2]] += 1;
-			end_digraphs[word[2]][word[3]] += 1;
 		}
 		
-		//find the widest number, so i can use something shorter than \t to separate the table columns
-		//yeah i should impl iter for lettertable huh
-		
 		fn print_table(table: &LetterTable<LetterTable<usize>>) {
+			//find the widest number, so i can use something shorter than \t to separate the table columns
+			//yeah i should impl iter for lettertable huh
+			
 			let mut widest = 0;
 			for x in ALPHABET.chars() {
 				for &y in &table[x].0 {
@@ -211,11 +207,11 @@ impl FrequencyTable {
 		println!("     == ALL DIGRAPHS ==");
 		print_table(&all_digraphs);
 		println!("     == FIRST LETTER -> SECOND LETTER ==");
-		print_table(&start_digraphs);
+		print_table(&partial_digraphs[0]);
 		println!("     == SECOND LETTER -> THIRD LETTER ==");
-		print_table(&mid_digraphs);
+		print_table(&partial_digraphs[1]);
 		println!("     == THIRD LETTER -> FOURTH LETTER ==");
-		print_table(&end_digraphs);
+		print_table(&partial_digraphs[2]);
 		println!();
 	}
 }
