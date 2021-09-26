@@ -2,6 +2,8 @@
 
 Utilities for the "mm" game on vazkii's discord, which is like Mastermind but instead of guessing colors you guess four-letter words
 
+Warning this code is really scuffed.
+
 ## frequency table
 
 Frequency of the letter being in each position (letter 1, 2, 3, or 4), and "total" is the frequency of it appearing in the word at all.
