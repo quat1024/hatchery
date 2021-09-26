@@ -161,42 +161,61 @@ impl FrequencyTable {
 	}
 	
 	pub fn print_digraph_table(&self) {
-		let mut digraphs: LetterTable<LetterTable<usize>> = Default::default();
+		let mut all_digraphs: LetterTable<LetterTable<usize>> = Default::default();
+		let mut start_digraphs: LetterTable<LetterTable<usize>> = Default::default();
+		let mut mid_digraphs: LetterTable<LetterTable<usize>> = Default::default();
+		let mut end_digraphs: LetterTable<LetterTable<usize>> = Default::default();
 		
 		for word in &self.words {
 			let word = word.chars().collect::<Vec<char>>(); // Me and the boys writing zero cost abstractions.
 			for &[a, b] in word.array_windows::<2>() {
-				digraphs[a][b] += 1;
+				all_digraphs[a][b] += 1;
 			}
+			start_digraphs[word[0]][word[1]] += 1;
+			mid_digraphs[word[1]][word[2]] += 1;
+			end_digraphs[word[2]][word[3]] += 1;
 		}
 		
 		//find the widest number, so i can use something shorter than \t to separate the table columns
 		//yeah i should impl iter for lettertable huh
-		let mut widest = 0;
-		for x in ALPHABET.chars() {
-			for &y in &digraphs[x].0 {
-				if y > widest {
-					widest = y;
+		
+		fn print_table(table: &LetterTable<LetterTable<usize>>) {
+			let mut widest = 0;
+			for x in ALPHABET.chars() {
+				for &y in &table[x].0 {
+					if y > widest {
+						widest = y;
+					}
 				}
 			}
-		}
-		let cell_width = widest.to_string().len() + 1;
-		
-		//print top row
-		let top_space: String = " ".repeat(cell_width - 1);
-		println!("left: first letter, top: second letter");
-		println!("  {}", ALPHABET.chars().map(String::from).collect::<Vec<_>>().join(&top_space)); //gahhhhh
-		
-		//print table body
-		for first in ALPHABET.chars() {
-			print!("{} ", first);
-			for next in ALPHABET.chars() {
-				let n = digraphs[first][next];
-				let n_str = n.to_string();
-				print!("{}", n_str);
-				print!("{}", " ".repeat(cell_width - n_str.len()));
+			let cell_width = widest.to_string().len() + 1;
+			
+			//print top row
+			let top_space: String = " ".repeat(cell_width - 1);
+			println!("  {}", ALPHABET.chars().map(String::from).collect::<Vec<_>>().join(&top_space)); //gahhhhh
+			
+			//print table body
+			for first in ALPHABET.chars() {
+				print!("{} ", first);
+				for next in ALPHABET.chars() {
+					let n = table[first][next];
+					let n_str = n.to_string();
+					print!("{}", n_str);
+					print!("{}", " ".repeat(cell_width - n_str.len()));
+				}
+				println!();
 			}
-			println!();
 		}
+		
+		println!("! left: first letter, top: second letter !");
+		println!("     == ALL DIGRAPHS ==");
+		print_table(&all_digraphs);
+		println!("     == FIRST LETTER -> SECOND LETTER ==");
+		print_table(&start_digraphs);
+		println!("     == SECOND LETTER -> THIRD LETTER ==");
+		print_table(&mid_digraphs);
+		println!("     == THIRD LETTER -> FOURTH LETTER ==");
+		print_table(&end_digraphs);
+		println!();
 	}
 }
