@@ -1,6 +1,7 @@
 #![feature(array_windows)]
 
-use std::ops::{Index, IndexMut};
+use std::ops::Index;
+use std::ops::IndexMut;
 
 use anyhow::Result;
 
@@ -35,24 +36,24 @@ fn load_word_list() -> Result<Vec<String>> {
 struct LetterTable<T>([T; 26]);
 
 impl<T> Index<char> for LetterTable<T> {
-    type Output = T;
+	type Output = T;
 
-    fn index(&self, index: char) -> &Self::Output {
-        &self.0[(index as usize) - ('a' as usize)]
-    }
+	fn index(&self, index: char) -> &Self::Output {
+		&self.0[(index as usize) - ('a' as usize)]
+	}
 }
 
 impl<T> IndexMut<char> for LetterTable<T> {
-    fn index_mut(&mut self, index: char) -> &mut Self::Output {
-        &mut self.0[(index as usize) - ('a' as usize)]
-    }
+	fn index_mut(&mut self, index: char) -> &mut Self::Output {
+		&mut self.0[(index as usize) - ('a' as usize)]
+	}
 }
 
 impl LetterTable<usize> {
 	fn count(&mut self, c: char) {
 		self[c] += 1;
 	}
-	
+
 	fn count_word(&mut self, word: &str) {
 		for c in word.chars() {
 			self.count(c);
@@ -63,18 +64,16 @@ impl LetterTable<usize> {
 struct FrequencyTable {
 	pub positional: [LetterTable<usize>; 4],
 	pub anywhere: LetterTable<usize>,
-	pub words: Vec<String>
+	pub words: Vec<String>,
 }
 
 impl FrequencyTable {
-	
-	
 	pub fn build(words: &[String]) -> FrequencyTable {
 		let mut positional: [LetterTable<usize>; 4] = Default::default();
 		let mut anywhere: LetterTable<usize> = Default::default();
 
 		let words: Vec<String> = words.into();
-		
+
 		for word in &words {
 			anywhere.count_word(word);
 			for (idx, c) in word.char_indices() {
@@ -88,15 +87,7 @@ impl FrequencyTable {
 	pub fn print_frequency_table(&self) {
 		println!("letter\t1\t2\t3\t4\tanywhere");
 		for c in ALPHABET.chars() {
-			println!(
-				"{}\t{}\t{}\t{}\t{}\t{}",
-				c,
-				self.positional[0][c],
-				self.positional[1][c],
-				self.positional[2][c],
-				self.positional[3][c],
-				self.anywhere[c]
-			)
+			println!("{}\t{}\t{}\t{}\t{}\t{}", c, self.positional[0][c], self.positional[1][c], self.positional[2][c], self.positional[3][c], self.anywhere[c])
 		}
 		println!();
 	}
@@ -118,17 +109,17 @@ impl FrequencyTable {
 		println!("all letters frequency order:\t{}", sort_alphabet(&|c| self.anywhere[c]));
 		println!()
 	}
-	
+
 	pub fn print_repeated_letter_table(&self) {
 		let mut doubles_frequency: LetterTable<usize> = Default::default();
 		let mut adjacent_doubles_frequency: LetterTable<usize> = Default::default();
 		let mut triples_frequency: LetterTable<usize> = Default::default();
 		let mut triples_words: LetterTable<Vec<&str>> = Default::default(); // because theres so few i might as well print them
-		
+
 		for word in &self.words {
 			let mut word_frequency: LetterTable<usize> = Default::default();
 			word_frequency.count_word(word);
-			
+
 			for c in ALPHABET.chars() {
 				if word_frequency[c] == 2 {
 					doubles_frequency.count(c);
@@ -137,7 +128,7 @@ impl FrequencyTable {
 					triples_words[c].push(word);
 				}
 			}
-			
+
 			let word = word.chars().collect::<Vec<char>>(); // Me and the boys writing zero cost abstractions.
 			for &[a, b] in word.array_windows::<2>() {
 				if a == b {
@@ -145,25 +136,18 @@ impl FrequencyTable {
 				}
 			}
 		}
-		
+
 		println!("letter\tdoubles\tadjdubs\ttriples");
 		for c in ALPHABET.chars() {
-			println!(
-				"{}\t{}\t{}\t{}\t{}",
-				c,
-				doubles_frequency[c],
-				adjacent_doubles_frequency[c],
-				triples_frequency[c],
-				triples_words[c].join(", ")
-			)
+			println!("{}\t{}\t{}\t{}\t{}", c, doubles_frequency[c], adjacent_doubles_frequency[c], triples_frequency[c], triples_words[c].join(", "))
 		}
 		println!();
 	}
-	
+
 	pub fn print_digraph_table(&self) {
 		let mut all_digraphs: LetterTable<LetterTable<usize>> = Default::default();
 		let mut partial_digraphs: [LetterTable<LetterTable<usize>>; 3] = Default::default();
-		
+
 		for word in &self.words {
 			let word = word.chars().collect::<Vec<char>>(); // Me and the boys writing zero cost abstractions.
 			for (idx, &[a, b]) in word.array_windows::<2>().enumerate() {
@@ -171,11 +155,11 @@ impl FrequencyTable {
 				partial_digraphs[idx][a][b] += 1;
 			}
 		}
-		
+
 		fn print_table(table: &LetterTable<LetterTable<usize>>) {
 			//find the widest number, so i can use something shorter than \t to separate the table columns
 			//yeah i should impl iter for lettertable huh
-			
+
 			let mut widest = 0;
 			for x in ALPHABET.chars() {
 				for &y in &table[x].0 {
@@ -185,11 +169,11 @@ impl FrequencyTable {
 				}
 			}
 			let cell_width = widest.to_string().len() + 1;
-			
+
 			//print top row
 			let top_space: String = " ".repeat(cell_width - 1);
 			println!("  {}", ALPHABET.chars().map(String::from).collect::<Vec<_>>().join(&top_space)); //gahhhhh
-			
+
 			//print table body
 			for first in ALPHABET.chars() {
 				print!("{} ", first);
@@ -202,7 +186,7 @@ impl FrequencyTable {
 				println!();
 			}
 		}
-		
+
 		println!("! left: first letter, top: second letter !");
 		println!("     == ALL DIGRAPHS ==");
 		print_table(&all_digraphs);
