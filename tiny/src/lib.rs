@@ -169,8 +169,8 @@ METHOD	b	(J)V	c	cFluffyMethod	method_tasty_c
 METHOD	b	()V	d	dFluffyMethod	method_tasty_d";
 
 		for_each_permutation("spongy", "fluffy", "tasty", |a, b| {
-			let a_to_b = TinyMappings::read(&file_contents, a, b).expect("a to b");
-			let b_to_a = TinyMappings::read(&file_contents, b, a).expect("b to a");
+			let a_to_b = TinyMappings::read(file_contents, a, b).expect("a to b");
+			let b_to_a = TinyMappings::read(file_contents, b, a).expect("b to a");
 
 			//classes are inverses of each other
 			let inverse_a_to_b_classes = a_to_b.classes.iter().map(|(k, v)| (*v, *k)).collect::<HashMap<&'_ str, &'_ str>>();
@@ -198,8 +198,8 @@ FIELD	a	Z	a	aFluffyField	field_tasty_a
 METHOD	a	(La;)Z	a	aFluffyMethod	method_tasty_a";
 
 		for_each_permutation("spongy", "fluffy", "tasty", |a, b| {
-			let out_of_order = TinyMappings::read(&out_of_order, a, b).expect("out of order");
-			let in_order = TinyMappings::read(&in_order, a, b).expect("in order");
+			let out_of_order = TinyMappings::read(out_of_order, a, b).expect("out of order");
+			let in_order = TinyMappings::read(in_order, a, b).expect("in order");
 
 			assert_eq!(out_of_order, in_order);
 		});

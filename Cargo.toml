@@ -2,8 +2,9 @@
 members = [
 	"vdf",
 	"tiny",
-	"wgpufun",
-	"craft"
+	#"wgpufun",
+	"craft",
+	"i-am-very-good-at-mastermind"
 ]
 
 [profile.test]
