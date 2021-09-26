@@ -37,9 +37,9 @@ x       0       12      12      15      39
 y       6       30      32      115     183
 z       4       1       26      12      43
 
-letter 0 frequency order:       spbtcdlmrfghawnoejvkiuyqzx
-letter 1 frequency order:       aoeiurlhnypwctmkdxgvbsfzqj
-letter 2 frequency order:       aernlositmcudpgbkfwvyzxhjq
-letter 3 frequency order:       setdklnyapmorhgfbwiucxzvjq
+letter 1 frequency order:       spbtcdlmrfghawnoejvkiuyqzx
+letter 2 frequency order:       aoeiurlhnypwctmkdxgvbsfzqj
+letter 3 frequency order:       aernlositmcudpgbkfwvyzxhjq
+letter 4 frequency order:       setdklnyapmorhgfbwiucxzvjq
 all letters frequency order:    easoltrinudpmcbghkfwyvjzxq
 ```

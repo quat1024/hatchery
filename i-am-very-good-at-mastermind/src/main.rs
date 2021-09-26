@@ -38,7 +38,7 @@ fn main() -> Result<()> {
 	for i in 0..=4 {
 		// this is really bad lmfao
 		let target = if i == 4 { &total_table } else { &frequency_tables[i] };
-		let name = if i == 4 { "all letters frequency order:".to_owned() } else { format!("letter {} frequency order:", i) };
+		let name = if i == 4 { "all letters frequency order:".to_owned() } else { format!("letter {} frequency order:", i + 1) };
 		
 		let mut alphabet_vec = alphabet_vec.clone();
 		alphabet_vec.sort_by_key(|c| target.get(&c).map(|x| *x).unwrap_or_default());
