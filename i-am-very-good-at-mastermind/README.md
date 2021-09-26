@@ -46,8 +46,8 @@ all letters frequency order:    easoltrinudpmcbghkfwyvjzxq
 
 ## repeated letters
 
-* "doubles": the letter appears exactly
-* "adjdubs": the letter appears twice in a row
+* "doubles": the letter appears exactly two times, anywhere
+* "adjdubs": the letter appears twice in a row\*
 * "triples": the letter appears three times
 
 ```console
@@ -79,6 +79,8 @@ x       0       0       0
 y       0       0       0
 z       5       5       0
 ```
+
+\* the code would count letters appearing 3 times in a row as well, but no words in the list are like that
 
 ## digraph tables
 
