@@ -43,3 +43,39 @@ letter 3 frequency order:       aernlositmcudpgbkfwvyzxhjq
 letter 4 frequency order:       setdklnyapmorhgfbwiucxzvjq
 all letters frequency order:    easoltrinudpmcbghkfwyvjzxq
 ```
+
+## repeated letters
+
+* "doubles": the letter appears exactly
+* "adjdubs": the letter appears twice in a row
+* "triples": the letter appears three times
+
+```console
+letter  doubles adjdubs triples
+a       39      1       0
+b       14      2       1       bibb
+c       5       0       0
+d       14      3       0
+e       99      72      1       epee
+f       22      20      0
+g       10      2       0
+h       5       0       0
+i       6       0       0
+j       2       1       0
+k       3       0       0
+l       52      52      2       loll, lull
+m       10      3       0
+n       15      4       0
+o       92      66      0
+p       22      2       0
+q       0       0       0
+r       8       5       0
+s       55      25      2       sass, suss
+t       29      8       0
+u       6       0       0
+v       1       0       0
+w       0       0       0
+x       0       0       0
+y       0       0       0
+z       5       5       0
+```

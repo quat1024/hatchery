@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+#![feature(array_windows)]
+
+use std::ops::{Index, IndexMut};
 
 use anyhow::Result;
 
@@ -9,6 +11,7 @@ fn main() -> Result<()> {
 
 	table.print_frequency_table();
 	table.print_sorted_alphabets();
+	table.print_repeated_letter_stats();
 
 	Ok(())
 }
@@ -27,33 +30,62 @@ fn load_word_list() -> Result<Vec<String>> {
 		.collect())
 }
 
+#[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct LetterTable<T>([T; 26]);
+
+impl<T> Index<char> for LetterTable<T> {
+    type Output = T;
+
+    fn index(&self, index: char) -> &Self::Output {
+        &self.0[(index as usize) - ('a' as usize)]
+    }
+}
+
+impl<T> IndexMut<char> for LetterTable<T> {
+    fn index_mut(&mut self, index: char) -> &mut Self::Output {
+        &mut self.0[(index as usize) - ('a' as usize)]
+    }
+}
+
+impl LetterTable<usize> {
+	fn new() -> LetterTable<usize> {
+		Default::default()
+	}
+	
+	fn count(&mut self, c: char) {
+		self[c] += 1;
+	}
+	
+	fn count_word(&mut self, word: &String) {
+		for c in word.chars() {
+			self.count(c);
+		}
+	}
+}
+
 struct FrequencyTable {
-	pub positional: [HashMap<char, usize>; 4],
-	pub anywhere: HashMap<char, usize>,
+	pub positional: [LetterTable<usize>; 4],
+	pub anywhere: LetterTable<usize>,
+	pub words: Vec<String>
 }
 
 impl FrequencyTable {
+	
+	
 	pub fn build(words: &[String]) -> FrequencyTable {
-		let mut positional = [HashMap::new(), HashMap::new(), HashMap::new(), HashMap::new()];
-		let mut anywhere = HashMap::new();
+		let mut positional: [LetterTable<usize>; 4] = Default::default();
+		let mut anywhere: LetterTable<usize> = Default::default();
 
-		for word in words {
+		let words: Vec<String> = words.into();
+		
+		for word in &words {
+			anywhere.count_word(word);
 			for (idx, c) in word.char_indices() {
-				*positional[idx].entry(c).or_default() += 1;
-				*anywhere.entry(c).or_default() += 1;
+				positional[idx].count(c);
 			}
 		}
 
-		FrequencyTable { positional, anywhere }
-	}
-
-	pub fn count_for_position(&self, c: char, pos: usize) -> usize {
-		// Weirdchamp
-		self.positional[pos].get(&c).copied().unwrap_or_default()
-	}
-
-	pub fn total_count(&self, c: char) -> usize {
-		self.anywhere.get(&c).copied().unwrap_or_default()
+		FrequencyTable { positional, anywhere, words }
 	}
 
 	pub fn print_frequency_table(&self) {
@@ -62,11 +94,11 @@ impl FrequencyTable {
 			println!(
 				"{}\t{}\t{}\t{}\t{}\t{}",
 				c,
-				self.count_for_position(c, 0),
-				self.count_for_position(c, 1),
-				self.count_for_position(c, 2),
-				self.count_for_position(c, 3),
-				self.total_count(c)
+				self.positional[0][c],
+				self.positional[1][c],
+				self.positional[2][c],
+				self.positional[3][c],
+				self.anywhere[c]
 			)
 		}
 		println!();
@@ -82,10 +114,52 @@ impl FrequencyTable {
 			alphabet_vec.into_iter().collect::<String>()
 		}
 
-		println!("letter 1 frequency order:\t{}", sort_alphabet(&|c| self.count_for_position(c, 0)));
-		println!("letter 2 frequency order:\t{}", sort_alphabet(&|c| self.count_for_position(c, 1)));
-		println!("letter 3 frequency order:\t{}", sort_alphabet(&|c| self.count_for_position(c, 2)));
-		println!("letter 4 frequency order:\t{}", sort_alphabet(&|c| self.count_for_position(c, 3)));
-		println!("all letters frequency order:\t{}", sort_alphabet(&|c| self.total_count(c)));
+		println!("letter 1 frequency order:\t{}", sort_alphabet(&|c| self.positional[0][c]));
+		println!("letter 2 frequency order:\t{}", sort_alphabet(&|c| self.positional[1][c]));
+		println!("letter 3 frequency order:\t{}", sort_alphabet(&|c| self.positional[2][c]));
+		println!("letter 4 frequency order:\t{}", sort_alphabet(&|c| self.positional[3][c]));
+		println!("all letters frequency order:\t{}", sort_alphabet(&|c| self.anywhere[c]));
+		println!()
+	}
+	
+	pub fn print_repeated_letter_stats(&self) {
+		let mut doubles_frequency: LetterTable<usize> = Default::default();
+		let mut adjacent_doubles_frequency: LetterTable<usize> = Default::default();
+		let mut triples_frequency: LetterTable<usize> = Default::default();
+		let mut triples_words: LetterTable<Vec<&str>> = Default::default(); // because theres so few i might as well print them
+		
+		for word in &self.words {
+			let mut word_frequency: LetterTable<usize> = Default::default();
+			word_frequency.count_word(word);
+			
+			for c in ALPHABET.chars() {
+				if word_frequency[c] == 2 {
+					doubles_frequency.count(c);
+				} else if word_frequency[c] == 3 {
+					triples_frequency.count(c);
+					triples_words[c].push(word);
+				}
+			}
+			
+			let word = word.chars().collect::<Vec<char>>(); // Me and the boys writing zero cost abstractions.
+			for &[a, b] in word.array_windows::<2>() {
+				if a == b {
+					adjacent_doubles_frequency.count(a);
+				}
+			}
+		}
+		
+		println!("letter\tdoubles\tadjdubs\ttriples");
+		for c in ALPHABET.chars() {
+			println!(
+				"{}\t{}\t{}\t{}\t{}",
+				c,
+				doubles_frequency[c],
+				adjacent_doubles_frequency[c],
+				triples_frequency[c],
+				triples_words[c].join(", ")
+			)
+		}
+		println!();
 	}
 }
