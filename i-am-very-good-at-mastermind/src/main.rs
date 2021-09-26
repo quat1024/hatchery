@@ -48,11 +48,11 @@ impl FrequencyTable {
 	
 	pub fn count_for_position(&self, c: char, pos: usize) -> usize {
 		// Weirdchamp
-		self.positional[pos].get(&c).map(|x| *x).unwrap_or_default()
+		self.positional[pos].get(&c).copied().unwrap_or_default()
 	}
 	
 	pub fn total_count(&self, c: char) -> usize {
-		self.anywhere.get(&c).map(|x| *x).unwrap_or_default()
+		self.anywhere.get(&c).copied().unwrap_or_default()
 	}
 	
 	pub fn print_frequency_table(&self) {
