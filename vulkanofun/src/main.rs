@@ -164,8 +164,8 @@ pub fn main() {
 	println!("allocated dst_buffer, contents: {}", *dst_buffer.read().expect("expect to be able to read dst buffer"));
 
 	// The GPU accepts commands in "command buffers" (oh look another type of buffer) instead of immediately.
-	// Samples state that OpenGL's lack of buffers really just means the buffers are hiding from you, and just about every driver
-	// batches commands together, probably not in the way you want them to be batched.
+	// Vulkano's guide claims that OpenGL's lack-of-command-buffers really just means the buffers are hiding from you,
+	// and just about every driver batches commands together internally, probably not in the way you want them to be batched.
 	// So yeah, command buffers are a thing. I will allocate one of those, and add a "copy buffer" command into the buffer.
 	let mut command_buffer_builder =
 		AutoCommandBufferBuilder::primary(device.clone(), queue.family(), CommandBufferUsage::OneTimeSubmit).expect("failed to create buffer builder");
@@ -186,7 +186,7 @@ pub fn main() {
 	// Finally, I will tell the GPU to execute the commands in this command buffer.
 	// First I need to submit the buffer to the GPU.
 	// .execute() is short for .execute_after(now(device)), which means the GPU will start processing it as soon as it receives it.
-	// (I think you can also use the execute_after mechanism to cause two command buffers to execute one after the other, even though you
+	// (I think you can also use the execute_after mechanism to cause two command buffers to execute one after the other, even if you
 	// submitted them at nearly the same time.)
 	let finished_handle = command_buffer.execute(queue.clone()).expect("failed to submit buffer");
 	finished_handle
