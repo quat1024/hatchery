@@ -1,0 +1,8 @@
+[package]
+name = "vulkanofun"
+version = "0.0.0"
+authors = ["quat <quat1024@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+vulkano = "0.26.0"

@@ -9,6 +9,7 @@ Monorepo for assorted projects in varying stages of completion.
 * `wgpufun/`: Learning project for WebGPU graphics. Probably only compiles on Windows (Not built atm)
 * `craft/`: Experimenting with parsing Minecraft's protocol?
 * `i-am-very-good-at-mastermind`: experiments with the four-letter-word mastermind game "mm" someone made
+* `vulkanofun/`: Learning project for Vulkano graphics.
 
 ## Compiling
 

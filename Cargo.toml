@@ -4,7 +4,8 @@ members = [
 	"tiny",
 	#"wgpufun",
 	"craft",
-	"i-am-very-good-at-mastermind"
+	"i-am-very-good-at-mastermind",
+	"vulkanofun"
 ]
 
 [profile.test]
