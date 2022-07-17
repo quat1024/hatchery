@@ -7,7 +7,6 @@ Monorepo for assorted projects in varying stages of completion.
 * `vdf/`: A VDF parser. Not complete.
 * `tiny/`: A tinyv1 parser. Not complete.
 * `wgpufun/`: Learning project for WebGPU graphics. Probably only compiles on Windows (Not built atm)
-* `craft/`: Experimenting with parsing Minecraft's protocol?
 * `i-am-very-good-at-mastermind`: experiments with the four-letter-word mastermind game "mm" someone made
 * `vulkanofun/`: Learning project for Vulkano graphics.
 
