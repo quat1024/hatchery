@@ -1,0 +1,10 @@
+[package]
+name = "openglfun"
+version = "0.0.0"
+authors = ["quat <quat1024@users.noreply.github.com>"]
+edition = "2021"
+
+[dependencies]
+gl46 = "0.2.1"
+beryllium = "0.7.6"
+zstring = "0.1.3"
