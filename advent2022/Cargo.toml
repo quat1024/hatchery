@@ -2,7 +2,4 @@
 name = "advent2022"
 version = "0.0.0"
 authors = ["quat <quat1024@users.noreply.github.com>"]
-edition = "2018"
-
-[dependencies]
-anyhow = "1.0"
+edition = "2021"
