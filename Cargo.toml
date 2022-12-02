@@ -3,7 +3,8 @@ members = [
 	"vdf",
 	"tiny",
 	"i-am-very-good-at-mastermind",
-	"openglfun"
+	"openglfun",
+	"advent2022"
 ]
 
 [profile.test]
