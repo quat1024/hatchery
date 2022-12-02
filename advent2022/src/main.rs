@@ -1,9 +1,12 @@
+#![allow(dead_code, unused_variables)]
+
 use std::{error::Error, fs, path::PathBuf};
 
 pub mod day01;
+pub mod day02;
 
 pub fn main() -> Result<(), Box<dyn Error>> {
-	day01::run_b()
+	day02::run_a()
 }
 
 pub fn input_as_string(input_name: &str) -> String {
