@@ -3,7 +3,7 @@ use std::{error::Error, fs, path::PathBuf};
 pub mod day01;
 
 pub fn main() -> Result<(), Box<dyn Error>> {
-	day01::run()
+	day01::run_b()
 }
 
 pub fn input_as_string(input_name: &str) -> String {
