@@ -1,6 +1,8 @@
 #![allow(dead_code, unused_variables)]
 
-use std::{error::Error, fs, path::PathBuf};
+use std::error::Error;
+use std::fs;
+use std::path::PathBuf;
 
 pub mod day01;
 pub mod day02;
