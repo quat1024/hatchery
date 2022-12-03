@@ -66,3 +66,25 @@ pub fn chunks<'a>(input: &'a str) -> Vec<Vec<&'a str>> {
 
 	chunks
 }
+
+#[cfg(test)]
+mod main {
+	use super::*;
+
+	#[test]
+	fn test_chunks() {
+		assert_eq!(
+			chunks(
+				&"part1
+part1
+part1
+
+part2
+part2
+
+part3"
+			),
+			vec![vec!["part1", "part1", "part1"], vec!["part2", "part2"], vec!["part3"],]
+		);
+	}
+}
