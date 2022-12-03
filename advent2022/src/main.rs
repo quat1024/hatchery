@@ -1,4 +1,5 @@
 //#![allow(dead_code, unused_variables)]
+#![feature(iter_array_chunks)] //hehe
 
 use std::path::PathBuf;
 

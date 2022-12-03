@@ -52,11 +52,20 @@ fn run_a_on(input: String) -> impl Display {
 }
 
 fn run_b_on(input: String) -> impl Display {
-	"x"
+	//divide the input into groups of three
+	
+	input.lines().array_chunks().map(|[a, b, c]| {
+		for item in a.chars() {
+			if b.contains(item) && c.contains(item) {
+				return item;
+			}
+		}
+		
+		panic!("couldnt find shared item")
+	}).map(priority).sum::<u16>()
 }
 
 pub fn run_a() -> impl Display {
-	//run_a_on(input_as_string(3))
 	run_a_on(input_as_string(3))
 }
 
@@ -76,12 +85,12 @@ mod test {
 	#[test]
 	fn test() {
 		assert_eq!(run_a_on(test_input_as_string(3)).to_string(), "157");
-		//assert_eq!(run_b_on(test_input_as_string(3)).to_string(), "70");
+		assert_eq!(run_b_on(test_input_as_string(3)).to_string(), "70");
 	}
 
 	#[test]
 	fn real() {
 		assert_eq!(run_a().to_string(), "7811");
-		//assert_eq!(run_b().to_string(), "x");
+		assert_eq!(run_b().to_string(), "2639");
 	}
 }
