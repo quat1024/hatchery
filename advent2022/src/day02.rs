@@ -1,6 +1,6 @@
-use std::error::Error;
+use std::fmt::Display;
 
-use crate::input_as_string;
+use crate::*;
 
 #[derive(Clone, Copy)]
 enum Rps {
@@ -93,8 +93,8 @@ impl WinState {
 	}
 }
 
-pub fn run_a() -> Result<(), Box<dyn Error>> {
-	let score = input_as_string("02.txt")
+fn run_a_on(input: String) -> impl Display {
+	input
 		.lines()
 		.map(|line| {
 			let linesplit = line.split_ascii_whitespace().collect::<Vec<_>>();
@@ -103,15 +103,11 @@ pub fn run_a() -> Result<(), Box<dyn Error>> {
 
 			mine.score_against(&theirs)
 		})
-		.sum::<u64>();
-
-	println!("score is {}", score);
-	Ok(())
+		.sum::<u64>()
 }
 
-//15442
-pub fn run_b() -> Result<(), Box<dyn Error>> {
-	let score = input_as_string("02.txt")
+fn run_b_on(input: String) -> impl Display {
+	input
 		.lines()
 		.map(|line| {
 			let linesplit = line.split_ascii_whitespace().collect::<Vec<_>>();
@@ -120,10 +116,30 @@ pub fn run_b() -> Result<(), Box<dyn Error>> {
 
 			mine.score_against(&theirs)
 		})
-		.sum::<u64>();
-
-	println!("score is {}", score);
-
-	Ok(())
+		.sum::<u64>()
 }
 
+pub fn run_a() -> impl Display {
+	run_a_on(input_as_string(2))
+}
+
+pub fn run_b() -> impl Display {
+	run_b_on(input_as_string(2))
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn test() {
+		assert_eq!(run_a_on(test_input_as_string(2)).to_string(), "15");
+		assert_eq!(run_b_on(test_input_as_string(2)).to_string(), "12");
+	}
+
+	#[test]
+	fn real() {
+		assert_eq!(run_a().to_string(), "15422");
+		assert_eq!(run_b().to_string(), "15442");
+	}
+}
