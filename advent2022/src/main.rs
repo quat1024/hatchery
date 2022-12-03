@@ -4,12 +4,15 @@ use std::path::PathBuf;
 
 pub mod day01;
 pub mod day02;
+pub mod day03;
 
 pub fn main() {
 	println!("01 a {}", day01::run_a());
 	println!("01 b {}", day01::run_b());
 	println!("02 a {}", day02::run_a());
 	println!("02 b {}", day02::run_b());
+	println!("03 a {}", day03::run_a());
+	println!("03 b {}", day03::run_b());
 }
 
 // input handling //
