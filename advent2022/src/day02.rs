@@ -26,22 +26,16 @@ impl Rps {
 	}
 
 	fn wins_against(&self, other: &Rps) -> WinState {
-		match self {
-			Rps::Rock => match other {
-				Rps::Rock => WinState::Tie,
-				Rps::Paper => WinState::Loss,
-				Rps::Scissors => WinState::Win,
-			},
-			Rps::Paper => match other {
-				Rps::Rock => WinState::Win,
-				Rps::Paper => WinState::Tie,
-				Rps::Scissors => WinState::Loss,
-			},
-			Rps::Scissors => match other {
-				Rps::Rock => WinState::Loss,
-				Rps::Paper => WinState::Win,
-				Rps::Scissors => WinState::Tie,
-			},
+		match (self, other) {
+			(Rps::Rock, Rps::Rock) => WinState::Tie,
+			(Rps::Rock, Rps::Paper) => WinState::Loss,
+			(Rps::Rock, Rps::Scissors) => WinState::Win,
+			(Rps::Paper, Rps::Rock) => WinState::Win,
+			(Rps::Paper, Rps::Paper) => WinState::Tie,
+			(Rps::Paper, Rps::Scissors) => WinState::Loss,
+			(Rps::Scissors, Rps::Rock) => WinState::Loss,
+			(Rps::Scissors, Rps::Paper) => WinState::Win,
+			(Rps::Scissors, Rps::Scissors) => WinState::Tie,
 		}
 	}
 
@@ -54,22 +48,16 @@ impl Rps {
 	}
 
 	fn produce_win_state(&self, state: &WinState) -> Rps {
-		match self {
-			Rps::Rock => match state {
-				WinState::Win => Rps::Paper,
-				WinState::Loss => Rps::Scissors,
-				WinState::Tie => Rps::Rock,
-			},
-			Rps::Paper => match state {
-				WinState::Win => Rps::Scissors,
-				WinState::Loss => Rps::Rock,
-				WinState::Tie => Rps::Paper,
-			},
-			Rps::Scissors => match state {
-				WinState::Win => Rps::Rock,
-				WinState::Loss => Rps::Paper,
-				WinState::Tie => Rps::Scissors,
-			},
+		match (self, state) {
+			(Rps::Rock, WinState::Win) => Rps::Paper,
+			(Rps::Rock, WinState::Loss) => Rps::Scissors,
+			(Rps::Rock, WinState::Tie) => Rps::Rock,
+			(Rps::Paper, WinState::Win) => Rps::Scissors,
+			(Rps::Paper, WinState::Loss) => Rps::Rock,
+			(Rps::Paper, WinState::Tie) => Rps::Paper,
+			(Rps::Scissors, WinState::Win) => Rps::Rock,
+			(Rps::Scissors, WinState::Loss) => Rps::Paper,
+			(Rps::Scissors, WinState::Tie) => Rps::Scissors,
 		}
 	}
 }

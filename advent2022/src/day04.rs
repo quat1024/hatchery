@@ -24,7 +24,7 @@ impl SectionAssignment {
 	fn contains(&self, other: &Self) -> bool {
 		return other.start >= self.start && other.end <= self.end;
 	}
-	
+
 	fn overlaps(&self, other: &Self) -> bool {
 		//It's late, and I'm tired
 		for num in self.start..=self.end {
@@ -32,7 +32,7 @@ impl SectionAssignment {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 }
