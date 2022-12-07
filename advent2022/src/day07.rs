@@ -147,7 +147,24 @@ fn run_a_on(input: String) -> impl Display {
 }
 
 fn run_b_on(input: String) -> impl Display {
-	"x"
+	let directory = Directory::build(Instruction::parse_insn_list(input));
+	
+	let disk_size = 70_000_000;
+	let update_size = 30_000_000;
+	
+	let used_size = directory.total_size();
+	let unused_size = disk_size - used_size;
+	
+	let mut winning_dir_total_size = usize::MAX;
+	for dir in directory.flatten() {
+		let dir_total_size = dir.total_size();
+		let unused_size_after_deletion = unused_size + dir_total_size;
+		if unused_size_after_deletion > update_size && winning_dir_total_size > dir_total_size {
+			winning_dir_total_size = dir_total_size;
+		}
+	}
+	
+	winning_dir_total_size.to_string()
 }
 
 pub fn run_a() -> impl Display {
@@ -165,12 +182,12 @@ mod test {
 	#[test]
 	fn test() {
 		assert_eq!(run_a_on(test_input_as_string(7)).to_string(), "95437");
-		//assert_eq!(run_b_on(test_input_as_string(7)).to_string(), "x");
+		assert_eq!(run_b_on(test_input_as_string(7)).to_string(), "24933642");
 	}
 
 	#[test]
 	fn real() {
 		assert_eq!(run_a().to_string(), "1454188");
-		//assert_eq!(run_b().to_string(), "x");
+		assert_eq!(run_b().to_string(), "4183246");
 	}
 }
