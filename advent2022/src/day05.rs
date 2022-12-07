@@ -37,6 +37,23 @@ impl Shipyard {
 			}
 		}
 	}
+	
+	fn run_instruction_9001(&mut self, insn: Instruction) {
+		let src = &mut self.stacks[insn.src - 1]; //instructions are one-indexed
+		
+		//you cant borrow both at once for some stupid reason so i will have to collect into a structure first
+		let mut shit = Vec::<char>::new();
+		for what in &src[src.len() - insn.count..] {
+			shit.push(*what);
+		}
+		
+		//then remove the end with this clumsy method, there's gotta be a nicer way to do this one btw
+		for _ in 0..insn.count {
+			src.pop();
+		}
+		
+		self.stacks[insn.dst - 1].append(&mut shit);
+	}
 }
 
 impl FromStr for Shipyard {
@@ -155,7 +172,27 @@ fn run_a_on(input: String) -> impl Display {
 }
 
 fn run_b_on(input: String) -> impl Display {
-	"x"
+	let (shipyard_unparsed, instructions_unparsed) = split_into_shipyard_and_instructions(&input);
+
+	//parse shipyard
+	let mut shipyard = Shipyard::from_str(shipyard_unparsed).expect("unexpected item in bagging area");
+	
+	//parse instructions
+	let instructions = instructions_unparsed.lines().filter_map(|line| {
+		let trim = line.trim();
+		if trim.is_empty() {
+			None
+		} else {
+			Some(trim)
+		}
+	}).map(Instruction::from_str).collect::<Result<Vec<Instruction>, _>>().unwrap();
+
+	//perform each instruction on the shipyard
+	for insn in instructions {
+		shipyard.run_instruction_9001(insn);
+	}
+	
+	shipyard.answer()
 }
 
 pub fn run_a() -> impl Display {
@@ -172,12 +209,13 @@ mod test {
 	#[test]
 	fn test() {
 		assert_eq!(run_a_on(test_input_as_string(5)).to_string(), "CMZ");
-		assert_eq!(run_b_on(test_input_as_string(5)).to_string(), "x");
+		assert_eq!(run_b_on(test_input_as_string(5)).to_string(), "MCD");
 	}
 
 	#[test]
 	fn real() {
+		//I was hoping it would spell something
 		assert_eq!(run_a().to_string(), "FWSHSPJWM");
-		assert_eq!(run_b().to_string(), "x");
+		assert_eq!(run_b().to_string(), "PWPWHGFZS");
 	}
 }
