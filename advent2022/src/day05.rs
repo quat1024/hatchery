@@ -137,13 +137,6 @@ impl FromStr for Instruction {
 	}
 }
 
-fn split_into_shipyard_and_instructions<'a>(input: &'a str) -> (&'a str, &'a str) {
-	let double_newline = input.find("\n\n").or_else(|| input.find("\r\n\r\n"));
-	let double_newline = double_newline.expect("couldnt find separator :("); //TODO actual error handling
-
-	return input.split_at(double_newline);
-}
-
 fn parse(input: &str) -> (Shipyard, Vec<Instruction>) {
 	let double_newline = input.find("\n\n").or_else(|| input.find("\r\n\r\n"));
 	let double_newline = double_newline.expect("couldnt find separator :("); //TODO actual error handling
