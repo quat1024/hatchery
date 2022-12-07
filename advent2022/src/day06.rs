@@ -1,38 +1,29 @@
 use crate::*;
 
 fn run_a_on(input: String) -> impl Display {
-	let mut idx: usize = 3; //start off-by-three because the window size
-	for &[a, b, c, d] in input.chars().collect::<Vec<_>>().array_windows() {
-		idx += 1;
-		if a != b && a != c && a != d && b != c && b != d && c != d {
-			return idx.to_string();
-		}
-	}
-
-	"not found".into()
+	clumsy_disjoint_find_lol(&input, 4).map(|x| x.to_string()).unwrap_or("not found".into())
 }
 
 fn run_b_on(input: String) -> impl Display {
-	//goddammit no cute tricks this time LOL
+	clumsy_disjoint_find_lol(&input, 14).map(|x| x.to_string()).unwrap_or("not found".into())
+}
 
-	//random-access string
+fn clumsy_disjoint_find_lol(input: &String, window_size: usize) -> Option<usize> {
 	let input = input.chars().collect::<Vec<_>>();
-	let window_size = 14;
-
 	let mut set: std::collections::HashSet<char> = Default::default();
 
-	for start in 0..input.len() - window_size {
+	'next: for start in 0..input.len() - window_size {
 		set.clear();
 		for c_idx in start..start + window_size {
-			set.insert(input[c_idx]);
+			if !set.insert(input[c_idx]) {
+				continue 'next;
+			}
 		}
 
-		if set.len() == window_size {
-			return (start + window_size).to_string();
-		}
+		return Some(start + window_size);
 	}
-
-	"not found".into()
+	
+	None
 }
 
 pub fn run_a() -> impl Display {
