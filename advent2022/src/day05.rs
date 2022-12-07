@@ -24,11 +24,11 @@ impl Shipyard {
 	fn answer(&self) -> String {
 		self.stacks.iter().map(|stack| stack.last().unwrap_or(&' ')).collect()
 	}
-	
+
 	fn run_instruction(&mut self, insn: Instruction) {
 		let src = insn.src - 1; //instructions are one-indexed
 		let dst = insn.dst - 1;
-		
+
 		for _ in 0..insn.count {
 			if let Some(crate_label) = self.stacks[src].pop() {
 				self.stacks[dst].push(crate_label);
@@ -37,22 +37,18 @@ impl Shipyard {
 			}
 		}
 	}
-	
+
 	fn run_instruction_9001(&mut self, insn: Instruction) {
 		let src = &mut self.stacks[insn.src - 1]; //instructions are one-indexed
-		
+
 		//you cant borrow both at once for some stupid reason so i will have to collect into a structure first
-		let mut shit = Vec::<char>::new();
+		let mut moving_bits = Vec::<char>::new();
 		for what in &src[src.len() - insn.count..] {
-			shit.push(*what);
+			moving_bits.push(*what);
 		}
-		
-		//then remove the end with this clumsy method, there's gotta be a nicer way to do this one btw
-		for _ in 0..insn.count {
-			src.pop();
-		}
-		
-		self.stacks[insn.dst - 1].append(&mut shit);
+
+		src.truncate(src.len() - insn.count);
+		self.stacks[insn.dst - 1].append(&mut moving_bits);
 	}
 }
 
@@ -109,6 +105,7 @@ impl FromStr for Shipyard {
 				let c = lines_cleaned[line_no][stack_id];
 
 				if c.is_ascii_whitespace() {
+					//dont want to include a whitespace trailer + there wont be any more crates in this stack anyway
 					break 'next;
 				}
 				stack.push(c);
@@ -131,8 +128,8 @@ impl FromStr for Instruction {
 		{
 			return Ok(Instruction {
 				count: count_str.parse().unwrap(), //TODO
-				src: src_str.parse().unwrap(),   //TODO
-				dst: dst_str.parse().unwrap(),   //TODO
+				src: src_str.parse().unwrap(),     //TODO
+				dst: dst_str.parse().unwrap(),     //TODO
 			});
 		}
 
@@ -147,51 +144,48 @@ fn split_into_shipyard_and_instructions<'a>(input: &'a str) -> (&'a str, &'a str
 	return input.split_at(double_newline);
 }
 
-fn run_a_on(input: String) -> impl Display {
-	let (shipyard_unparsed, instructions_unparsed) = split_into_shipyard_and_instructions(&input);
+fn parse(input: &str) -> (Shipyard, Vec<Instruction>) {
+	let double_newline = input.find("\n\n").or_else(|| input.find("\r\n\r\n"));
+	let double_newline = double_newline.expect("couldnt find separator :("); //TODO actual error handling
+
+	let (shipyard_unparsed, instructions_unparsed) = input.split_at(double_newline);
 
 	//parse shipyard
-	let mut shipyard = Shipyard::from_str(shipyard_unparsed).expect("unexpected item in bagging area");
-	
-	//parse instructions
-	let instructions = instructions_unparsed.lines().filter_map(|line| {
-		let trim = line.trim();
-		if trim.is_empty() {
-			None
-		} else {
-			Some(trim)
-		}
-	}).map(Instruction::from_str).collect::<Result<Vec<Instruction>, _>>().unwrap();
+	let shipyard = Shipyard::from_str(shipyard_unparsed).expect("unexpected item in bagging area");
 
-	//perform each instruction on the shipyard
+	//parse instructions
+	let instructions = instructions_unparsed
+		.lines()
+		.filter_map(|line| {
+			let trim = line.trim();
+			if trim.is_empty() {
+				None
+			} else {
+				Some(trim)
+			}
+		})
+		.map(Instruction::from_str)
+		.collect::<Result<Vec<Instruction>, _>>()
+		.unwrap();
+
+	(shipyard, instructions)
+}
+
+fn run_a_on(input: String) -> impl Display {
+	let (mut shipyard, instructions) = parse(&input);
 	for insn in instructions {
 		shipyard.run_instruction(insn);
 	}
-	
+
 	shipyard.answer()
 }
 
 fn run_b_on(input: String) -> impl Display {
-	let (shipyard_unparsed, instructions_unparsed) = split_into_shipyard_and_instructions(&input);
-
-	//parse shipyard
-	let mut shipyard = Shipyard::from_str(shipyard_unparsed).expect("unexpected item in bagging area");
-	
-	//parse instructions
-	let instructions = instructions_unparsed.lines().filter_map(|line| {
-		let trim = line.trim();
-		if trim.is_empty() {
-			None
-		} else {
-			Some(trim)
-		}
-	}).map(Instruction::from_str).collect::<Result<Vec<Instruction>, _>>().unwrap();
-
-	//perform each instruction on the shipyard
+	let (mut shipyard, instructions) = parse(&input);
 	for insn in instructions {
 		shipyard.run_instruction_9001(insn);
 	}
-	
+
 	shipyard.answer()
 }
 
