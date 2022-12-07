@@ -28,11 +28,11 @@ struct Directory {
 
 impl Directory {
 	//TODO dont take ownership of insns (code hard)
-	fn build(insns: Vec<Instruction>) -> Directory {	
+	fn build(insns: Vec<Instruction>) -> Directory {
 		let mut root: Directory = Directory { subdirs: HashMap::new(), files: HashMap::new() };
-		
+
 		let mut current_path: Vec<String> = Vec::new();
-		
+
 		for insn in insns {
 			match insn {
 				Instruction::NavigateUp => {
@@ -49,24 +49,24 @@ impl Directory {
 						match lsentry {
 							LsEntry::File { name, size } => {
 								root.get_or_create_path(&current_path).files.insert(name, size);
-							}
+							},
 							LsEntry::Dir { name } => {
 								//ehh ??
 							},
 						}
 					}
-				}
+				},
 			}
 		}
-		
+
 		root
 	}
-	
+
 	fn get_or_create_subdir(&mut self, subdir_name: &String) -> &mut Directory {
 		//TODO: remove clone!!!
 		self.subdirs.entry(subdir_name.clone()).or_insert(Default::default())
 	}
-	
+
 	fn get_or_create_path(&mut self, path: &Vec<String>) -> &mut Directory {
 		let mut cursor = self;
 		for path_element in path {
@@ -74,19 +74,19 @@ impl Directory {
 		}
 		cursor
 	}
-	
+
 	// todo there is probably a general graph-traversal method i should write
-	
+
 	fn total_size(&self) -> usize {
 		self.files.values().sum::<usize>() + self.subdirs.values().map(Self::total_size).sum::<usize>()
 	}
-	
+
 	fn flatten(&self) -> Vec<&Directory> {
 		let mut flat = Vec::new();
 		self.flatten_impl(&mut flat);
 		flat
 	}
-	
+
 	fn flatten_impl<'a>(&'a self, flat: &mut Vec<&'a Directory>) {
 		flat.push(self);
 		for subdir in self.subdirs.values() {
@@ -123,7 +123,8 @@ impl Instruction {
 						if let Some(dirname) = line2.strip_prefix("dir ") {
 							ls_entry_lines.push(LsEntry::Dir { name: dirname.to_owned() })
 						} else if let Some((size_unparsed, filename)) = line2.split_once(" ") {
-							ls_entry_lines.push(LsEntry::File { name: filename.to_owned(), size: size_unparsed.parse().expect("alskjdklasjdkljaskd") }) //TODO
+							ls_entry_lines.push(LsEntry::File { name: filename.to_owned(), size: size_unparsed.parse().expect("alskjdklasjdkljaskd") })
+							//TODO
 						}
 					} else {
 						break;
@@ -142,19 +143,19 @@ impl Instruction {
 
 fn run_a_on(input: String) -> impl Display {
 	let directory = Directory::build(Instruction::parse_insn_list(input));
-	
+
 	directory.flatten().iter().filter(|dir| dir.total_size() <= 100_000).map(|dir| dir.total_size()).sum::<usize>().to_string()
 }
 
 fn run_b_on(input: String) -> impl Display {
 	let directory = Directory::build(Instruction::parse_insn_list(input));
-	
+
 	let disk_size = 70_000_000;
 	let update_size = 30_000_000;
-	
+
 	let used_size = directory.total_size();
 	let unused_size = disk_size - used_size;
-	
+
 	let mut winning_dir_total_size = usize::MAX;
 	for dir in directory.flatten() {
 		let dir_total_size = dir.total_size();
@@ -163,7 +164,7 @@ fn run_b_on(input: String) -> impl Display {
 			winning_dir_total_size = dir_total_size;
 		}
 	}
-	
+
 	winning_dir_total_size.to_string()
 }
 
