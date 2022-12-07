@@ -5,7 +5,7 @@ fn disjoint_find(input: &String, window_size: usize) -> Option<usize> {
 
 	'next: for start in 0..input.len() - window_size {
 		set.clear();
-		
+
 		for c in input[start..start + window_size].chars() {
 			if !set.insert(c) {
 				continue 'next;
@@ -14,7 +14,7 @@ fn disjoint_find(input: &String, window_size: usize) -> Option<usize> {
 
 		return Some(start + window_size);
 	}
-	
+
 	None
 }
 

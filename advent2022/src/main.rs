@@ -13,6 +13,7 @@ mod day03;
 mod day04;
 mod day05;
 mod day06;
+mod day07;
 
 pub fn main() {
 	println!("01 a {}", day01::run_a());
@@ -27,6 +28,8 @@ pub fn main() {
 	println!("05 b {}", day05::run_b());
 	println!("06 a {}", day06::run_a());
 	println!("06 b {}", day06::run_b());
+	println!("07 a {}", day07::run_a());
+	println!("07 b {}", day07::run_b());
 }
 
 // input handling //
