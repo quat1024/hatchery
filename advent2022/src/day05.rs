@@ -9,7 +9,6 @@ struct Shipyard {
 	stacks: Vec<Vec<char>>,
 }
 
-#[derive(Clone, Copy)]
 struct Instruction {
 	count: usize,
 	src: usize,
@@ -25,7 +24,7 @@ impl Shipyard {
 		self.stacks.iter().map(|stack| stack.last().unwrap_or(&' ')).collect()
 	}
 
-	fn run_instruction(&mut self, insn: Instruction) {
+	fn run_instruction(&mut self, insn: &Instruction) {
 		let src = insn.src - 1; //instructions are one-indexed
 		let dst = insn.dst - 1;
 
@@ -38,7 +37,7 @@ impl Shipyard {
 		}
 	}
 
-	fn run_instruction_9001(&mut self, insn: Instruction) {
+	fn run_instruction_9001(&mut self, insn: &Instruction) {
 		let src = &mut self.stacks[insn.src - 1]; //instructions are one-indexed
 
 		//you cant borrow both at once for some stupid reason so i will have to collect into a structure first
@@ -167,7 +166,7 @@ fn parse(input: &str) -> (Shipyard, Vec<Instruction>) {
 fn run_a_on(input: String) -> impl Display {
 	let (mut shipyard, instructions) = parse(&input);
 	for insn in instructions {
-		shipyard.run_instruction(insn);
+		shipyard.run_instruction(&insn);
 	}
 
 	shipyard.answer()
@@ -176,7 +175,7 @@ fn run_a_on(input: String) -> impl Display {
 fn run_b_on(input: String) -> impl Display {
 	let (mut shipyard, instructions) = parse(&input);
 	for insn in instructions {
-		shipyard.run_instruction_9001(insn);
+		shipyard.run_instruction_9001(&insn);
 	}
 
 	shipyard.answer()
