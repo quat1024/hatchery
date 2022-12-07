@@ -2,13 +2,14 @@
 #![allow(unused_imports)] //rust analyzer seems to be buggy about use super::* in tests?
 #![feature(iter_array_chunks)] //hehe
 
+pub use std::fmt::Display;
 use std::path::PathBuf;
 
 pub mod day01;
 pub mod day02;
 pub mod day03;
 pub mod day04;
-
+pub mod day05;
 pub fn main() {
 	println!("01 a {}", day01::run_a());
 	println!("01 b {}", day01::run_b());
@@ -18,6 +19,8 @@ pub fn main() {
 	println!("03 b {}", day03::run_b());
 	println!("04 a {}", day04::run_a());
 	println!("04 b {}", day04::run_b());
+	println!("05 a {}", day05::run_a());
+	println!("05 b {}", day05::run_b());
 }
 
 // input handling //
