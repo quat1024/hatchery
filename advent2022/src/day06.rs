@@ -1,21 +1,13 @@
 use crate::*;
 
-fn run_a_on(input: String) -> impl Display {
-	clumsy_disjoint_find_lol(&input, 4).map(|x| x.to_string()).unwrap_or("not found".into())
-}
-
-fn run_b_on(input: String) -> impl Display {
-	clumsy_disjoint_find_lol(&input, 14).map(|x| x.to_string()).unwrap_or("not found".into())
-}
-
-fn clumsy_disjoint_find_lol(input: &String, window_size: usize) -> Option<usize> {
-	let input = input.chars().collect::<Vec<_>>();
+fn disjoint_find(input: &String, window_size: usize) -> Option<usize> {
 	let mut set: std::collections::HashSet<char> = Default::default();
 
 	'next: for start in 0..input.len() - window_size {
 		set.clear();
-		for c_idx in start..start + window_size {
-			if !set.insert(input[c_idx]) {
+		
+		for c in input[start..start + window_size].chars() {
+			if !set.insert(c) {
 				continue 'next;
 			}
 		}
@@ -24,6 +16,14 @@ fn clumsy_disjoint_find_lol(input: &String, window_size: usize) -> Option<usize>
 	}
 	
 	None
+}
+
+fn run_a_on(input: String) -> impl Display {
+	disjoint_find(&input, 4).map(|x| x.to_string()).unwrap_or("not found".into())
+}
+
+fn run_b_on(input: String) -> impl Display {
+	disjoint_find(&input, 14).map(|x| x.to_string()).unwrap_or("not found".into())
 }
 
 pub fn run_a() -> impl Display {
