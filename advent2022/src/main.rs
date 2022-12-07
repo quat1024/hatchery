@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_variables)]
 #![allow(unused_imports)] //rust analyzer seems to be buggy about use super::* in tests?
 #![feature(iter_array_chunks)] //hehe
+#![feature(array_windows)] //hehehehe
 
 pub use std::convert::Infallible;
 pub use std::fmt::Display;
@@ -25,6 +26,8 @@ pub fn main() {
 	println!("04 b {}", day04::run_b());
 	println!("05 a {}", day05::run_a());
 	println!("05 b {}", day05::run_b());
+	println!("06 a {}", day06::run_a());
+	println!("06 b {}", day06::run_b());
 }
 
 // input handling //
