@@ -1,6 +1,3 @@
-use std::convert::Infallible;
-use std::str::FromStr;
-
 use crate::*;
 
 struct Shipyard {
@@ -189,6 +186,7 @@ pub fn run_b() -> impl Display {
 	run_b_on(input_as_string(5))
 }
 
+#[cfg(test)]
 mod test {
 	use super::*;
 

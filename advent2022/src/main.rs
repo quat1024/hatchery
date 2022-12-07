@@ -2,14 +2,18 @@
 #![allow(unused_imports)] //rust analyzer seems to be buggy about use super::* in tests?
 #![feature(iter_array_chunks)] //hehe
 
+pub use std::convert::Infallible;
 pub use std::fmt::Display;
 use std::path::PathBuf;
+pub use std::str::FromStr;
 
-pub mod day01;
-pub mod day02;
-pub mod day03;
-pub mod day04;
-pub mod day05;
+mod day01;
+mod day02;
+mod day03;
+mod day04;
+mod day05;
+mod day06;
+
 pub fn main() {
 	println!("01 a {}", day01::run_a());
 	println!("01 b {}", day01::run_b());

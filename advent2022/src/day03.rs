@@ -1,7 +1,3 @@
-use std::convert::Infallible;
-use std::fmt::Display;
-use std::str::FromStr;
-
 use crate::*;
 
 struct Sack {
@@ -75,6 +71,7 @@ pub fn run_b() -> impl Display {
 	run_b_on(input_as_string(3))
 }
 
+#[cfg(test)]
 mod test {
 	use super::*;
 
