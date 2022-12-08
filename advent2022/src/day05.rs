@@ -22,8 +22,8 @@ impl Shipyard {
 	}
 
 	fn run_instruction(&mut self, insn: &Instruction) {
-		let src = insn.src - 1; //instructions are one-indexed
-		let dst = insn.dst - 1;
+		let src = insn.src;
+		let dst = insn.dst;
 
 		for _ in 0..insn.count {
 			if let Some(crate_label) = self.stacks[src].pop() {
@@ -35,7 +35,7 @@ impl Shipyard {
 	}
 
 	fn run_instruction_9001(&mut self, insn: &Instruction) {
-		let src = &mut self.stacks[insn.src - 1]; //instructions are one-indexed
+		let src = &mut self.stacks[insn.src];
 
 		//you cant borrow both at once for some stupid reason so i will have to collect into a structure first
 		let mut moving_bits = Vec::<char>::new();
@@ -44,7 +44,7 @@ impl Shipyard {
 		}
 
 		src.truncate(src.len() - insn.count);
-		self.stacks[insn.dst - 1].append(&mut moving_bits);
+		self.stacks[insn.dst].append(&mut moving_bits);
 	}
 }
 
@@ -123,9 +123,9 @@ impl FromStr for Instruction {
 			(splitspace.next(), splitspace.next(), splitspace.next(), splitspace.next(), splitspace.next(), splitspace.next())
 		{
 			return Ok(Instruction {
-				count: count_str.parse().unwrap(), //TODO
-				src: src_str.parse().unwrap(),     //TODO
-				dst: dst_str.parse().unwrap(),     //TODO
+				count: count_str.parse::<usize>().unwrap(), //TODO
+				src: src_str.parse::<usize>().unwrap() - 1, //TODO
+				dst: dst_str.parse::<usize>().unwrap() - 1, //TODO
 			});
 		}
 
