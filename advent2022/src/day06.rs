@@ -2,21 +2,26 @@ use crate::*;
 
 fn disjoint_find_2<const WINDOW_SIZE: usize>(input: &String) -> Option<usize> {
 	let input = input.as_bytes();
-	
-	'next: for start in 0..input.len() - WINDOW_SIZE {
-		let mut filter = [false; 255];
-		for b in &input[start..start + WINDOW_SIZE] {
-			if filter[(*b) as usize] {
-				continue 'next;
+
+	//iterate over the start of the window
+	(0..input.len() - WINDOW_SIZE)
+		//expand these out into full windows
+		.map(|start| start..start + WINDOW_SIZE)
+		//test each window to see if the uniqueness condition holds
+		.find_map(|range| {
+			let mut filter = [false; u8::MAX as usize];
+			for b in &input[range.clone()] {
+				if filter[*b as usize] {
+					return None;
+				}
+
+				filter[*b as usize] = true;
 			}
-			
-			filter[(*b) as usize] = true;
-		}
-		
-		return Some(start + WINDOW_SIZE)
-	}
-	
-	None
+
+			Some(range.start + WINDOW_SIZE)
+		})
+
+	//TODO: probably possible to do this in a smooth motion, instead of restarting the search on every window-slide
 }
 
 fn run_a_on(input: String) -> impl Display {

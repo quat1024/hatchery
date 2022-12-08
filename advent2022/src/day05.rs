@@ -46,10 +46,13 @@ impl Shipyard {
 		src.truncate(src.len() - insn.count);
 		self.stacks[insn.dst].append(&mut moving_bits);
 	}
-	
+
 	//TODO not Infallible result
 	///this function here consumes the iterator only until it's parsed the whole shipyard
-	fn from_lines_iterator<'iter, 'lines, X>(lines: &'iter mut X) -> Result<Shipyard, Infallible> where X: Iterator<Item = &'lines str> {
+	fn from_lines_iterator<'iter, 'lines, X>(lines: &'iter mut X) -> Result<Shipyard, Infallible>
+	where
+		X: Iterator<Item = &'lines str>,
+	{
 		//(step 1) remove all the whitespace and the 1 2 3 footer and stuff
 		let mut lines_cleaned = Vec::<Vec<char>>::new();
 
@@ -138,7 +141,7 @@ fn run_a_on(input: String) -> impl Display {
 		if line.is_empty() {
 			continue;
 		}
-		
+
 		if let Ok(insn) = Instruction::from_str(line) {
 			shipyard.run_instruction(&insn);
 		}
@@ -154,12 +157,12 @@ fn run_b_on(input: String) -> impl Display {
 		if line.is_empty() {
 			continue;
 		}
-		
+
 		if let Ok(insn) = Instruction::from_str(line) {
 			shipyard.run_instruction_9001(&insn);
 		}
 	}
-	
+
 	shipyard.answer()
 }
 
