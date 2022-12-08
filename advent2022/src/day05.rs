@@ -46,16 +46,14 @@ impl Shipyard {
 		src.truncate(src.len() - insn.count);
 		self.stacks[insn.dst].append(&mut moving_bits);
 	}
-}
-
-impl FromStr for Shipyard {
-	type Err = Infallible; //TODO
-
-	fn from_str(shipyard_str: &str) -> Result<Self, Self::Err> {
+	
+	//TODO not Infallible result
+	///this function here consumes the iterator only until it's parsed the whole shipyard
+	fn from_lines_iterator<'iter, 'lines, X>(lines: &'iter mut X) -> Result<Shipyard, Infallible> where X: Iterator<Item = &'lines str> {
 		//(step 1) remove all the whitespace and the 1 2 3 footer and stuff
 		let mut lines_cleaned = Vec::<Vec<char>>::new();
 
-		'done: for line in shipyard_str.lines() {
+		'done: for line in lines {
 			let mut cleaned_line = String::new();
 			let mut cs = line.chars().fuse();
 
@@ -133,48 +131,35 @@ impl FromStr for Instruction {
 	}
 }
 
-fn parse(input: &str) -> (Shipyard, Vec<Instruction>) {
-	let double_newline = input.find("\n\n").or_else(|| input.find("\r\n\r\n"));
-	let double_newline = double_newline.expect("couldnt find separator :("); //TODO actual error handling
-
-	let (shipyard_unparsed, instructions_unparsed) = input.split_at(double_newline);
-
-	//parse shipyard
-	let shipyard = Shipyard::from_str(shipyard_unparsed).expect("unexpected item in bagging area");
-
-	//parse instructions
-	let instructions = instructions_unparsed
-		.lines()
-		.filter_map(|line| {
-			let trim = line.trim();
-			if trim.is_empty() {
-				None
-			} else {
-				Some(trim)
-			}
-		})
-		.map(Instruction::from_str)
-		.collect::<Result<Vec<Instruction>, _>>()
-		.unwrap();
-
-	(shipyard, instructions)
-}
-
 fn run_a_on(input: String) -> impl Display {
-	let (mut shipyard, instructions) = parse(&input);
-	for insn in instructions {
-		shipyard.run_instruction(&insn);
+	let mut lines = input.lines();
+	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
+	for line in lines {
+		if line.is_empty() {
+			continue;
+		}
+		
+		if let Ok(insn) = Instruction::from_str(line) {
+			shipyard.run_instruction(&insn);
+		}
 	}
 
 	shipyard.answer()
 }
 
 fn run_b_on(input: String) -> impl Display {
-	let (mut shipyard, instructions) = parse(&input);
-	for insn in instructions {
-		shipyard.run_instruction_9001(&insn);
+	let mut lines = input.lines();
+	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
+	for line in lines {
+		if line.is_empty() {
+			continue;
+		}
+		
+		if let Ok(insn) = Instruction::from_str(line) {
+			shipyard.run_instruction_9001(&insn);
+		}
 	}
-
+	
 	shipyard.answer()
 }
 
