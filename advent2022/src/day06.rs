@@ -1,29 +1,30 @@
 use crate::*;
 
-fn disjoint_find(input: &String, window_size: usize) -> Option<usize> {
-	let mut set: std::collections::HashSet<char> = Default::default();
-
-	'next: for start in 0..input.len() - window_size {
-		set.clear();
-
-		for c in input[start..start + window_size].chars() {
-			if !set.insert(c) {
+fn disjoint_find_2<const WINDOW_SIZE: usize>(input: &String) -> Option<usize> {
+	let input = input.as_bytes();
+	
+	'next: for start in 0..input.len() - WINDOW_SIZE {
+		let mut filter = [false; 255];
+		for b in &input[start..start + WINDOW_SIZE] {
+			if filter[(*b) as usize] {
 				continue 'next;
 			}
+			
+			filter[(*b) as usize] = true;
 		}
-
-		return Some(start + window_size);
+		
+		return Some(start + WINDOW_SIZE)
 	}
-
+	
 	None
 }
 
 fn run_a_on(input: String) -> impl Display {
-	disjoint_find(&input, 4).map(|x| x.to_string()).unwrap_or("not found".into())
+	disjoint_find_2::<4>(&input).map(|x| x.to_string()).unwrap_or("not found".into())
 }
 
 fn run_b_on(input: String) -> impl Display {
-	disjoint_find(&input, 14).map(|x| x.to_string()).unwrap_or("not found".into())
+	disjoint_find_2::<14>(&input).map(|x| x.to_string()).unwrap_or("not found".into())
 }
 
 pub fn run_a() -> impl Display {
