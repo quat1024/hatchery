@@ -97,7 +97,8 @@ pub fn a(input: String) -> impl Display {
 		}
 	}
 
-	forest_visibility.iter().map(|column| column.iter().filter(|x| **x).count()).sum::<usize>().to_string() //population count of the result grid
+	forest_visibility.iter().map(|column| column.iter().filter(|x| **x).count()).sum::<usize>().to_string()
+	//population count of the result grid
 }
 
 pub fn b(input: String) -> impl Display {

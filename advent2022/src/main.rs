@@ -1,5 +1,5 @@
 #![allow(dead_code, unused_variables)]
-#![allow(unused_imports)] //rurun_a_onsinput_as_string(3)eems to be buggy about use super::* in tests?
+#![allow(unused_imports)] //rust-analyzer seems to be buggy about `use super::*` in tests and thinks its unused
 #![feature(iter_array_chunks)] //hehe
 
 //a "prelude" of sorts
@@ -16,6 +16,7 @@ mod day05;
 mod day06;
 mod day07;
 mod day08;
+mod day09;
 
 pub fn main() {
 	println!("01 a {}", day01::a(input_as_string(1)));
@@ -34,6 +35,8 @@ pub fn main() {
 	println!("07 b {}", day07::b(input_as_string(7)));
 	println!("08 a {}", day08::a(input_as_string(8)));
 	println!("08 b {}", day08::b(input_as_string(8)));
+	println!("09 a {}", day09::a(input_as_string(9)));
+	println!("09 b {}", day09::b(input_as_string(9)));
 }
 
 // input handling //
@@ -47,15 +50,15 @@ pub fn test_input_as_string(input_id: u8) -> String {
 }
 
 pub fn gimme_input(input_name: &str) -> String {
-	//todo the path stuff is really annoying, clicking with the mouse on the "run" button in vscode doesn't seem to set the pwd?
-
+	//clicking with the mouse on the "run" inlay above main() in vscode doesnt seem to set the pwd inside the cargo workspace
+	//but cargo run --bin does, im pretty sure
 	let mut here = std::env::current_dir().unwrap();
 	if !here.ends_with("advent2022") {
 		here.push("advent2022")
 	}
 
 	let path = [here, "input".into(), input_name.into()].iter().collect::<std::path::PathBuf>();
-
+	//dbg!(&path);
 	std::fs::read_to_string(path).unwrap()
 }
 
