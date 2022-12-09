@@ -1,5 +1,5 @@
 #![allow(dead_code, unused_variables)]
-#![allow(unused_imports)] //rust analyzer seems to be buggy about use super::* in tests?
+#![allow(unused_imports)] //rurun_a_onsinput_as_string(3)eems to be buggy about use super::* in tests?
 #![feature(iter_array_chunks)] //hehe
 
 //a "prelude" of sorts
@@ -18,22 +18,22 @@ mod day07;
 mod day08;
 
 pub fn main() {
-	println!("01 a {}", day01::run_a());
-	println!("01 b {}", day01::run_b());
-	println!("02 a {}", day02::run_a());
-	println!("02 b {}", day02::run_b());
-	println!("03 a {}", day03::run_a());
-	println!("03 b {}", day03::run_b());
-	println!("04 a {}", day04::run_a());
-	println!("04 b {}", day04::run_b());
-	println!("05 a {}", day05::run_a());
-	println!("05 b {}", day05::run_b());
-	println!("06 a {}", day06::run_a());
-	println!("06 b {}", day06::run_b());
-	println!("07 a {}", day07::run_a());
-	println!("07 b {}", day07::run_b());
-	println!("08 a {}", day08::run_a());
-	println!("08 b {}", day08::run_b());
+	println!("01 a {}", day01::a(input_as_string(1)));
+	println!("01 b {}", day01::b(input_as_string(1)));
+	println!("02 a {}", day02::a(input_as_string(2)));
+	println!("02 b {}", day02::b(input_as_string(2)));
+	println!("03 a {}", day03::a(input_as_string(3)));
+	println!("03 b {}", day03::b(input_as_string(3)));
+	println!("04 a {}", day04::a(input_as_string(4)));
+	println!("04 b {}", day04::b(input_as_string(4)));
+	println!("05 a {}", day05::a(input_as_string(5)));
+	println!("05 b {}", day05::b(input_as_string(5)));
+	println!("06 a {}", day06::a(input_as_string(6)));
+	println!("06 b {}", day06::b(input_as_string(6)));
+	println!("07 a {}", day07::a(input_as_string(7)));
+	println!("07 b {}", day07::b(input_as_string(7)));
+	println!("08 a {}", day08::a(input_as_string(8)));
+	println!("08 b {}", day08::b(input_as_string(8)));
 }
 
 // input handling //

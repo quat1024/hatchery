@@ -134,7 +134,7 @@ impl FromStr for Instruction {
 	}
 }
 
-fn run_a_on(input: String) -> impl Display {
+pub fn a(input: String) -> impl Display {
 	let mut lines = input.lines();
 	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
 	for line in lines {
@@ -150,7 +150,7 @@ fn run_a_on(input: String) -> impl Display {
 	shipyard.answer()
 }
 
-fn run_b_on(input: String) -> impl Display {
+pub fn b(input: String) -> impl Display {
 	let mut lines = input.lines();
 	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
 	for line in lines {
@@ -166,28 +166,20 @@ fn run_b_on(input: String) -> impl Display {
 	shipyard.answer()
 }
 
-pub fn run_a() -> impl Display {
-	run_a_on(input_as_string(5))
-}
-
-pub fn run_b() -> impl Display {
-	run_b_on(input_as_string(5))
-}
-
 #[cfg(test)]
 mod test {
 	use super::*;
 
 	#[test]
 	fn test() {
-		assert_eq!(run_a_on(test_input_as_string(5)).to_string(), "CMZ");
-		assert_eq!(run_b_on(test_input_as_string(5)).to_string(), "MCD");
+		assert_eq!(a(test_input_as_string(5)).to_string(), "CMZ");
+		assert_eq!(b(test_input_as_string(5)).to_string(), "MCD");
 	}
 
 	#[test]
 	fn real() {
 		//I was hoping it would spell something
-		assert_eq!(run_a().to_string(), "FWSHSPJWM");
-		assert_eq!(run_b().to_string(), "PWPWHGFZS");
+		assert_eq!(a(input_as_string(5)).to_string(), "FWSHSPJWM");
+		assert_eq!(b(input_as_string(5)).to_string(), "PWPWHGFZS");
 	}
 }

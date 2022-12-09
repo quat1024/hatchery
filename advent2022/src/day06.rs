@@ -24,20 +24,12 @@ fn disjoint_find_2<const WINDOW_SIZE: usize>(input: &String) -> Option<usize> {
 	//TODO: probably possible to do this in a smooth motion, instead of restarting the search on every window-slide
 }
 
-fn run_a_on(input: String) -> impl Display {
+pub fn a(input: String) -> impl Display {
 	disjoint_find_2::<4>(&input).map(|x| x.to_string()).unwrap_or("not found".into())
 }
 
-fn run_b_on(input: String) -> impl Display {
+pub fn b(input: String) -> impl Display {
 	disjoint_find_2::<14>(&input).map(|x| x.to_string()).unwrap_or("not found".into())
-}
-
-pub fn run_a() -> impl Display {
-	run_a_on(input_as_string(6))
-}
-
-pub fn run_b() -> impl Display {
-	run_b_on(input_as_string(6))
 }
 
 #[cfg(test)]
@@ -46,13 +38,13 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(run_a_on(test_input_as_string(6)).to_string(), "7");
-		assert_eq!(run_b_on(test_input_as_string(6)).to_string(), "19");
+		assert_eq!(a(test_input_as_string(6)).to_string(), "7");
+		assert_eq!(b(test_input_as_string(6)).to_string(), "19");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(run_a().to_string(), "1760");
-		assert_eq!(run_b().to_string(), "2974");
+		assert_eq!(a(input_as_string(6)).to_string(), "1760");
+		assert_eq!(b(input_as_string(6)).to_string(), "2974");
 	}
 }

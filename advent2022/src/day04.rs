@@ -33,7 +33,7 @@ impl SectionAssignment {
 	}
 }
 
-fn run_a_on(input: String) -> impl Display {
+pub fn a(input: String) -> impl Display {
 	input
 		.lines()
 		.map(|line| {
@@ -45,7 +45,7 @@ fn run_a_on(input: String) -> impl Display {
 		.count()
 }
 
-fn run_b_on(input: String) -> impl Display {
+pub fn b(input: String) -> impl Display {
 	input
 		.lines()
 		.map(|line| {
@@ -57,27 +57,19 @@ fn run_b_on(input: String) -> impl Display {
 		.count()
 }
 
-pub fn run_a() -> impl Display {
-	run_a_on(input_as_string(4))
-}
-
-pub fn run_b() -> impl Display {
-	run_b_on(input_as_string(4))
-}
-
 #[cfg(test)]
 mod test {
 	use super::*;
 
 	#[test]
 	fn test() {
-		assert_eq!(run_a_on(test_input_as_string(4)).to_string(), "2");
-		assert_eq!(run_b_on(test_input_as_string(4)).to_string(), "4");
+		assert_eq!(a(test_input_as_string(4)).to_string(), "2");
+		assert_eq!(b(test_input_as_string(4)).to_string(), "4");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(run_a().to_string(), "580");
-		assert_eq!(run_b().to_string(), "895");
+		assert_eq!(a(input_as_string(4)).to_string(), "580");
+		assert_eq!(b(input_as_string(4)).to_string(), "895");
 	}
 }

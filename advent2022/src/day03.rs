@@ -37,14 +37,14 @@ fn priority(item: char) -> u16 {
 	}
 }
 
-fn run_a_on(input: String) -> impl Display {
+pub fn a(input: String) -> impl Display {
 	let sacks: Result<Vec<Sack>, _> = input.lines().map(Sack::from_str).collect();
 	let sacks = sacks.unwrap();
 
 	sacks.iter().map(Sack::find_same_item).map(priority).sum::<u16>()
 }
 
-fn run_b_on(input: String) -> impl Display {
+pub fn b(input: String) -> impl Display {
 	//divide the input into groups of three
 
 	input
@@ -63,14 +63,6 @@ fn run_b_on(input: String) -> impl Display {
 		.sum::<u16>()
 }
 
-pub fn run_a() -> impl Display {
-	run_a_on(input_as_string(3))
-}
-
-pub fn run_b() -> impl Display {
-	run_b_on(input_as_string(3))
-}
-
 #[cfg(test)]
 mod test {
 	use super::*;
@@ -83,13 +75,13 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(run_a_on(test_input_as_string(3)).to_string(), "157");
-		assert_eq!(run_b_on(test_input_as_string(3)).to_string(), "70");
+		assert_eq!(a(test_input_as_string(3)).to_string(), "157");
+		assert_eq!(b(test_input_as_string(3)).to_string(), "70");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(run_a().to_string(), "7811");
-		assert_eq!(run_b().to_string(), "2639");
+		assert_eq!(a(input_as_string(3)).to_string(), "7811");
+		assert_eq!(b(input_as_string(3)).to_string(), "2639");
 	}
 }

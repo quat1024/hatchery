@@ -141,13 +141,13 @@ impl Instruction {
 	}
 }
 
-fn run_a_on(input: String) -> impl Display {
+pub fn a(input: String) -> impl Display {
 	let directory = Directory::build(Instruction::parse_insn_list(input));
 
 	directory.flatten().iter().filter(|dir| dir.total_size() <= 100_000).map(|dir| dir.total_size()).sum::<usize>().to_string()
 }
 
-fn run_b_on(input: String) -> impl Display {
+pub fn b(input: String) -> impl Display {
 	let directory = Directory::build(Instruction::parse_insn_list(input));
 
 	let disk_size = 70_000_000;
@@ -168,27 +168,19 @@ fn run_b_on(input: String) -> impl Display {
 	winning_dir_total_size.to_string()
 }
 
-pub fn run_a() -> impl Display {
-	run_a_on(input_as_string(7))
-}
-
-pub fn run_b() -> impl Display {
-	run_b_on(input_as_string(7))
-}
-
 #[cfg(test)]
 mod test {
 	use super::*;
 
 	#[test]
 	fn test() {
-		assert_eq!(run_a_on(test_input_as_string(7)).to_string(), "95437");
-		assert_eq!(run_b_on(test_input_as_string(7)).to_string(), "24933642");
+		assert_eq!(a(test_input_as_string(7)).to_string(), "95437");
+		assert_eq!(b(test_input_as_string(7)).to_string(), "24933642");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(run_a().to_string(), "1454188");
-		assert_eq!(run_b().to_string(), "4183246");
+		assert_eq!(a(input_as_string(7)).to_string(), "1454188");
+		assert_eq!(b(input_as_string(7)).to_string(), "4183246");
 	}
 }
