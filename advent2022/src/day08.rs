@@ -23,24 +23,6 @@ impl<T: Clone> Grid<T> {
 	fn new(width: usize, height: usize, thing: T) -> Self {
 		Grid(std::iter::repeat(std::iter::repeat(thing).take(height).collect()).take(width).collect())
 	}
-
-	fn new_same_size<X>(other: &Grid<X>, thing: T) -> Self {
-		Self::new(other.width(), other.height(), thing)
-	}
-}
-
-impl Grid<u8> {
-	fn parse_forest(input: &str) -> Self {
-		//the puzzle input is transposed when parsing it this way but it's not a big deal
-		//TODO panics, doesn't check non-raggedness
-		Grid(input.lines().map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit") as u8).collect()).collect())
-	}
-}
-
-impl Grid<bool> {
-	fn population(&self) -> usize {
-		self.iter().map(|column| column.iter().filter(|x| **x).count()).sum()
-	}
 }
 
 //and the following three impls are boilerplate to access the tuple struct in various ways without .0
@@ -65,16 +47,22 @@ impl<T> std::ops::Deref for Grid<T> {
 	}
 }
 
+fn parse_forest(input: &str) -> Grid<u8> {
+	//the puzzle input is transposed when parsing it this way but it's not a big deal
+	//TODO panics, doesn't check non-raggedness
+	Grid(input.lines().map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit") as u8).collect()).collect())
+}
+
 fn run_a_on(input: String) -> impl Display {
-	let forest = &Grid::parse_forest(&input);
-	let mut result = Grid::new_same_size(forest, false);
+	let forest = parse_forest(&input);
+	let mut forest_visibility = Grid::new(forest.width(), forest.height(), false);
 
 	for x in 0..forest.width() {
 		let mut tallest_tree_from_north = -1i16;
 		for y in 0..forest.height() {
 			let tree_here = forest[x][y] as i16;
 			if tree_here > tallest_tree_from_north {
-				result[x][y] = true;
+				forest_visibility[x][y] = true;
 				tallest_tree_from_north = tree_here;
 			}
 		}
@@ -83,7 +71,7 @@ fn run_a_on(input: String) -> impl Display {
 		for y in (0..forest.height()).rev() {
 			let tree_here = forest[x][y] as i16;
 			if tree_here > tallest_tree_from_south {
-				result[x][y] = true;
+				forest_visibility[x][y] = true;
 				tallest_tree_from_south = tree_here;
 			}
 		}
@@ -94,7 +82,7 @@ fn run_a_on(input: String) -> impl Display {
 		for x in 0..forest.width() {
 			let tree_here = forest[x][y] as i16;
 			if tree_here > tallest_tree_from_west {
-				result[x][y] = true;
+				forest_visibility[x][y] = true;
 				tallest_tree_from_west = tree_here;
 			}
 		}
@@ -103,13 +91,13 @@ fn run_a_on(input: String) -> impl Display {
 		for x in (0..forest.width()).rev() {
 			let tree_here = forest[x][y] as i16;
 			if tree_here > tallest_tree_from_east {
-				result[x][y] = true;
+				forest_visibility[x][y] = true;
 				tallest_tree_from_east = tree_here;
 			}
 		}
 	}
 
-	result.population().to_string()
+	forest_visibility.iter().map(|column| column.iter().filter(|x| **x).count()).sum::<usize>().to_string() //population count of the result grid
 }
 
 fn run_b_on(input: String) -> impl Display {
@@ -128,9 +116,8 @@ fn run_b_on(input: String) -> impl Display {
 		}
 	}
 
-	let forest = &Grid::parse_forest(&input);
-
-	let mut best_scenic_score = 0usize;
+	let forest = parse_forest(&input);
+	let mut best_scenic_score = 0;
 
 	for x in 0..forest.width() {
 		for y in 0..forest.height() {
@@ -138,15 +125,15 @@ fn run_b_on(input: String) -> impl Display {
 
 			let count_fn = |dx: isize, dy: isize| -> usize {
 				let mut count = 0;
-				for i in 1..isize::MAX {
+				for i in 1.. {
 					if let (Some(sample_x), Some(sample_y)) = (x.offset_within(dx * i, 0..forest.width()), y.offset_within(dy * i, 0..forest.height())) {
-						count += 1;
+						count += 1; //saw a tree
 
 						if forest[sample_x][sample_y] >= house {
 							break; //can't see past this tree from the treehouse
 						}
 					} else {
-						break; //fell off the edge of the grid
+						break; //fell off the edge of the grid and saw no trees
 					}
 				}
 
