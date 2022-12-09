@@ -2,9 +2,10 @@
 #![allow(unused_imports)] //rust analyzer seems to be buggy about use super::* in tests?
 #![feature(iter_array_chunks)] //hehe
 
+//a "prelude" of sorts
 pub use std::convert::Infallible;
 pub use std::fmt::Display;
-use std::path::PathBuf;
+pub use std::ops::Range;
 pub use std::str::FromStr;
 
 mod day01;
@@ -53,7 +54,7 @@ pub fn gimme_input(input_name: &str) -> String {
 		here.push("advent2022")
 	}
 
-	let path = [here, "input".into(), input_name.into()].iter().collect::<PathBuf>();
+	let path = [here, "input".into(), input_name.into()].iter().collect::<std::path::PathBuf>();
 
 	std::fs::read_to_string(path).unwrap()
 }
