@@ -46,7 +46,7 @@ impl Grid<u8> {
 	}
 
 	fn print(&self) {
-		//this probably rotates it 90 degrees again
+		//this process rotates it 90 degrees the other way i think, lol
 		for column in &self.0 {
 			for item in column {
 				print!("{}", item.to_string())
@@ -73,17 +73,14 @@ impl Grid<bool> {
 }
 
 fn compute_visibility_map(forest: &Grid<u8>) -> Grid<bool> {
-	let mut north_visibility_map = Grid::new_same_size(forest, false);
-	let mut east_visibility_map = Grid::new_same_size(forest, false);
-	let mut south_visibility_map = Grid::new_same_size(forest, false);
-	let mut west_visibility_map = Grid::new_same_size(forest, false);
+	let mut result = Grid::new_same_size(forest, false);
 
 	for x in 0..forest.width() {
 		let mut tallest_tree_from_north = -1i16;
 		for y in 0..forest.height() {
 			let tree_here = forest.0[x][y] as i16;
 			if tree_here > tallest_tree_from_north {
-				north_visibility_map.0[x][y] = true;
+				result.0[x][y] = true;
 				tallest_tree_from_north = tree_here;
 			}
 		}
@@ -92,19 +89,18 @@ fn compute_visibility_map(forest: &Grid<u8>) -> Grid<bool> {
 		for y in (0..forest.height()).rev() {
 			let tree_here = forest.0[x][y] as i16;
 			if tree_here > tallest_tree_from_south {
-				south_visibility_map.0[x][y] = true;
+				result.0[x][y] = true;
 				tallest_tree_from_south = tree_here;
 			}
 		}
 	}
 
-	//east, casting rays left (-x)
 	for y in 0..forest.height() {
 		let mut tallest_tree_from_west = -1i16;
 		for x in 0..forest.width() {
 			let tree_here = forest.0[x][y] as i16;
 			if tree_here > tallest_tree_from_west {
-				west_visibility_map.0[x][y] = true;
+				result.0[x][y] = true;
 				tallest_tree_from_west = tree_here;
 			}
 		}
@@ -113,18 +109,8 @@ fn compute_visibility_map(forest: &Grid<u8>) -> Grid<bool> {
 		for x in (0..forest.width()).rev() {
 			let tree_here = forest.0[x][y] as i16;
 			if tree_here > tallest_tree_from_east {
-				east_visibility_map.0[x][y] = true;
-				tallest_tree_from_east = tree_here;
-			}
-		}
-	}
-
-	//finally zip them together
-	let mut result = Grid::new_same_size(forest, false);
-	for x in 0..result.width() {
-		for y in 0..result.height() {
-			if north_visibility_map.0[x][y] || east_visibility_map.0[x][y] || south_visibility_map.0[x][y] || west_visibility_map.0[x][y] {
 				result.0[x][y] = true;
+				tallest_tree_from_east = tree_here;
 			}
 		}
 	}
