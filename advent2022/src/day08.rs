@@ -31,7 +31,7 @@ impl<T: Clone> Grid<T> {
 
 impl Grid<u8> {
 	fn parse_forest(input: &str) -> Self {
-		//the puzzle input is rotated 90 degrees when parsing it this way but it's not a big deal
+		//the puzzle input is transposed when parsing it this way but it's not a big deal
 		//TODO panics, doesn't check non-raggedness
 		Grid(input.lines().map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit") as u8).collect()).collect())
 	}
