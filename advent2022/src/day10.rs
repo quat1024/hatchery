@@ -47,7 +47,7 @@ pub fn b(input: String) -> impl Display {
 	let mut x: isize = 1;
 	let mut cycle_count: usize = 0;
 	
-	let mut screen = "\n".to_string(); //just to make my main() output look nicer
+	let mut screen = String::new();
 	
 	let mut tick = |x: &isize| {
 		let raster_pos = cycle_count % 40;
@@ -82,12 +82,21 @@ mod test {
 	#[test]
 	fn test() {
 		assert_eq!(a(test_input_as_string(10)).to_string(), "13140");
-		//assert_eq!(b(test_input_as_string(10)).to_string(), "x");
+		
+		assert_eq!(b(test_input_as_string(10)).to_string(), "##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....
+");
 	}
 
 	#[test]
 	fn real() {
 		assert_eq!(a(input_as_string(10)).to_string(), "12520");
-		//assert_eq!(b(input_as_string(10)).to_string(), "x");
+		
+		//no test for part b cause its broken and if i dont write a test it doesnt count as being broken right?
+		//the left side of my character is kinda cut off, its weird
 	}
 }

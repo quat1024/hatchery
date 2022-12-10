@@ -40,7 +40,7 @@ pub fn main() {
 	println!("09 a {}", day09::a(input_as_string(9)));
 	println!("09 b {}", day09::b(input_as_string(9)));
 	println!("10 a {}", day10::a(input_as_string(10)));
-	println!("10 b {}", day10::b(input_as_string(10)));
+	println!("10 b \n{}", day10::b(input_as_string(10))); //this one is ascii-art so give it a newline
 }
 
 // input handling //
