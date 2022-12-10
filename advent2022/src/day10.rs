@@ -22,21 +22,21 @@ pub fn a(input: String) -> impl Display {
 	let mut cycle_count = 0;
 	let mut answer = 0;
 	
-	let mut cycle_bump = |xx| {
+	let mut cycle_bump = |x: &isize| {
 		cycle_count += 1;
 		if [20, 60, 100, 140, 180, 220].contains(&cycle_count)  {
-			answer += xx * cycle_count;
+			answer += *x * cycle_count;
 		}
 	};
 	
 	for insn in insns {
 		match insn {
 			Insn::Noop => {
-				cycle_bump(x);
+				cycle_bump(&x);
 			},
 			Insn::Addx(arg) => {
-				cycle_bump(x);
-				cycle_bump(x);
+				cycle_bump(&x);
+				cycle_bump(&x);
 				x += arg;
 			}
 		}
@@ -50,14 +50,15 @@ pub fn b(input: String) -> impl Display {
 	
 	let mut x: isize = 1;
 	let mut cycle_count: usize = 0;
+	
 	let mut screen = String::new();
 	screen.push('\n');
 	
-	let mut cycle_bump = |xx| {
+	let mut cycle_bump = |x: &isize| {
 		cycle_count += 1;
 		let raster_pos = (cycle_count - 1) % 40;
 		
-		if raster_pos.abs_diff(xx as usize) <= 1 {
+		if raster_pos.abs_diff(*x as usize) <= 1 {
 			screen.push('#');
 		} else {
 			screen.push('.');
@@ -71,11 +72,11 @@ pub fn b(input: String) -> impl Display {
 	for insn in insns {
 		match insn {
 			Insn::Noop => {
-				cycle_bump(x);
+				cycle_bump(&x);
 			},
 			Insn::Addx(arg) => {
-				cycle_bump(x);
-				cycle_bump(x);
+				cycle_bump(&x);
+				cycle_bump(&x);
 				x += arg;
 			}
 		}
