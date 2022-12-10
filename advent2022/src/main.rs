@@ -18,6 +18,7 @@ mod day06;
 mod day07;
 mod day08;
 mod day09;
+mod day10;
 
 pub fn main() {
 	println!("01 a {}", day01::a(input_as_string(1)));
@@ -38,6 +39,8 @@ pub fn main() {
 	println!("08 b {}", day08::b(input_as_string(8)));
 	println!("09 a {}", day09::a(input_as_string(9)));
 	println!("09 b {}", day09::b(input_as_string(9)));
+	println!("10 a {}", day10::a(input_as_string(10)));
+	println!("10 b {}", day10::b(input_as_string(10)));
 }
 
 // input handling //
