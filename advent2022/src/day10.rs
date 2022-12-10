@@ -47,19 +47,13 @@ pub fn b(input: String) -> impl Display {
 	let mut x: isize = 1;
 	let mut cycle_count: usize = 0;
 	
-	let mut screen = String::new();
-	screen.push('\n');
+	let mut screen = "\n".to_string(); //just to make my main() output look nicer
 	
 	let mut tick = |x: &isize| {
+		let raster_pos = cycle_count % 40;
 		cycle_count += 1;
-		let raster_pos = (cycle_count - 1) % 40;
 		
-		if raster_pos.abs_diff(*x as usize) <= 1 {
-			screen.push('#');
-		} else {
-			screen.push('.');
-		}
-		
+		screen.push(if raster_pos.abs_diff(*x as usize) <= 1 { '#' } else { '.' });
 		if raster_pos == 39 {
 			screen.push('\n')
 		}
