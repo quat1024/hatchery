@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_variables)]
 #![allow(unused_imports)] //rust-analyzer seems to be buggy about `use super::*` in tests and thinks its unused
 #![feature(iter_array_chunks)] //hehe
+#![feature(array_windows)] //hehe
 
 //a "prelude" of sorts
 pub use std::convert::Infallible;
