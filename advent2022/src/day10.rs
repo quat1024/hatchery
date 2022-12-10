@@ -46,7 +46,42 @@ pub fn a(input: String) -> impl Display {
 }
 
 pub fn b(input: String) -> impl Display {
-	"x"
+	let insns = input.lines().map(Insn::parse).collect::<Vec<_>>();
+	
+	let mut x: isize = 1;
+	let mut cycle_count: usize = 0;
+	let mut screen = String::new();
+	screen.push('\n');
+	
+	let mut cycle_bump = |xx| {
+		cycle_count += 1;
+		let raster_pos = (cycle_count - 1) % 40;
+		
+		if raster_pos.abs_diff(xx as usize) <= 1 {
+			screen.push('#');
+		} else {
+			screen.push('.');
+		}
+		
+		if raster_pos == 39 {
+			screen.push('\n')
+		}
+	};
+	
+	for insn in insns {
+		match insn {
+			Insn::Noop => {
+				cycle_bump(x);
+			},
+			Insn::Addx(arg) => {
+				cycle_bump(x);
+				cycle_bump(x);
+				x += arg;
+			}
+		}
+	}
+	
+	screen
 }
 
 #[cfg(test)]
