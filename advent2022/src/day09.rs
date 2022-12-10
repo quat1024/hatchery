@@ -65,70 +65,41 @@ fn parse<'a>(input: &'a str) -> impl Iterator<Item = Vec2> + 'a {
 	input.lines().flat_map(|line| std::iter::repeat(Vec2::from_char(line.chars().next().expect("nonempty"))).take(line[2..].parse::<usize>().expect("numeric")))
 }
 
-fn show(head: &Vec2, tail: &Vec2) {
-	
-	let xbounds = head.x.min(tail.x.min(0))..(head.x.max(tail.x.max(5)) + 1);
-	let ybounds = head.y.min(tail.y.min(0))..(head.y.max(tail.y.max(4)) + 1);
-
-	for y in ybounds.rev() {
-		for x in xbounds.clone() {
-			if x == head.x && y == head.y {
-				print!("H");
-			} else if x == tail.x && y == tail.y {
-				print!("T");
-			} else {
-				print!("_")
-			}
-		}
-		println!()
-	}
-	println!();
-}
-
-pub fn a(input: String) -> impl Display {
-	let mut head = Vec2 { x: 0, y: 0 };
-	let mut tail = Vec2 { x: 0, y: 0 };
-
-	let mut unique_tail_locations = std::collections::HashSet::<Vec2>::new();
-	unique_tail_locations.insert(tail);
-
-	for dir in parse(&input) {
-		head = head + dir;
-		tail = update_tail(&head, &tail);
-
-		unique_tail_locations.insert(tail);
-	}
-
-	unique_tail_locations.len()
-}
-
-pub fn b(input: String) -> impl Display {
-	let mut rope = [Vec2::default(); 10];
-
-	let mut unique_tail_locations = std::collections::HashSet::<Vec2>::new();
-	unique_tail_locations.insert(rope[9]);
-	
-	for dir in parse(&input) {
-		rope[0] = rope[0] + dir;
-		for i in 1..=9 {
-			rope[i] = update_tail(&rope[i - 1], &rope[i]);
-		}
-		
-		unique_tail_locations.insert(rope[9]);
-	}
-
-	unique_tail_locations.len()
-}
-
 fn update_tail(head: &Vec2, tail: &Vec2) -> Vec2 {
 	if head.in_neighborhood(tail) {
 		return *tail; //no need to move
 	}
 	
-	//try stepping in all eight directions and seeing which one minimizes the manhattan distance to the head
+	//Try stepping in all eight directions, seeing which one minimizes the manhattan distance to the head
 	let mut steps = vec![Vec2::new(0, 1), Vec2::new(1, 1), Vec2::new(1, 0), Vec2::new(1, -1), Vec2::new(0, -1), Vec2::new(-1, -1), Vec2::new(-1, 0), Vec2::new(-1, 1)];
 	steps.sort_by_key(|step| (*tail + *step).manhattan_dist(head));
 	*tail + steps[0]
+}
+
+fn drag_rope<const LEN: usize>(dirs: impl Iterator<Item = Vec2>) -> usize {
+	assert!(LEN >= 2, "nontrivial rope");
+	
+	let mut rope = [Vec2::default(); LEN];
+	let mut unique_tail_locations = std::collections::HashSet::<Vec2>::new();
+	
+	for dir in dirs {
+		rope[0] = rope[0] + dir;
+		for i in 1..LEN {
+			rope[i] = update_tail(&rope[i - 1], &rope[i]);
+		}
+		
+		unique_tail_locations.insert(rope[LEN - 1]);
+	}
+	
+	unique_tail_locations.len()
+}
+
+pub fn a(input: String) -> impl Display {
+	drag_rope::<2>(parse(&input))
+}
+
+pub fn b(input: String) -> impl Display {
+	drag_rope::<10>(parse(&input))
 }
 
 #[cfg(test)]
@@ -148,3 +119,22 @@ mod test {
 		assert_eq!(b(input_as_string(9)).to_string(), "2303");
 	}
 }
+
+// fn show(head: &Vec2, tail: &Vec2) {
+// 	let xbounds = head.x.min(tail.x.min(0))..(head.x.max(tail.x.max(5)) + 1);
+// 	let ybounds = head.y.min(tail.y.min(0))..(head.y.max(tail.y.max(4)) + 1);
+
+// 	for y in ybounds.rev() {
+// 		for x in xbounds.clone() {
+// 			if x == head.x && y == head.y {
+// 				print!("H");
+// 			} else if x == tail.x && y == tail.y {
+// 				print!("T");
+// 			} else {
+// 				print!("_")
+// 			}
+// 		}
+// 		println!()
+// 	}
+// 	println!();
+// }
