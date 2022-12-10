@@ -1,49 +1,28 @@
 use crate::*;
 
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Default)]
 struct Vec2 {
 	x: isize,
 	y: isize,
 }
 
 impl Vec2 {
-	fn from_char(c: char) -> Self {
-		match c {
-			'U' => Vec2 { x: 0, y: 1 },
-			'R' => Vec2 { x: 1, y: 0 },
-			'D' => Vec2 { x: 0, y: -1 },
-			'L' => Vec2 { x: -1, y: 0 },
-			_ => panic!("unexpected item in bagging area"),
-		}
-	}
-
-	fn flip(&self) -> Self {
-		*self * -1
-	}
-
-	fn rotate(&self) -> Self {
-		Vec2 { x: self.y, y: self.x }
-	}
-	
 	fn new(x: isize, y: isize) -> Self {
 		Vec2 { x, y }
 	}
 	
-	fn in_neighborhood(&self, other: &Self) -> bool {
-		let close_x = self.x.abs_diff(other.x) <= 1;
-		let close_y = self.y.abs_diff(other.y) <= 1;
-		close_x && close_y
+	fn from_char(c: char) -> Self {
+		match c {
+			'U' => Self::new(0, 1),
+			'R' => Self::new(1, 0),
+			'D' => Self::new(0, -1),
+			'L' => Self::new(-1, 0),
+			_ => panic!("unexpected item in bagging area"),
+		}
 	}
-	
-	fn manhattan_dist(&self, other: &Self) -> usize {
-		self.x.abs_diff(other.x) + self.y.abs_diff(other.y)
-	}
-}
 
-impl std::ops::Mul<isize> for Vec2 {
-	type Output = Vec2;
-	fn mul(self, rhs: isize) -> Self::Output {
-		Vec2 { x: self.x * rhs, y: self.y * rhs }
+	fn manhattan_dist(self, other: Self) -> usize {
+		self.x.abs_diff(other.x) + self.y.abs_diff(other.y)
 	}
 }
 
@@ -54,43 +33,39 @@ impl std::ops::Add for Vec2 {
 	}
 }
 
-impl std::ops::Sub for Vec2 {
-	type Output = Self;
-	fn sub(self, rhs: Self) -> Self::Output {
-		Vec2 { x: self.x - rhs.x, y: self.y - rhs.y }
-	}
-}
-
+///flattens "R 4" into "R, R, R, R" while parsing
 fn parse<'a>(input: &'a str) -> impl Iterator<Item = Vec2> + 'a {
 	input.lines().flat_map(|line| std::iter::repeat(Vec2::from_char(line.chars().next().expect("nonempty"))).take(line[2..].parse::<usize>().expect("numeric")))
 }
 
-fn update_tail(head: &Vec2, tail: &Vec2) -> Vec2 {
-	if head.in_neighborhood(tail) {
-		return *tail; //no need to move
+fn update_tail(head: Vec2, tail: Vec2) -> Vec2 {
+	if (head.x.abs_diff(tail.x) <= 1) && (head.y.abs_diff(tail.y) <= 1) {
+		return tail; //no need to move
 	}
-	
-	//Try stepping in all eight directions, seeing which one minimizes the manhattan distance to the head
-	let mut steps = vec![Vec2::new(0, 1), Vec2::new(1, 1), Vec2::new(1, 0), Vec2::new(1, -1), Vec2::new(0, -1), Vec2::new(-1, -1), Vec2::new(-1, 0), Vec2::new(-1, 1)];
-	steps.sort_by_key(|step| (*tail + *step).manhattan_dist(head));
-	*tail + steps[0]
+
+	//Minimize distance to the head
+	let mut steps =
+		vec![Vec2::new(0, 1), Vec2::new(1, 1), Vec2::new(1, 0), Vec2::new(1, -1), Vec2::new(0, -1), Vec2::new(-1, -1), Vec2::new(-1, 0), Vec2::new(-1, 1)];
+	steps.sort_by_key(|step| (tail + *step).manhattan_dist(head));
+	tail + steps[0]
 }
 
-fn drag_rope<const LEN: usize>(dirs: impl Iterator<Item = Vec2>) -> usize {
-	assert!(LEN >= 2, "nontrivial rope");
-	
-	let mut rope = [Vec2::default(); LEN];
+fn drag_rope<const ROPE_LENGTH: usize>(steps: impl Iterator<Item = Vec2>) -> usize {
+	assert!(ROPE_LENGTH >= 2, "nontrivial rope");
+
+	let mut rope = [Vec2::default(); ROPE_LENGTH];
 	let mut unique_tail_locations = std::collections::HashSet::<Vec2>::new();
-	
-	for dir in dirs {
-		rope[0] = rope[0] + dir;
-		for i in 1..LEN {
-			rope[i] = update_tail(&rope[i - 1], &rope[i]);
+	unique_tail_locations.insert(rope[ROPE_LENGTH - 1]);
+
+	for step in steps {
+		rope[0] = rope[0] + step;
+		for i in 1..ROPE_LENGTH {
+			rope[i] = update_tail(rope[i - 1], rope[i]);
 		}
-		
-		unique_tail_locations.insert(rope[LEN - 1]);
+
+		unique_tail_locations.insert(rope[ROPE_LENGTH - 1]);
 	}
-	
+
 	unique_tail_locations.len()
 }
 
