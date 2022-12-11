@@ -45,7 +45,7 @@ pub fn a(input: String) -> impl Display {
 
 pub fn b(input: String) -> impl Display {
 	let mut x: isize = 1;
-	let mut cycle_count: usize = 0;
+	let mut cycle_count: isize = 0;
 	
 	let mut screen = String::new();
 	
@@ -53,7 +53,7 @@ pub fn b(input: String) -> impl Display {
 		let raster_pos = cycle_count % 40;
 		cycle_count += 1;
 		
-		screen.push(if raster_pos.abs_diff(*x as usize) <= 1 { '#' } else { '.' });
+		screen.push(if raster_pos.abs_diff(*x) <= 1 { '#' } else { '.' });
 		if raster_pos == 39 {
 			screen.push('\n')
 		}
@@ -96,7 +96,12 @@ mod test {
 	fn real() {
 		assert_eq!(a(input_as_string(10)).to_string(), "12520");
 		
-		//no test for part b cause its broken and if i dont write a test it doesnt count as being broken right?
-		//the left side of my character is kinda cut off, its weird
+		assert_eq!(b(input_as_string(10)).to_string(), "####.#..#.###..####.###....##..##..#....
+#....#..#.#..#....#.#..#....#.#..#.#....
+###..####.#..#...#..#..#....#.#....#....
+#....#..#.###...#...###.....#.#.##.#....
+#....#..#.#....#....#....#..#.#..#.#....
+####.#..#.#....####.#.....##...###.####.
+");
 	}
 }
