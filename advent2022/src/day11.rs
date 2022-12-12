@@ -116,7 +116,36 @@ pub fn a(input: String) -> impl Display {
 }
 
 pub fn b(input: String) -> impl Display {
-	"x"
+	let mut simians: Vec<Monkey> = Vec::new();
+	let mut lines = input.lines();
+	while let Some(monke) = Monkey::parse(&mut lines) {
+		simians.push(monke);
+		lines.next(); //consume the blank line separating them
+	}
+	
+	let modulus: usize = simians.iter().map(|m| m.test).product();
+	
+	for round in 1..=10000 {
+		for monke in &simians {
+			while let Some(item) = monke.items.borrow_mut().pop_front() {
+				let item = monke.op.run(item) % modulus;
+				let who = if item % monke.test == 0 {
+					monke.result.0
+				} else {
+					monke.result.1 
+				};
+				simians[who].items.borrow_mut().push_back(item);
+				*monke.business.borrow_mut() += 1;
+			}
+		}
+	}
+	
+	simians.sort_by_key(|m| m.business.borrow().clone());
+	simians.reverse();
+	
+	let a = simians[0].business.borrow().clone();
+	let b = simians[1].business.borrow().clone();
+	(a * b).to_string()
 }
 
 #[cfg(test)]
@@ -126,13 +155,13 @@ mod test {
 	#[test]
 	fn test() {
 		assert_eq!(a(test_input_as_string(11)).to_string(), "10605");
-		//assert_eq!(b(test_input_as_string(11)).to_string(), "x");
+		assert_eq!(b(test_input_as_string(11)).to_string(), "2713310158");
 	}
 
 	#[test]
 	fn real() {
 		assert_eq!(a(input_as_string(11)).to_string(), "117624");
-		//assert_eq!(b(input_as_string(11)).to_string(), "x");
+		assert_eq!(b(input_as_string(11)).to_string(), "16792940265");
 	}
 
 	#[test]
