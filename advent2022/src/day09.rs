@@ -10,7 +10,7 @@ impl Vec2 {
 	fn new(x: isize, y: isize) -> Self {
 		Vec2 { x, y }
 	}
-	
+
 	fn from_char(c: char) -> Self {
 		match c {
 			'U' => Self::new(0, 1),
