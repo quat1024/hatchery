@@ -41,10 +41,7 @@ struct Monkey {
 }
 
 impl Monkey {
-	fn parse<'iterator, 'line, L>(lines: &'iterator mut L) -> Option<Self>
-	where
-		L: Iterator<Item = &'line str>,
-	{
+	fn parse<'iterator, 'line>(lines: &'iterator mut impl Iterator<Item = &'line str>) -> Option<Self> {
 		let id = number_from_soup(lines.next()?)?;
 		let items = lines.next()?.trim_start_matches("  Starting items: ").split(", ").map(str::parse).collect::<Result<VecDeque<_>, _>>().ok()?;
 
