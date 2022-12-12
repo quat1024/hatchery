@@ -5,7 +5,7 @@ use std::collections::HashSet;
 
 use crate::*;
 
-type Coord = (isize, isize);
+type Coord = (isize, isize); //(row, col)
 
 struct Map {
 	map: Vec<Vec<char>>,
@@ -39,7 +39,7 @@ impl Map {
 				let dst = self.get(coord).unwrap();
 
 				for checkpos in [(coord.0 - 1, coord.1), (coord.0 + 1, coord.1), (coord.0, coord.1 - 1), (coord.0, coord.1 + 1)] {
-					if self.get(checkpos).filter(|src| can_traverse(*src, dst)).is_some() {
+					if self.get(checkpos).filter(|src| (*src as u8 + 1) >= (dst as u8)).is_some() {
 						match explored_area.get(&checkpos) {
 							Some(&prev) if steps < prev => {
 								frontier_of_exploration.insert(checkpos);
@@ -53,8 +53,8 @@ impl Map {
 				}
 			}
 
-			for &coord in &frontier_of_exploration {
-				explored_area.insert(coord, steps);
+			for coord in &frontier_of_exploration {
+				explored_area.insert(*coord, steps);
 			}
 
 			std::mem::swap(&mut to_explore, &mut frontier_of_exploration);
@@ -90,10 +90,6 @@ fn parse(input: &str) -> Map {
 			(row_id.try_into().expect("end fits in isize"), col_id.try_into().expect("end fits in isize"))
 		},
 	}
-}
-
-fn can_traverse(src: char, dst: char) -> bool {
-	(src as u8 + 1) >= (dst as u8)
 }
 
 pub fn a(input: &str) -> impl Display {
