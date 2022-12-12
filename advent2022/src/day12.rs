@@ -39,7 +39,7 @@ impl Map {
 				let dst = self.get(coord).unwrap();
 
 				for checkpos in [(coord.0 - 1, coord.1), (coord.0 + 1, coord.1), (coord.0, coord.1 - 1), (coord.0, coord.1 + 1)] {
-					if self.get(checkpos).filter(|src| (*src as u8 + 1) >= (dst as u8)).is_some() {
+					if !explored_area.contains_key(&checkpos) && self.get(checkpos).filter(|src| (*src as u8 + 1) >= (dst as u8)).is_some() {
 						match explored_area.get(&checkpos) {
 							Some(&prev) if steps < prev => {
 								frontier_of_exploration.insert(checkpos);
