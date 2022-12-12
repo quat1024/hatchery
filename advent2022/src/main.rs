@@ -9,6 +9,7 @@ pub use std::convert::Infallible;
 pub use std::fmt::Display;
 pub use std::ops::Range;
 pub use std::str::FromStr;
+use std::time::Instant;
 
 pub use crate::tools::*;
 
@@ -28,30 +29,47 @@ mod day12;
 mod tools;
 
 pub fn main() {
-	println!("01 a {}", day01::a(&input_as_string(1)));
-	println!("01 b {}", day01::b(&input_as_string(1)));
-	println!("02 a {}", day02::a(&input_as_string(2)));
-	println!("02 b {}", day02::b(&input_as_string(2)));
-	println!("03 a {}", day03::a(&input_as_string(3)));
-	println!("03 b {}", day03::b(&input_as_string(3)));
-	println!("04 a {}", day04::a(&input_as_string(4)));
-	println!("04 b {}", day04::b(&input_as_string(4)));
-	println!("05 a {}", day05::a(&input_as_string(5)));
-	println!("05 b {}", day05::b(&input_as_string(5)));
-	println!("06 a {}", day06::a(&input_as_string(6)));
-	println!("06 b {}", day06::b(&input_as_string(6)));
-	println!("07 a {}", day07::a(&input_as_string(7)));
-	println!("07 b {}", day07::b(&input_as_string(7)));
-	println!("08 a {}", day08::a(&input_as_string(8)));
-	println!("08 b {}", day08::b(&input_as_string(8)));
-	println!("09 a {}", day09::a(&input_as_string(9)));
-	println!("09 b {}", day09::b(&input_as_string(9)));
-	println!("10 a {}", day10::a(&input_as_string(10)));
-	println!("10 b \n{}", day10::b(&input_as_string(10))); //this one is ascii-art so give it a newline
-	println!("11 a {}", day11::a(&input_as_string(11)));
-	println!("11 b {}", day11::b(&input_as_string(11)));
-	println!("12 a {}", day12::a(&input_as_string(12)));
-	println!("12 b {}", day12::b(&input_as_string(12)));
+	let now = Instant::now();
+	do_it(|s| println!("{s}"));
+	println!("Elapsed: {}ms", now.elapsed().as_millis());
+
+	if std::env::args().any(|hm| hm == "long") {
+		println!("Running them 100 more times!");
+		let now = Instant::now();
+		for _ in 0..100 {
+			do_it(|s| {
+				std::hint::black_box(s);
+			});
+		}
+		println!("Elapsed: {}ms", now.elapsed().as_millis());
+	}
+}
+
+fn do_it(mut output: impl FnMut(String)) {
+	output(format!("01 a {}", day01::a(&input_as_string(1))));
+	output(format!("01 b {}", day01::b(&input_as_string(1))));
+	output(format!("02 a {}", day02::a(&input_as_string(2))));
+	output(format!("02 b {}", day02::b(&input_as_string(2))));
+	output(format!("03 a {}", day03::a(&input_as_string(3))));
+	output(format!("03 b {}", day03::b(&input_as_string(3))));
+	output(format!("04 a {}", day04::a(&input_as_string(4))));
+	output(format!("04 b {}", day04::b(&input_as_string(4))));
+	output(format!("05 a {}", day05::a(&input_as_string(5))));
+	output(format!("05 b {}", day05::b(&input_as_string(5))));
+	output(format!("06 a {}", day06::a(&input_as_string(6))));
+	output(format!("06 b {}", day06::b(&input_as_string(6))));
+	output(format!("07 a {}", day07::a(&input_as_string(7))));
+	output(format!("07 b {}", day07::b(&input_as_string(7))));
+	output(format!("08 a {}", day08::a(&input_as_string(8))));
+	output(format!("08 b {}", day08::b(&input_as_string(8))));
+	output(format!("09 a {}", day09::a(&input_as_string(9))));
+	output(format!("09 b {}", day09::b(&input_as_string(9))));
+	output(format!("10 a {}", day10::a(&input_as_string(10))));
+	output(format!("10 b \n{}", day10::b(&input_as_string(10)))); //this one is ascii-art so give it a newline
+	output(format!("11 a {}", day11::a(&input_as_string(11))));
+	output(format!("11 b {}", day11::b(&input_as_string(11))));
+	output(format!("12 a {}", day12::a(&input_as_string(12))));
+	output(format!("12 b {}", day12::b(&input_as_string(12))));
 }
 
 // input handling //
