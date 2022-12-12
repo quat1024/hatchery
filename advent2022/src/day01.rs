@@ -1,5 +1,5 @@
-use crate::*;
 use crate::tools::chunks;
+use crate::*;
 
 pub fn a(input: String) -> impl Display {
 	//do the whole problem in a sexy unmaintainable oneliner

@@ -137,7 +137,7 @@ mod test {
 		assert_eq!(lcm_iter([10, 20, 30]), 60);
 		assert_eq!(lcm_iter([5, 10, 20]), 20);
 	}
-	
+
 	#[test]
 	fn test_chunks() {
 		assert_eq!(
@@ -154,8 +154,7 @@ part3"
 			vec![vec!["part1", "part1", "part1"], vec!["part2", "part2"], vec!["part3"],]
 		);
 	}
-	
-	
+
 	#[test]
 	fn test_number_from_soup() {
 		assert_eq!(number_from_soup(&"Monkey 0:"), Some(0));
