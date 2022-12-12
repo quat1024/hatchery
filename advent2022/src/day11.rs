@@ -1,4 +1,7 @@
-use std::{io::Write, cell::RefCell, collections::VecDeque, borrow::Borrow};
+use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::collections::VecDeque;
+use std::io::Write;
 
 use crate::*;
 
@@ -9,7 +12,6 @@ struct Monkey {
 	op: Expr,
 	test: usize, //always "divisible by __"
 	result: (usize, usize),
-	business: RefCell<usize>, //im strugglin bro
 }
 
 #[derive(Clone, Debug)]
@@ -29,7 +31,7 @@ impl Expr {
 			Expr::Mul(l, r) => l.run(old) * r.run(old),
 		}
 	}
-	
+
 	fn parse(line: &str) -> Option<Self> {
 		//Assuming things about the input:
 		//They're always binary operations.
@@ -56,7 +58,15 @@ impl Monkey {
 		let test = number_from_soup(lines.next()?)?;
 		let result = (number_from_soup(lines.next()?)?, number_from_soup(lines.next()?)?);
 
-		Some(Self { id, items: RefCell::new(items), op, test, result, business: RefCell::new(0) })
+		Some(Self { id, items: RefCell::new(items), op, test, result })
+	}
+
+	fn select_dest(&self, item: usize) -> usize {
+		if item % self.test == 0 {
+			self.result.0
+		} else {
+			self.result.1
+		}
 	}
 }
 
@@ -74,78 +84,43 @@ fn number_from_soup(line: &str) -> Option<usize> {
 	None
 }
 
-pub fn a(input: String) -> impl Display {
+fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 	let mut simians: Vec<Monkey> = Vec::new();
 	let mut lines = input.lines();
 	while let Some(monke) = Monkey::parse(&mut lines) {
 		simians.push(monke);
-		lines.next(); //consume the blank line separating them
+		lines.next(); //consume the blank line separating them in the input
 	}
-	
-	for round in 1..=20 {
+
+	let modulus: usize = simians.iter().map(|m| m.test).product();
+	let mut business = vec![0; simians.len()];
+
+	for round in 1..=ROUNDS {
 		for monke in &simians {
-			while let Some(item) = monke.items.borrow_mut().pop_front() {
-				
-				//apply the monke's operation
-				let item = monke.op.run(item);
-				
-				let item = item / 3;
-				
-				//throw the item to another monke
-				let who = if item % monke.test == 0 {
-					monke.result.0
-				} else {
-					monke.result.1 
-				};
-				
-				//it just so happens that no monkeys throw items to themself, so this is safe
-				simians[who].items.borrow_mut().push_back(item);
-				
-				//feel accomplushed
-				*monke.business.borrow_mut() += 1;
+			let mut items = monke.items.borrow_mut();
+			business[monke.id] += items.len();
+			while let Some(item) = items.pop_front() {
+				let new_item = ((monke.op.run(item)) / DIVIDER) % modulus;
+				//it just so happens that no monkeys throw items to themself, so this borrow_mut won't kaboom
+				simians[monke.select_dest(new_item)].items.borrow_mut().push_back(new_item);
 			}
 		}
 	}
-	
-	simians.sort_by_key(|m| m.business.borrow().clone());
-	simians.reverse(); //Hi i lost like 15 minutes of debugging to this.
-	
-	let a = simians[0].business.borrow().clone();
-	let b = simians[1].business.borrow().clone();
-	(a * b).to_string()
+
+	simians.sort_by_key(|m| business[m.id]);
+	simians.reverse();
+
+	let a = business[simians[0].id];
+	let b = business[simians[1].id];
+	a * b
+}
+
+pub fn a(input: String) -> impl Display {
+	do_it::<20, 3>(&input).to_string()
 }
 
 pub fn b(input: String) -> impl Display {
-	let mut simians: Vec<Monkey> = Vec::new();
-	let mut lines = input.lines();
-	while let Some(monke) = Monkey::parse(&mut lines) {
-		simians.push(monke);
-		lines.next(); //consume the blank line separating them
-	}
-	
-	let modulus: usize = simians.iter().map(|m| m.test).product();
-	
-	for round in 1..=10000 {
-		for monke in &simians {
-			while let Some(item) = monke.items.borrow_mut().pop_front() {
-				let item = monke.op.run(item) % modulus;
-				let who = if item % monke.test == 0 {
-					monke.result.0
-				} else {
-					monke.result.1 
-				};
-				simians[who].items.borrow_mut().push_back(item);
-				*monke.business.borrow_mut() += 1;
-			}
-		}
-	}
-	
-	simians.sort_by_key(|m| m.business.borrow().clone());
-	simians.reverse();
-	
-	let a = simians[0].business.borrow().clone();
-	let b = simians[1].business.borrow().clone();
-	(a * b).to_string()
+	do_it::<10000, 1>(&input).to_string()
 }
 
 #[cfg(test)]
