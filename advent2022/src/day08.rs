@@ -50,7 +50,7 @@ impl<T> std::ops::Deref for Grid<T> {
 fn parse_forest(input: &str) -> Grid<u8> {
 	//the puzzle input is transposed when parsing it this way but it's not a big deal
 	//TODO panics, doesn't check non-raggedness
-	Grid(input.lines().map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit") as u8).collect()).collect())
+	Grid(input.lines().map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit").try_into().expect("to_digit(10) returned one digit")).collect()).collect())
 }
 
 pub fn a(input: &str) -> impl Display {
@@ -60,7 +60,7 @@ pub fn a(input: &str) -> impl Display {
 	for x in 0..forest.width() {
 		let mut tallest_tree_from_north = -1i16;
 		for y in 0..forest.height() {
-			let tree_here = forest[x][y] as i16;
+			let tree_here = i16::from(forest[x][y]);
 			if tree_here > tallest_tree_from_north {
 				forest_visibility[x][y] = true;
 				tallest_tree_from_north = tree_here;
@@ -69,7 +69,7 @@ pub fn a(input: &str) -> impl Display {
 
 		let mut tallest_tree_from_south = -1i16;
 		for y in (0..forest.height()).rev() {
-			let tree_here = forest[x][y] as i16;
+			let tree_here = i16::from(forest[x][y]);
 			if tree_here > tallest_tree_from_south {
 				forest_visibility[x][y] = true;
 				tallest_tree_from_south = tree_here;
@@ -80,7 +80,7 @@ pub fn a(input: &str) -> impl Display {
 	for y in 0..forest.height() {
 		let mut tallest_tree_from_west = -1i16;
 		for x in 0..forest.width() {
-			let tree_here = forest[x][y] as i16;
+			let tree_here = i16::from(forest[x][y]);
 			if tree_here > tallest_tree_from_west {
 				forest_visibility[x][y] = true;
 				tallest_tree_from_west = tree_here;
@@ -89,7 +89,7 @@ pub fn a(input: &str) -> impl Display {
 
 		let mut tallest_tree_from_east = -1i16;
 		for x in (0..forest.width()).rev() {
-			let tree_here = forest[x][y] as i16;
+			let tree_here = i16::from(forest[x][y]);
 			if tree_here > tallest_tree_from_east {
 				forest_visibility[x][y] = true;
 				tallest_tree_from_east = tree_here;

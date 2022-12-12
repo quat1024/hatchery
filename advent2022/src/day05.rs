@@ -49,7 +49,7 @@ impl Shipyard {
 
 	//TODO not Infallible result
 	///this function here consumes the iterator only until it's parsed the whole shipyard
-	fn from_lines_iterator<'iter, 'lines, X>(lines: &'iter mut X) -> Result<Shipyard, Infallible>
+	fn from_lines_iterator<'iter, 'lines, X>(lines: &'iter mut X) -> Shipyard
 	where
 		X: Iterator<Item = &'lines str>,
 	{
@@ -111,7 +111,7 @@ impl Shipyard {
 			stacks.push(stack);
 		}
 
-		Ok(Shipyard { stacks })
+		Shipyard { stacks }
 	}
 }
 
@@ -136,7 +136,7 @@ impl FromStr for Instruction {
 
 pub fn a(input: &str) -> impl Display {
 	let mut lines = input.lines();
-	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
+	let mut shipyard = Shipyard::from_lines_iterator(&mut lines);
 	for line in lines {
 		if line.is_empty() {
 			continue;
@@ -152,7 +152,7 @@ pub fn a(input: &str) -> impl Display {
 
 pub fn b(input: &str) -> impl Display {
 	let mut lines = input.lines();
-	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
+	let mut shipyard = Shipyard::from_lines_iterator(&mut lines);
 	for line in lines {
 		if line.is_empty() {
 			continue;

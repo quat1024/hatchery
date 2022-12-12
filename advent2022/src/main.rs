@@ -1,5 +1,7 @@
 #![allow(dead_code, unused_variables)]
 #![feature(iter_array_chunks)] //hehe
+#![warn(clippy::pedantic)]
+#![allow(clippy::wildcard_imports, clippy::must_use_candidate)]
 
 //a "prelude" of sorts
 pub use std::convert::Infallible;
@@ -50,23 +52,33 @@ pub fn main() {
 
 // input handling //
 
+/// Reads an input file in the `../input` directory to a string. Argument is the puzzle number.
+/// This is likely the input as saved from the website.
+#[must_use]
 pub fn input_as_string(input_id: u8) -> String {
-	gimme_input(&format!("{:02}.txt", input_id))
+	gimme_input(&format!("{input_id:02}.txt"))
 }
 
+/// Reads a test input file in the `../input` directory to a string. Argument is the puzzle number.
+/// A test input file is likely something given in the problem statement.
+#[must_use]
 pub fn test_input_as_string(input_id: u8) -> String {
-	gimme_input(&format!("{:02} small.txt", input_id))
+	gimme_input(&format!("{input_id:02} small.txt"))
 }
 
+/// Reads a file in the `../input` directory to a string. Argument is the filename.
+/// Attempts to course-correct if the pwd is set to a higher-up directory.
+/// 
+/// # Panics
+/// 
+/// Panics if the current pwd is unobtainable/broken, or if the file does not exist.
+#[must_use]
 pub fn gimme_input(input_name: &str) -> String {
 	//clicking with the mouse on the "run" inlay above main() in vscode doesnt seem to set the pwd inside the cargo workspace
-	//but cargo run --bin does, im pretty sure
+	//but `cargo run --bin` does, im pretty sure? or `cargo run -p`?
 	let mut here = std::env::current_dir().unwrap();
 	if !here.ends_with("advent2022") {
-		here.push("advent2022")
+		here.push("advent2022");
 	}
-
-	let path = [here, "input".into(), input_name.into()].iter().collect::<std::path::PathBuf>();
-	//dbg!(&path);
-	std::fs::read_to_string(path).unwrap()
+	std::fs::read_to_string([here, "input".into(), input_name.into()].iter().collect::<std::path::PathBuf>()).unwrap()
 }

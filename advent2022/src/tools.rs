@@ -3,7 +3,7 @@ use std::ops::Mul;
 use std::ops::Rem;
 
 ///A collection of small-integer related traits.
-///A little bit num-traits inspired, but way smaller cause num-traits seems to make my compile times really bad.
+///A little bit num-traits inspired, but way smaller, cause num-traits seems to make my compile times really bad.
 pub trait Int: Copy + Eq + Default + Ord + Div<Output = Self> + Rem<Output = Self> + Mul<Output = Self> {
 	fn zero() -> Self {
 		Default::default()
@@ -72,7 +72,7 @@ where
 	numbers.into_iter().fold(N::one(), |acc, n| lcm(acc, n))
 }
 
-/// Sometimes in AoC you get input that's a "list of lists", where two blank lines separate each list.
+/// Sometimes in `AoC` you get input that's a "list of lists", where two blank lines separate each list.
 /// Splitting on \n\n works, usually, unless you're on Windows and get carriage returns too! This can happen if you use the clipboard.
 ///
 /// So this function splits into chunks the "hard way". It scans a string line-by-line, copying a slice to each line into a bucket.

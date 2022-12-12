@@ -25,11 +25,11 @@ fn disjoint_find_2<const WINDOW_SIZE: usize>(input: &str) -> Option<usize> {
 }
 
 pub fn a(input: &str) -> impl Display {
-	disjoint_find_2::<4>(input).map(|x| x.to_string()).unwrap_or("not found".into())
+	disjoint_find_2::<4>(input).map_or("not found".into(), |x| x.to_string())
 }
 
 pub fn b(input: &str) -> impl Display {
-	disjoint_find_2::<14>(input).map(|x| x.to_string()).unwrap_or("not found".into())
+	disjoint_find_2::<14>(input).map_or("not found".into(), |x| x.to_string())
 }
 
 #[cfg(test)]

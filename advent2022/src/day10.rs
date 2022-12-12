@@ -55,7 +55,7 @@ pub fn b(input: &str) -> impl Display {
 
 		screen.push(if raster_pos.abs_diff(*x) <= 1 { '#' } else { '.' });
 		if raster_pos == 39 {
-			screen.push('\n')
+			screen.push('\n');
 		}
 	};
 

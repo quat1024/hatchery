@@ -49,7 +49,7 @@ impl Monkey {
 		L: Iterator<Item = &'b str>,
 	{
 		let id = number_from_soup(lines.next()?)?;
-		let items = lines.next()?.trim_start_matches("  Starting items: ").split(", ").map(|x| x.parse::<usize>()).collect::<Result<VecDeque<_>, _>>().ok()?;
+		let items = lines.next()?.trim_start_matches("  Starting items: ").split(", ").map(str::parse).collect::<Result<VecDeque<_>, _>>().ok()?;
 
 		let op = Expr::parse(lines.next()?.trim_start_matches("  Operation: new = "))?;
 

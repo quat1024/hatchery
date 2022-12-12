@@ -64,7 +64,7 @@ impl Directory {
 
 	fn get_or_create_subdir(&mut self, subdir_name: &str) -> &mut Directory {
 		//TODO: remove clone!!!
-		self.subdirs.entry(subdir_name.to_owned()).or_insert(Default::default())
+		self.subdirs.entry(subdir_name.to_owned()).or_insert(Directory::default())
 	}
 
 	fn get_or_create_path(&mut self, path: &Vec<String>) -> &mut Directory {
@@ -90,7 +90,7 @@ impl Directory {
 	fn flatten_impl<'a>(&'a self, flat: &mut Vec<&'a Directory>) {
 		flat.push(self);
 		for subdir in self.subdirs.values() {
-			subdir.flatten_impl(flat)
+			subdir.flatten_impl(flat);
 		}
 	}
 }
@@ -106,7 +106,7 @@ impl Instruction {
 			} else if line == "$ cd .." {
 				instructions.push(Instruction::NavigateUp);
 			} else if let Some(path) = line.strip_prefix("$ cd ") {
-				instructions.push(Instruction::NavigateDown { name: path.to_owned() })
+				instructions.push(Instruction::NavigateDown { name: path.to_owned() });
 			} else if line == "$ ls" {
 				//now the fun part!
 				let mut ls_entry_lines = Vec::new();
@@ -121,9 +121,9 @@ impl Instruction {
 					//else we need to consume the line
 					if let Some(line2) = lineserator.next() {
 						if let Some(dirname) = line2.strip_prefix("dir ") {
-							ls_entry_lines.push(LsEntry::Dir { name: dirname.to_owned() })
+							ls_entry_lines.push(LsEntry::Dir { name: dirname.to_owned() });
 						} else if let Some((size_unparsed, filename)) = line2.split_once(' ') {
-							ls_entry_lines.push(LsEntry::File { name: filename.to_owned(), size: size_unparsed.parse().expect("alskjdklasjdkljaskd") })
+							ls_entry_lines.push(LsEntry::File { name: filename.to_owned(), size: size_unparsed.parse().expect("alskjdklasjdkljaskd") });
 							//TODO
 						}
 					} else {
@@ -131,7 +131,7 @@ impl Instruction {
 					}
 				}
 
-				instructions.push(Instruction::Listing(ls_entry_lines))
+				instructions.push(Instruction::Listing(ls_entry_lines));
 			} else {
 				panic!("unexpected item in bagging area"); //TODO
 			}
