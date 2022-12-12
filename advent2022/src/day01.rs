@@ -24,13 +24,13 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(&&test_input_as_string(1)).to_string(), "24000");
-		assert_eq!(b(&&test_input_as_string(1)).to_string(), "45000");
+		assert_eq!(a(&test_input_as_string(1)).to_string(), "24000");
+		assert_eq!(b(&test_input_as_string(1)).to_string(), "45000");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(a(&&input_as_string(1)).to_string(), "73211");
-		assert_eq!(b(&&input_as_string(1)).to_string(), "213958");
+		assert_eq!(a(&input_as_string(1)).to_string(), "73211");
+		assert_eq!(b(&input_as_string(1)).to_string(), "213958");
 	}
 }
