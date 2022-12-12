@@ -138,8 +138,7 @@ Monkey 1:
   Operation: new = old + 2
   Test: divisible by 51
     If true: throw to monkey 0
-    If false: throw to monkey 1"
-				.into())
+    If false: throw to monkey 1")
 			.to_string(),
 			"399980000"
 		);

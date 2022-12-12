@@ -142,7 +142,7 @@ mod test {
 	fn test_chunks() {
 		assert_eq!(
 			chunks(
-				&"part1
+				"part1
 part1
 part1
 
@@ -157,10 +157,10 @@ part3"
 
 	#[test]
 	fn test_number_from_soup() {
-		assert_eq!(number_from_soup(&"Monkey 0:"), Some(0));
-		assert_eq!(number_from_soup(&"12345 yeah"), Some(12345));
-		assert_eq!(number_from_soup(&"If true: throw to monkey 2"), Some(2));
-		assert_eq!(number_from_soup(&""), None);
-		assert_eq!(number_from_soup(&"No numbers here :("), None);
+		assert_eq!(number_from_soup("Monkey 0:"), Some(0));
+		assert_eq!(number_from_soup("12345 yeah"), Some(12345));
+		assert_eq!(number_from_soup("If true: throw to monkey 2"), Some(2));
+		assert_eq!(number_from_soup(""), None);
+		assert_eq!(number_from_soup("No numbers here :("), None);
 	}
 }
