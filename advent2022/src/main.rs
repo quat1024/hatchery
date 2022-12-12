@@ -1,13 +1,12 @@
 #![allow(dead_code, unused_variables)]
-#![allow(unused_imports)] //rust-analyzer seems to be buggy about `use super::*` in tests and thinks its unused
 #![feature(iter_array_chunks)] //hehe
-#![feature(array_windows)] //hehe
 
 //a "prelude" of sorts
 pub use std::convert::Infallible;
 pub use std::fmt::Display;
 pub use std::ops::Range;
 pub use std::str::FromStr;
+pub use crate::tools::*;
 
 mod day01;
 mod day02;
@@ -20,6 +19,8 @@ mod day08;
 mod day09;
 mod day10;
 mod day11;
+
+mod tools;
 
 pub fn main() {
 	println!("01 a {}", day01::a(input_as_string(1)));
@@ -67,58 +68,4 @@ pub fn gimme_input(input_name: &str) -> String {
 	let path = [here, "input".into(), input_name.into()].iter().collect::<std::path::PathBuf>();
 	//dbg!(&path);
 	std::fs::read_to_string(path).unwrap()
-}
-
-// util ! //
-
-/// Sometimes in AoC you get input that's a "list of lists", where two blank lines separate each list.
-/// Splitting on \n\n works, usually, unless you're on Windows and get carriage returns too! This can happen if you use the clipboard.
-///
-/// So this function splits into chunks the "hard way". It scans a string line-by-line, copying a slice to each line into a bucket.
-/// When a blank line is encountered, the bucket is added to the list-of-lists.
-pub fn chunks<'a>(input: &'a str) -> Vec<Vec<&'a str>> {
-	let mut chunks: Vec<Vec<&'a str>> = Vec::new();
-	let mut bucket: Vec<&'a str> = Vec::new();
-
-	for line in input.lines() {
-		if line.trim().is_empty() {
-			//finding an empty string to delimit each bucket
-			//bucket.is_empty may be true if there's two blank lines in a row
-			if !bucket.is_empty() {
-				//stash away the current bucket, and make `bucket` point to a newly allocated one, in one step
-				chunks.push(std::mem::take(&mut bucket));
-			}
-		} else {
-			bucket.push(&line);
-		}
-	}
-
-	//the last one
-	if !bucket.is_empty() {
-		chunks.push(bucket);
-	}
-
-	chunks
-}
-
-#[cfg(test)]
-mod main {
-	use super::*;
-
-	#[test]
-	fn test_chunks() {
-		assert_eq!(
-			chunks(
-				&"part1
-part1
-part1
-
-part2
-part2
-
-part3"
-			),
-			vec![vec!["part1", "part1", "part1"], vec!["part2", "part2"], vec!["part3"],]
-		);
-	}
 }

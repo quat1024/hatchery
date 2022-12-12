@@ -1,7 +1,5 @@
-use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::VecDeque;
-use std::io::Write;
 
 use crate::*;
 
@@ -70,17 +68,6 @@ impl Monkey {
 	}
 }
 
-fn number_from_soup(line: &str) -> Option<usize> {
-	let mut indexed_char_iter = line.chars().enumerate();
-
-	let (start, _) = indexed_char_iter.find(|c| c.1.is_ascii_digit())?;
-	if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) {
-		line[start..end].parse().ok()
-	} else {
-		line[start..].parse().ok()
-	}
-}
-
 fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 	let mut simians: Vec<Monkey> = Vec::new();
 	let mut lines = input.lines();
@@ -89,7 +76,9 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 		lines.next(); //consume the blank line separating them in the input
 	}
 
-	let modulus: usize = simians.iter().map(|m| m.test).product(); //required for part b, but doesn't hurt part a
+	//required for part b, but doesn't hurt part a. also yeah in this case the puzzle is small enough that just the product works too
+	let modulus: usize = crate::tools::lcm_iter(simians.iter().map(|m| m.test));
+
 	let mut business = vec![0; simians.len()];
 
 	for round in 1..=ROUNDS {
@@ -160,14 +149,5 @@ Monkey 1:
 	fn real() {
 		assert_eq!(a(input_as_string(11)).to_string(), "117624");
 		assert_eq!(b(input_as_string(11)).to_string(), "16792940265");
-	}
-
-	#[test]
-	fn test_number_from_soup() {
-		assert_eq!(number_from_soup(&"Monkey 0:"), Some(0));
-		assert_eq!(number_from_soup(&"12345 yeah"), Some(12345));
-		assert_eq!(number_from_soup(&"If true: throw to monkey 2"), Some(2));
-		assert_eq!(number_from_soup(&""), None);
-		assert_eq!(number_from_soup(&"No numbers here :("), None);
 	}
 }
