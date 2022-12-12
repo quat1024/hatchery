@@ -71,17 +71,14 @@ impl Monkey {
 }
 
 fn number_from_soup(line: &str) -> Option<usize> {
-	//my shitty ass algorithm doesnt work when the line ends with a number
-	let mut line = line.to_string();
-	line.push('.');
+	let mut indexed_char_iter = line.chars().enumerate();
 
-	if let Some((start, _)) = line.chars().enumerate().find(|c| c.1.is_ascii_digit()) {
-		if let Some((len, _)) = line.chars().skip(start + 1).enumerate().find(|c| !c.1.is_ascii_digit()) {
-			return line[start..start + len + 1].to_string().parse().ok();
-		}
+	let (start, _) = indexed_char_iter.find(|c| c.1.is_ascii_digit())?;
+	if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) {
+		line[start..end].parse().ok()
+	} else {
+		line[start..].parse().ok()
 	}
-
-	None
 }
 
 fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
@@ -92,7 +89,7 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 		lines.next(); //consume the blank line separating them in the input
 	}
 
-	let modulus: usize = simians.iter().map(|m| m.test).product();
+	let modulus: usize = simians.iter().map(|m| m.test).product(); //required for part b, but doesn't hurt part a
 	let mut business = vec![0; simians.len()];
 
 	for round in 1..=ROUNDS {
@@ -101,8 +98,12 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 			business[monke.id] += items.len();
 			while let Some(item) = items.pop_front() {
 				let new_item = ((monke.op.run(item)) / DIVIDER) % modulus;
-				//it just so happens that no monkeys throw items to themself, so this borrow_mut won't kaboom
-				simians[monke.select_dest(new_item)].items.borrow_mut().push_back(new_item);
+				let dest = &simians[monke.select_dest(new_item)];
+				if monke as *const _ == dest as *const _ {
+					items.push_back(new_item);
+				} else {
+					dest.items.borrow_mut().push_back(new_item);
+				}
 			}
 		}
 	}
@@ -131,6 +132,28 @@ mod test {
 	fn test() {
 		assert_eq!(a(test_input_as_string(11)).to_string(), "10605");
 		assert_eq!(b(test_input_as_string(11)).to_string(), "2713310158");
+
+		//fun pathological test-case i constructed, where a monkey can throw items to itself
+		//this causes borrow_mut errors with my original solution
+		//constructing this requires being a bit careful that it doesn't infinite loop ;)
+		assert_eq!(
+			b("Monkey 0:
+  Starting items: 1
+  Operation: new = old + 1
+  Test: divisible by 30
+    If true: throw to monkey 1
+    If false: throw to monkey 0
+	
+Monkey 1:
+  Starting items: 2
+  Operation: new = old + 2
+  Test: divisible by 51
+    If true: throw to monkey 0
+    If false: throw to monkey 1"
+				.into())
+			.to_string(),
+			"399980000"
+		);
 	}
 
 	#[test]
@@ -144,5 +167,7 @@ mod test {
 		assert_eq!(number_from_soup(&"Monkey 0:"), Some(0));
 		assert_eq!(number_from_soup(&"12345 yeah"), Some(12345));
 		assert_eq!(number_from_soup(&"If true: throw to monkey 2"), Some(2));
+		assert_eq!(number_from_soup(&""), None);
+		assert_eq!(number_from_soup(&"No numbers here :("), None);
 	}
 }
