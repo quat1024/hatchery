@@ -3,16 +3,6 @@ use std::collections::VecDeque;
 
 use crate::*;
 
-#[derive(Debug)]
-struct Monkey {
-	id: usize,
-	items: RefCell<VecDeque<usize>>,
-	op: Expr,
-	test: usize, //always "divisible by __"
-	result: (usize, usize),
-}
-
-#[derive(Clone, Debug)]
 enum Expr {
 	Old,
 	Iconst(usize),
@@ -31,11 +21,10 @@ impl Expr {
 	}
 
 	fn parse(line: &str) -> Option<Self> {
-		//Assuming things about the input:
-		//They're always binary operations.
+		//Assumptions I take about the input: Expressions are always binary operations.
 		let mut bits = line.split_ascii_whitespace();
 		let (l, c, r) = (bits.next()?, bits.next()?, bits.next()?);
-		//If the argument is nonnumeric, it's always Expr::Old.
+		//If the argument is nonnumeric, the only other option is Expr::Old.
 		let l = Box::new(l.parse::<usize>().map(Expr::Iconst).unwrap_or(Expr::Old));
 		let r = Box::new(r.parse::<usize>().map(Expr::Iconst).unwrap_or(Expr::Old));
 		//If the binop isn't multiplication, it's addition.
@@ -43,10 +32,18 @@ impl Expr {
 	}
 }
 
+struct Monkey {
+	id: usize,
+	items: RefCell<VecDeque<usize>>,
+	op: Expr,
+	test: usize,            //always "divisible by __"
+	result: (usize, usize), //true, false
+}
+
 impl Monkey {
-	fn parse<'a, 'b, L>(lines: &'a mut L) -> Option<Self>
+	fn parse<'iterator, 'line, L>(lines: &'iterator mut L) -> Option<Self>
 	where
-		L: Iterator<Item = &'b str>,
+		L: Iterator<Item = &'line str>,
 	{
 		let id = number_from_soup(lines.next()?)?;
 		let items = lines.next()?.trim_start_matches("  Starting items: ").split(", ").map(str::parse).collect::<Result<VecDeque<_>, _>>().ok()?;
@@ -76,7 +73,9 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 		lines.next(); //consume the blank line separating them in the input
 	}
 
-	//required for part b, but doesn't hurt part a. also yeah in this case the puzzle is small enough that just the product works too
+	//Required for part b, doesn't hurt part a.
+	//In this case, the puzzle is small enough that the simple product of all the monkey's test values works too.
+	//Using the least common multiple is just for style points.
 	let modulus: usize = crate::tools::lcm_iter(simians.iter().map(|m| m.test));
 
 	let mut business = vec![0; simians.len()];
@@ -89,8 +88,12 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 				let new_item = ((monke.op.run(item)) / DIVIDER) % modulus;
 				let dest = &simians[monke.select_dest(new_item)];
 				if std::ptr::eq(monke, dest) {
+					//This case never comes up in the AoC input, but pathological cases (like the one constructed below) could panic.
 					items.push_back(new_item);
 				} else {
+					//We need a RefCell because we currently have a borrow to one monkey, but want to mutate a different monkey.
+					//The borrow to one monkey requires a borrow to the collection it comes from, which normally forbids
+					//taking out mutable borrows to anything else in the collection.
 					dest.items.borrow_mut().push_back(new_item);
 				}
 			}
@@ -99,10 +102,7 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 
 	simians.sort_by_key(|m| business[m.id]);
 	simians.reverse();
-
-	let a = business[simians[0].id];
-	let b = business[simians[1].id];
-	a * b
+	business[simians[0].id] * business[simians[1].id]
 }
 
 pub fn a(input: &str) -> impl Display {
@@ -121,10 +121,12 @@ mod test {
 	fn test() {
 		assert_eq!(a(&test_input_as_string(11)).to_string(), "10605");
 		assert_eq!(b(&test_input_as_string(11)).to_string(), "2713310158");
+	}
 
-		//fun pathological test-case i constructed, where a monkey can throw items to itself
-		//this causes borrow_mut errors with my original solution
-		//constructing this requires being a bit careful that it doesn't infinite loop ;)
+	#[test]
+	fn test_pathological() {
+		//if a monkey throws an item to itself it'd cause a borrow_mut panic with my original solution
+		//constructing this case requires being a bit careful that it doesn't infinite loop ;)
 		assert_eq!(
 			b("Monkey 0:
   Starting items: 1

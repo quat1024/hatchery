@@ -50,7 +50,12 @@ impl<T> std::ops::Deref for Grid<T> {
 fn parse_forest(input: &str) -> Grid<u8> {
 	//the puzzle input is transposed when parsing it this way but it's not a big deal
 	//TODO panics, doesn't check non-raggedness
-	Grid(input.lines().map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit").try_into().expect("to_digit(10) returned one digit")).collect()).collect())
+	Grid(
+		input
+			.lines()
+			.map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit").try_into().expect("to_digit(10) returned one digit")).collect())
+			.collect(),
+	)
 }
 
 pub fn a(input: &str) -> impl Display {

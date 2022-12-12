@@ -1,7 +1,8 @@
 #![allow(dead_code, unused_variables)]
 #![feature(iter_array_chunks)] //hehe
 #![warn(clippy::pedantic)]
-#![allow(clippy::wildcard_imports, clippy::must_use_candidate)]
+#![allow(clippy::wildcard_imports)] //I like them.
+#![allow(clippy::must_use_candidate)] //I don't really care about this.
 
 //a "prelude" of sorts
 pub use std::convert::Infallible;
@@ -68,9 +69,9 @@ pub fn test_input_as_string(input_id: u8) -> String {
 
 /// Reads a file in the `../input` directory to a string. Argument is the filename.
 /// Attempts to course-correct if the pwd is set to a higher-up directory.
-/// 
+///
 /// # Panics
-/// 
+///
 /// Panics if the current pwd is unobtainable/broken, or if the file does not exist.
 #[must_use]
 pub fn gimme_input(input_name: &str) -> String {
