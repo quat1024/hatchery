@@ -242,7 +242,7 @@ impl VdfSerializer {
 		let top = &self.format_settings.toplevel_key_quote_rule;
 		let rule = if top.is_some() && self.indent_depth == 0 {
 			//Unwrap safety: is_some was just checked above
-			&top.as_ref().unwrap()
+			top.as_ref().unwrap()
 		} else {
 			&self.format_settings.key_quote_rule
 		};

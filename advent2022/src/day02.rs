@@ -79,7 +79,7 @@ impl WinState {
 	}
 }
 
-pub fn a(input: String) -> impl Display {
+pub fn a(input: &str) -> impl Display {
 	input
 		.lines()
 		.map(|line| {
@@ -92,7 +92,7 @@ pub fn a(input: String) -> impl Display {
 		.sum::<u64>()
 }
 
-pub fn b(input: String) -> impl Display {
+pub fn b(input: &str) -> impl Display {
 	input
 		.lines()
 		.map(|line| {
@@ -111,13 +111,13 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(2)).to_string(), "15");
-		assert_eq!(b(test_input_as_string(2)).to_string(), "12");
+		assert_eq!(a(&test_input_as_string(2)).to_string(), "15");
+		assert_eq!(b(&test_input_as_string(2)).to_string(), "12");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(2)).to_string(), "15422");
-		assert_eq!(b(input_as_string(2)).to_string(), "15442");
+		assert_eq!(a(&input_as_string(2)).to_string(), "15422");
+		assert_eq!(b(&input_as_string(2)).to_string(), "15442");
 	}
 }

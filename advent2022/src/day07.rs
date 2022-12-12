@@ -96,7 +96,7 @@ impl Directory {
 }
 
 impl Instruction {
-	fn parse_insn_list(input: String) -> Vec<Instruction> {
+	fn parse_insn_list(input: &str) -> Vec<Instruction> {
 		let mut instructions = Vec::new();
 
 		let mut lineserator = input.lines().fuse().peekable();
@@ -141,13 +141,13 @@ impl Instruction {
 	}
 }
 
-pub fn a(input: String) -> impl Display {
+pub fn a(input: &str) -> impl Display {
 	let directory = Directory::build(Instruction::parse_insn_list(input));
 
 	directory.flatten().iter().filter(|dir| dir.total_size() <= 100_000).map(|dir| dir.total_size()).sum::<usize>().to_string()
 }
 
-pub fn b(input: String) -> impl Display {
+pub fn b(input: &str) -> impl Display {
 	let directory = Directory::build(Instruction::parse_insn_list(input));
 
 	let disk_size = 70_000_000;
@@ -174,13 +174,13 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(7)).to_string(), "95437");
-		assert_eq!(b(test_input_as_string(7)).to_string(), "24933642");
+		assert_eq!(a(&test_input_as_string(7)).to_string(), "95437");
+		assert_eq!(b(&test_input_as_string(7)).to_string(), "24933642");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(7)).to_string(), "1454188");
-		assert_eq!(b(input_as_string(7)).to_string(), "4183246");
+		assert_eq!(a(&input_as_string(7)).to_string(), "1454188");
+		assert_eq!(b(&input_as_string(7)).to_string(), "4183246");
 	}
 }

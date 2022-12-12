@@ -134,7 +134,7 @@ impl FromStr for Instruction {
 	}
 }
 
-pub fn a(input: String) -> impl Display {
+pub fn a(input: &str) -> impl Display {
 	let mut lines = input.lines();
 	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
 	for line in lines {
@@ -150,7 +150,7 @@ pub fn a(input: String) -> impl Display {
 	shipyard.answer()
 }
 
-pub fn b(input: String) -> impl Display {
+pub fn b(input: &str) -> impl Display {
 	let mut lines = input.lines();
 	let mut shipyard = Shipyard::from_lines_iterator(&mut lines).expect("unexpected item in bagging area"); //TODO
 	for line in lines {
@@ -172,14 +172,14 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(5)).to_string(), "CMZ");
-		assert_eq!(b(test_input_as_string(5)).to_string(), "MCD");
+		assert_eq!(a(&test_input_as_string(5)).to_string(), "CMZ");
+		assert_eq!(b(&test_input_as_string(5)).to_string(), "MCD");
 	}
 
 	#[test]
 	fn real() {
 		//I was hoping it would spell something
-		assert_eq!(a(input_as_string(5)).to_string(), "FWSHSPJWM");
-		assert_eq!(b(input_as_string(5)).to_string(), "PWPWHGFZS");
+		assert_eq!(a(&input_as_string(5)).to_string(), "FWSHSPJWM");
+		assert_eq!(b(&input_as_string(5)).to_string(), "PWPWHGFZS");
 	}
 }

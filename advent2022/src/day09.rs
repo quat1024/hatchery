@@ -69,12 +69,12 @@ fn drag_rope<const ROPE_LENGTH: usize>(steps: impl Iterator<Item = Vec2>) -> usi
 	unique_tail_locations.len()
 }
 
-pub fn a(input: String) -> impl Display {
-	drag_rope::<2>(parse(&input))
+pub fn a(input: &str) -> impl Display {
+	drag_rope::<2>(parse(input))
 }
 
-pub fn b(input: String) -> impl Display {
-	drag_rope::<10>(parse(&input))
+pub fn b(input: &str) -> impl Display {
+	drag_rope::<10>(parse(input))
 }
 
 #[cfg(test)]
@@ -83,15 +83,15 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(9)).to_string(), "13");
-		assert_eq!(b(test_input_as_string(9)).to_string(), "1");
-		assert_eq!(b(gimme_input("09 small 2.txt")).to_string(), "36");
+		assert_eq!(a(&test_input_as_string(9)).to_string(), "13");
+		assert_eq!(b(&test_input_as_string(9)).to_string(), "1");
+		assert_eq!(b(&gimme_input("09 small 2.txt")).to_string(), "36");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(9)).to_string(), "5907");
-		assert_eq!(b(input_as_string(9)).to_string(), "2303");
+		assert_eq!(a(&input_as_string(9)).to_string(), "5907");
+		assert_eq!(b(&input_as_string(9)).to_string(), "2303");
 	}
 }
 

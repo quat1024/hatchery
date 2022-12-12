@@ -105,12 +105,12 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 	a * b
 }
 
-pub fn a(input: String) -> impl Display {
-	do_it::<20, 3>(&input).to_string()
+pub fn a(input: &str) -> impl Display {
+	do_it::<20, 3>(input).to_string()
 }
 
-pub fn b(input: String) -> impl Display {
-	do_it::<10000, 1>(&input).to_string()
+pub fn b(input: &str) -> impl Display {
+	do_it::<10000, 1>(input).to_string()
 }
 
 #[cfg(test)]
@@ -119,8 +119,8 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(11)).to_string(), "10605");
-		assert_eq!(b(test_input_as_string(11)).to_string(), "2713310158");
+		assert_eq!(a(&test_input_as_string(11)).to_string(), "10605");
+		assert_eq!(b(&test_input_as_string(11)).to_string(), "2713310158");
 
 		//fun pathological test-case i constructed, where a monkey can throw items to itself
 		//this causes borrow_mut errors with my original solution
@@ -147,7 +147,7 @@ Monkey 1:
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(11)).to_string(), "117624");
-		assert_eq!(b(input_as_string(11)).to_string(), "16792940265");
+		assert_eq!(a(&input_as_string(11)).to_string(), "117624");
+		assert_eq!(b(&input_as_string(11)).to_string(), "16792940265");
 	}
 }

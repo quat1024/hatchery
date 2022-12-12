@@ -33,7 +33,7 @@ impl SectionAssignment {
 	}
 }
 
-pub fn a(input: String) -> impl Display {
+pub fn a(input: &str) -> impl Display {
 	input
 		.lines()
 		.map(|line| {
@@ -45,7 +45,7 @@ pub fn a(input: String) -> impl Display {
 		.count()
 }
 
-pub fn b(input: String) -> impl Display {
+pub fn b(input: &str) -> impl Display {
 	input
 		.lines()
 		.map(|line| {
@@ -63,13 +63,13 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(4)).to_string(), "2");
-		assert_eq!(b(test_input_as_string(4)).to_string(), "4");
+		assert_eq!(a(&test_input_as_string(4)).to_string(), "2");
+		assert_eq!(b(&test_input_as_string(4)).to_string(), "4");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(4)).to_string(), "580");
-		assert_eq!(b(input_as_string(4)).to_string(), "895");
+		assert_eq!(a(&input_as_string(4)).to_string(), "580");
+		assert_eq!(b(&input_as_string(4)).to_string(), "895");
 	}
 }

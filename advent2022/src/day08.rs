@@ -53,8 +53,8 @@ fn parse_forest(input: &str) -> Grid<u8> {
 	Grid(input.lines().map(|line| line.chars().map(|c| c.to_digit(10).expect("nondigit") as u8).collect()).collect())
 }
 
-pub fn a(input: String) -> impl Display {
-	let forest = parse_forest(&input);
+pub fn a(input: &str) -> impl Display {
+	let forest = parse_forest(input);
 	let mut forest_visibility = Grid::new(forest.width(), forest.height(), false);
 
 	for x in 0..forest.width() {
@@ -101,7 +101,7 @@ pub fn a(input: String) -> impl Display {
 	//population count of the result grid
 }
 
-pub fn b(input: String) -> impl Display {
+pub fn b(input: &str) -> impl Display {
 	trait UsizeExt {
 		///basically this answers the question `bounds.contains(self + offset)`, but this trait wouldn't exist if that was easy to write in Rust
 		///1. adding a usize to an isize is not allowed without careful handling
@@ -117,7 +117,7 @@ pub fn b(input: String) -> impl Display {
 		}
 	}
 
-	let forest = parse_forest(&input);
+	let forest = parse_forest(input);
 	let mut best_scenic_score = 0;
 
 	for x in 0..forest.width() {
@@ -154,14 +154,14 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(8)).to_string(), "21");
-		assert_eq!(b(test_input_as_string(8)).to_string(), "8");
+		assert_eq!(a(&test_input_as_string(8)).to_string(), "21");
+		assert_eq!(b(&test_input_as_string(8)).to_string(), "8");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(8)).to_string(), "1688");
-		assert_ne!(b(input_as_string(8)).to_string(), "5752800"); //too high
-		assert_eq!(b(input_as_string(8)).to_string(), "410400");
+		assert_eq!(a(&input_as_string(8)).to_string(), "1688");
+		assert_ne!(b(&input_as_string(8)).to_string(), "5752800"); //too high
+		assert_eq!(b(&input_as_string(8)).to_string(), "410400");
 	}
 }

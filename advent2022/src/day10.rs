@@ -15,7 +15,7 @@ impl Insn {
 	}
 }
 
-pub fn a(input: String) -> impl Display {
+pub fn a(input: &str) -> impl Display {
 	let mut x = 1;
 	let mut cycle_count = 0;
 	let mut answer = 0;
@@ -43,7 +43,7 @@ pub fn a(input: String) -> impl Display {
 	answer
 }
 
-pub fn b(input: String) -> impl Display {
+pub fn b(input: &str) -> impl Display {
 	let mut x: isize = 1;
 	let mut cycle_count: isize = 0;
 
@@ -81,10 +81,10 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(10)).to_string(), "13140");
+		assert_eq!(a(&test_input_as_string(10)).to_string(), "13140");
 
 		assert_eq!(
-			b(test_input_as_string(10)).to_string(),
+			b(&test_input_as_string(10)).to_string(),
 			"##..##..##..##..##..##..##..##..##..##..
 ###...###...###...###...###...###...###.
 ####....####....####....####....####....
@@ -97,10 +97,10 @@ mod test {
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(10)).to_string(), "12520");
+		assert_eq!(a(&input_as_string(10)).to_string(), "12520");
 
 		assert_eq!(
-			b(input_as_string(10)).to_string(),
+			b(&input_as_string(10)).to_string(),
 			"####.#..#.###..####.###....##..##..#....
 #....#..#.#..#....#.#..#....#.#..#.#....
 ###..####.#..#...#..#..#....#.#....#....

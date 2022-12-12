@@ -1,6 +1,6 @@
 use crate::*;
 
-fn disjoint_find_2<const WINDOW_SIZE: usize>(input: &String) -> Option<usize> {
+fn disjoint_find_2<const WINDOW_SIZE: usize>(input: &str) -> Option<usize> {
 	let input = input.as_bytes();
 
 	//iterate over the start of the window
@@ -24,12 +24,12 @@ fn disjoint_find_2<const WINDOW_SIZE: usize>(input: &String) -> Option<usize> {
 	//TODO: probably possible to do this in a smooth motion, instead of restarting the search on every window-slide
 }
 
-pub fn a(input: String) -> impl Display {
-	disjoint_find_2::<4>(&input).map(|x| x.to_string()).unwrap_or("not found".into())
+pub fn a(input: &str) -> impl Display {
+	disjoint_find_2::<4>(input).map(|x| x.to_string()).unwrap_or("not found".into())
 }
 
-pub fn b(input: String) -> impl Display {
-	disjoint_find_2::<14>(&input).map(|x| x.to_string()).unwrap_or("not found".into())
+pub fn b(input: &str) -> impl Display {
+	disjoint_find_2::<14>(input).map(|x| x.to_string()).unwrap_or("not found".into())
 }
 
 #[cfg(test)]
@@ -38,13 +38,13 @@ mod test {
 
 	#[test]
 	fn test() {
-		assert_eq!(a(test_input_as_string(6)).to_string(), "7");
-		assert_eq!(b(test_input_as_string(6)).to_string(), "19");
+		assert_eq!(a(&test_input_as_string(6)).to_string(), "7");
+		assert_eq!(b(&test_input_as_string(6)).to_string(), "19");
 	}
 
 	#[test]
 	fn real() {
-		assert_eq!(a(input_as_string(6)).to_string(), "1760");
-		assert_eq!(b(input_as_string(6)).to_string(), "2974");
+		assert_eq!(a(&input_as_string(6)).to_string(), "1760");
+		assert_eq!(b(&input_as_string(6)).to_string(), "2974");
 	}
 }
