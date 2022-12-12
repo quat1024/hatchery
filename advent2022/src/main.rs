@@ -23,6 +23,7 @@ mod day08;
 mod day09;
 mod day10;
 mod day11;
+mod day12;
 
 mod tools;
 
@@ -49,6 +50,8 @@ pub fn main() {
 	println!("10 b \n{}", day10::b(&input_as_string(10))); //this one is ascii-art so give it a newline
 	println!("11 a {}", day11::a(&input_as_string(11)));
 	println!("11 b {}", day11::b(&input_as_string(11)));
+	println!("12 a {}", day12::a(&input_as_string(12)));
+	println!("12 b {}", day12::b(&input_as_string(12)));
 }
 
 // input handling //
