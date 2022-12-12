@@ -28,23 +28,20 @@ impl Shipyard {
 		for _ in 0..insn.count {
 			if let Some(crate_label) = self.stacks[src].pop() {
 				self.stacks[dst].push(crate_label);
-			} else {
-				panic!("pop from empty stack? state rn is {}", self.answer())
 			}
 		}
 	}
 
 	fn run_instruction_9001(&mut self, insn: &Instruction) {
-		let src = &mut self.stacks[insn.src];
+		let (src, dst) = self.stacks.borrow_two_mut(insn.src, insn.dst); //see tools.rs
 
-		//you cant borrow both at once for some stupid reason so i will have to collect into a structure first
+		//TODO: clean this up
 		let mut moving_bits = Vec::<char>::new();
 		for what in &src[src.len() - insn.count..] {
 			moving_bits.push(*what);
 		}
-
 		src.truncate(src.len() - insn.count);
-		self.stacks[insn.dst].append(&mut moving_bits);
+		dst.append(&mut moving_bits);
 	}
 
 	//TODO not Infallible result
@@ -116,7 +113,7 @@ impl Shipyard {
 }
 
 impl FromStr for Instruction {
-	type Err = Infallible; //TODO
+	type Err = &'static str;
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let mut splitspace = s.split_ascii_whitespace().fuse();
@@ -124,13 +121,13 @@ impl FromStr for Instruction {
 			(splitspace.next(), splitspace.next(), splitspace.next(), splitspace.next(), splitspace.next(), splitspace.next())
 		{
 			return Ok(Instruction {
-				count: count_str.parse::<usize>().unwrap(), //TODO
-				src: src_str.parse::<usize>().unwrap() - 1, //TODO
-				dst: dst_str.parse::<usize>().unwrap() - 1, //TODO
+				count: count_str.parse::<usize>().map_err(|_| "couldn't parse count")?,
+				src: src_str.parse::<usize>().map_err(|_| "couldn't parse src")? - 1,
+				dst: dst_str.parse::<usize>().map_err(|_| "couldn't parse dst")? - 1,
 			});
 		}
 
-		panic!("unexpected item in bagging area") //TODO
+		Err("unexpected item in bagging area")
 	}
 }
 
@@ -138,10 +135,6 @@ pub fn a(input: &str) -> impl Display {
 	let mut lines = input.lines();
 	let mut shipyard = Shipyard::from_lines_iterator(&mut lines);
 	for line in lines {
-		if line.is_empty() {
-			continue;
-		}
-
 		if let Ok(insn) = Instruction::from_str(line) {
 			shipyard.run_instruction(&insn);
 		}
@@ -154,10 +147,6 @@ pub fn b(input: &str) -> impl Display {
 	let mut lines = input.lines();
 	let mut shipyard = Shipyard::from_lines_iterator(&mut lines);
 	for line in lines {
-		if line.is_empty() {
-			continue;
-		}
-
 		if let Ok(insn) = Instruction::from_str(line) {
 			shipyard.run_instruction_9001(&insn);
 		}

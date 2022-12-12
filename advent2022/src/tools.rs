@@ -115,6 +115,26 @@ pub fn number_from_soup(line: &str) -> Option<usize> {
 	}
 }
 
+///Trait for borrowing two things from a slice at once.
+///I pinched this entire trait, and its implementation, from Amos:
+///<https://fasterthanli.me/series/advent-of-code-2022/part-5#borrow-checker-limitations-and-workarounds>
+pub trait BorrowTwoMut<T> {
+	fn borrow_two_mut(&mut self, a: usize, b: usize) -> (&mut T, &mut T);
+}
+
+impl<T> BorrowTwoMut<T> for [T] {
+	fn borrow_two_mut(&mut self, a: usize, b: usize) -> (&mut T, &mut T) {
+		assert!(a != b);
+		if a < b {
+			let (l, r) = self.split_at_mut(b);
+			(&mut l[a], &mut r[0])
+		} else {
+			let (l, r) = self.split_at_mut(a);
+			(&mut r[0], &mut l[b])
+		}
+	}
+}
+
 #[cfg(test)]
 mod test {
 	use super::*;
