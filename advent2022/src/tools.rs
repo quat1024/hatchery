@@ -90,7 +90,7 @@ pub fn chunks<'a>(input: &'a str) -> Vec<Vec<&'a str>> {
 				chunks.push(std::mem::take(&mut bucket));
 			}
 		} else {
-			bucket.push(&line);
+			bucket.push(line);
 		}
 	}
 

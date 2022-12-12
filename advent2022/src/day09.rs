@@ -34,7 +34,7 @@ impl std::ops::Add for Vec2 {
 }
 
 ///flattens "R 4" into "R, R, R, R" while parsing
-fn parse<'a>(input: &'a str) -> impl Iterator<Item = Vec2> + 'a {
+fn parse(input: &str) -> impl Iterator<Item = Vec2> + '_ {
 	input.lines().flat_map(|line| std::iter::repeat(Vec2::from_char(line.chars().next().expect("nonempty"))).take(line[2..].parse::<usize>().expect("numeric")))
 }
 

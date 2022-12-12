@@ -62,9 +62,9 @@ impl Directory {
 		root
 	}
 
-	fn get_or_create_subdir(&mut self, subdir_name: &String) -> &mut Directory {
+	fn get_or_create_subdir(&mut self, subdir_name: &str) -> &mut Directory {
 		//TODO: remove clone!!!
-		self.subdirs.entry(subdir_name.clone()).or_insert(Default::default())
+		self.subdirs.entry(subdir_name.to_owned()).or_insert(Default::default())
 	}
 
 	fn get_or_create_path(&mut self, path: &Vec<String>) -> &mut Directory {
@@ -113,7 +113,7 @@ impl Instruction {
 				loop {
 					//if the next line starts with $, break out immediately so the next loop iteration picks it up
 					if let Some(upcoming) = lineserator.peek() {
-						if upcoming.starts_with("$") {
+						if upcoming.starts_with('$') {
 							break;
 						}
 					}
@@ -122,7 +122,7 @@ impl Instruction {
 					if let Some(line2) = lineserator.next() {
 						if let Some(dirname) = line2.strip_prefix("dir ") {
 							ls_entry_lines.push(LsEntry::Dir { name: dirname.to_owned() })
-						} else if let Some((size_unparsed, filename)) = line2.split_once(" ") {
+						} else if let Some((size_unparsed, filename)) = line2.split_once(' ') {
 							ls_entry_lines.push(LsEntry::File { name: filename.to_owned(), size: size_unparsed.parse().expect("alskjdklasjdkljaskd") })
 							//TODO
 						}

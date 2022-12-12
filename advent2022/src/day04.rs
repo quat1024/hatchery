@@ -18,7 +18,7 @@ impl FromStr for SectionAssignment {
 
 impl SectionAssignment {
 	fn contains(&self, other: &Self) -> bool {
-		return other.start >= self.start && other.end <= self.end;
+		other.start >= self.start && other.end <= self.end
 	}
 
 	fn overlaps(&self, other: &Self) -> bool {
@@ -29,7 +29,7 @@ impl SectionAssignment {
 			}
 		}
 
-		return false;
+		false
 	}
 }
 
@@ -41,7 +41,7 @@ pub fn a(input: String) -> impl Display {
 			let mut split = line.split(',');
 			(SectionAssignment::from_str(split.next().unwrap()).unwrap(), SectionAssignment::from_str(split.next().unwrap()).unwrap())
 		})
-		.filter(|(left, right)| left.contains(&right) || right.contains(&left))
+		.filter(|(left, right)| left.contains(right) || right.contains(left))
 		.count()
 }
 
@@ -53,7 +53,7 @@ pub fn b(input: String) -> impl Display {
 			let mut split = line.split(',');
 			(SectionAssignment::from_str(split.next().unwrap()).unwrap(), SectionAssignment::from_str(split.next().unwrap()).unwrap())
 		})
-		.filter(|(left, right)| left.overlaps(&right))
+		.filter(|(left, right)| left.overlaps(right))
 		.count()
 }
 

@@ -88,7 +88,7 @@ fn do_it<const ROUNDS: usize, const DIVIDER: usize>(input: &str) -> usize {
 			while let Some(item) = items.pop_front() {
 				let new_item = ((monke.op.run(item)) / DIVIDER) % modulus;
 				let dest = &simians[monke.select_dest(new_item)];
-				if monke as *const _ == dest as *const _ {
+				if std::ptr::eq(monke, dest) {
 					items.push_back(new_item);
 				} else {
 					dest.items.borrow_mut().push_back(new_item);
