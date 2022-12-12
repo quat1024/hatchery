@@ -1,23 +1,19 @@
+#![allow(clippy::cast_sign_loss)]
+
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use crate::*;
 
 type Coord = (isize, isize);
+
 struct Map {
 	map: Vec<Vec<char>>,
 	start: Coord,
-	end: Coord
+	end: Coord,
 }
 
 impl Map {
-	fn rows(&self) -> usize {
-		self.map.len()
-	}
-
-	fn cols(&self) -> usize {
-		self.map[0].len()
-	}
-	
 	fn get(&self, index: Coord) -> Option<char> {
 		if let Some(row) = self.map.get(index.0 as usize) {
 			row.get(index.1 as usize).copied()
@@ -25,100 +21,75 @@ impl Map {
 			None
 		}
 	}
-	
-	fn populate_path_lengths_to_end(&self) -> HashMap<Coord, usize> {
-		let mut navigation = HashMap::new();
-		navigation.insert(self.end, 0);
-		
-		for steps in 1.. {
-			let mut found_anything_new = false;
-			for (coord, steps_to_reach) in navigation.clone() {
-				if steps_to_reach == steps - 1 {
-					let dst = self.get(coord).unwrap();
-					
-					//check up one row
-					let up = (coord.0 - 1, coord.1);
-					if self.get(up).filter(|src| can_traverse(*src, dst)).is_some() {
-						let previous_steps_to_reach = *navigation.get(&up).unwrap_or(&1000);
-						if steps < previous_steps_to_reach {
-							found_anything_new |= navigation.insert(up, steps).is_none();
-						}
-					}
-					
-					//check down one row
-					let down = (coord.0 + 1, coord.1);
-					if self.get(down).filter(|src| can_traverse(*src, dst)).is_some() {
-						let previous_steps_to_reach = *navigation.get(&down).unwrap_or(&1000);
-						if steps < previous_steps_to_reach {
-							found_anything_new |= navigation.insert(down, steps).is_none();
-						}
-					}
-					
-					//left one column
-					let left = (coord.0, coord.1 - 1);
-					if self.get(left).filter(|src| can_traverse(*src, dst)).is_some() {
-						let previous_steps_to_reach = *navigation.get(&left).unwrap_or(&1000);
-						if steps < previous_steps_to_reach {
-							found_anything_new |= navigation.insert(left, steps).is_none();
-						}
-					}
-					
-					//right one column
-					let right = (coord.0, coord.1 + 1);
-					if self.get(right).filter(|src| can_traverse(*src, dst)).is_some() {
-						let previous_steps_to_reach = *navigation.get(&right).unwrap_or(&1000);
-						if steps < previous_steps_to_reach {
-							found_anything_new |= navigation.insert(right, steps).is_none();
-						}
+
+	fn pathfinding_data(&self) -> HashMap<Coord, usize> {
+		let mut explored_area = HashMap::new();
+		explored_area.insert(self.end, 0);
+
+		let mut to_explore: HashSet<Coord> = HashSet::new();
+		to_explore.insert(self.end);
+
+		let mut frontier_of_exploration: HashSet<Coord> = HashSet::new();
+
+		let mut steps = 0;
+		while !&to_explore.is_empty() {
+			steps += 1;
+
+			for &coord in &to_explore {
+				let dst = self.get(coord).unwrap();
+
+				for checkpos in [(coord.0 - 1, coord.1), (coord.0 + 1, coord.1), (coord.0, coord.1 - 1), (coord.0, coord.1 + 1)] {
+					if self.get(checkpos).filter(|src| can_traverse(*src, dst)).is_some() {
+						match explored_area.get(&checkpos) {
+							Some(&prev) if steps < prev => {
+								frontier_of_exploration.insert(checkpos);
+							},
+							None => {
+								frontier_of_exploration.insert(checkpos);
+							},
+							_ => (),
+						};
 					}
 				}
 			}
-			
-			if !found_anything_new {
-				break
+
+			for &coord in &frontier_of_exploration {
+				explored_area.insert(coord, steps);
 			}
+
+			std::mem::swap(&mut to_explore, &mut frontier_of_exploration);
+			frontier_of_exploration.clear();
 		}
-		
-		navigation
-	}
-	
-	fn find_all(&self, what: char) -> Vec<Coord> {
-		let mut result = Vec::new();
-		for row in 0..self.rows() {
-			for col in 0..self.cols() {
-				if let Some(here) = self.get((row as _, col as _)) {
-					if here == what {
-						result.push((row as _, col as _))
-					}
-					
-				}
-			}
-		}
-		result
+
+		explored_area
 	}
 }
 
 fn parse(input: &str) -> Map {
-	let (start_row_id, start_row) = input.lines().enumerate().find(|(_, row)| row.contains('S')).unwrap();
-	let (start_col_id, _) = start_row.chars().enumerate().find(|(_, c)| *c == 'S').unwrap();
-
-	let (end_row_id, end_row) = input.lines().enumerate().find(|(_, row)| row.contains('E')).unwrap();
-	let (end_col_id, _) = end_row.chars().enumerate().find(|(_, c)| *c == 'E').unwrap();
-
-	let map: Vec<Vec<char>> = input
-		.lines()
-		.map(|line| {
-			line.chars()
-				.map(|c| match c {
-					'S' => 'a',
-					'E' => 'z',
-					etc => etc,
-				})
-				.collect()
-		})
-		.collect();
-
-	Map { map, start: (start_row_id as isize, start_col_id as isize), end: (end_row_id as isize, end_col_id as isize) }
+	Map {
+		map: input
+			.lines()
+			.map(|line| {
+				line.chars()
+					.map(|c| match c {
+						'S' => 'a',
+						'E' => 'z',
+						etc => etc,
+					})
+					.collect()
+			})
+			.collect(),
+		start: {
+			let (row_id, row) = input.lines().enumerate().find(|(_, row)| row.contains('S')).expect("start exists");
+			let (col_id, _) = row.chars().enumerate().find(|(_, c)| *c == 'S').unwrap();
+			(row_id.try_into().expect("start fits in isize"), col_id.try_into().expect("start fits in isize"))
+		},
+		end: {
+			let (row_id, row) = input.lines().enumerate().find(|(_, row)| row.contains('E')).expect("end exists");
+			let (col_id, _) = row.chars().enumerate().find(|(_, c)| *c == 'E').unwrap();
+			(row_id.try_into().expect("end fits in isize"), col_id.try_into().expect("end fits in isize"))
+		},
+	}
 }
 
 fn can_traverse(src: char, dst: char) -> bool {
@@ -127,24 +98,16 @@ fn can_traverse(src: char, dst: char) -> bool {
 
 pub fn a(input: &str) -> impl Display {
 	let map = parse(input);
-	let n = map.populate_path_lengths_to_end();
-	*n.get(&map.start).unwrap()
+	*map.pathfinding_data().get(&map.start).expect("start reachable from end")
 }
 
 pub fn b(input: &str) -> impl Display {
 	let map = parse(input);
-	let starts = map.find_all('a');
-	
-	let mut shortest_path = 10000usize;
-	let navigation = map.populate_path_lengths_to_end();
-	
-	for start in starts {
-		if let Some(path) = navigation.get(&start) {
-			shortest_path = shortest_path.min(*path);
-		}
-	}
-	
-	shortest_path
+	map.pathfinding_data()
+		.into_iter()
+		.filter_map(|(coord, distance)| if matches!(map.get(coord), Some(height) if height == 'a') { Some(distance) } else { None })
+		.min()
+		.expect("at least one start reachable from end")
 }
 
 #[cfg(test)]
