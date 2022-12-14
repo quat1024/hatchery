@@ -26,15 +26,12 @@ impl Term {
 			},
 			Some('[') => {
 				let mut terms = Vec::new();
-				if let Some(']') = chars.peek() {
-					chars.next();
-				} else {
-					while let Some(term) = Self::parse_rec(chars) {
-						terms.push(term);
-						if let Some(']') = chars.next() {
-							//also discards commas
-							break;
-						}
+				//the recursive call consumes ']'s and returns `None`, so special empty-list handling isn't needed
+				while let Some(term) = Self::parse_rec(chars) {
+					terms.push(term);
+					//this will also discard commas
+					if let Some(']') = chars.next() {
+						break;
 					}
 				}
 				Some(Term::List(terms))
