@@ -1,6 +1,4 @@
-//use std::iter::Peekable;
-
-use std::{iter::Peekable, fmt::Write};
+use std::iter::Peekable;
 
 use crate::*;
 
@@ -11,29 +9,6 @@ enum Term {
 }
 
 impl Term {
-	fn total_cmp(&self, right: &Self) -> std::cmp::Ordering {
-		match (self, right) {
-			(Self::Iconst(li), Self::Iconst(ri)) => li.cmp(ri),
-			(Self::List(ll), Self::List(rl)) => ll
-				.iter()
-				.zip(rl.iter())
-				.find_map(|(lterm, rterm)| {
-					let result = lterm.total_cmp(rterm);
-					result.is_ne().then_some(result)
-				})
-				.unwrap_or_else(|| ll.len().cmp(&rl.len())),
-			(Self::Iconst(li), Self::List(_)) => self.to_list_term().total_cmp(right),
-			(Self::List(_), Self::Iconst(ri)) => self.total_cmp(&right.to_list_term()),
-		}
-	}
-
-	fn to_list_term(&self) -> Self {
-		match self {
-			Self::Iconst(x) => Self::List(vec![self.clone()]),
-			Self::List(_) => self.clone(),
-		}
-	}
-
 	fn parse(line: &str) -> Option<Term> {
 		Self::parse_rec(&mut line.chars().peekable())
 	}
@@ -53,15 +28,8 @@ impl Term {
 				let mut terms = Vec::new();
 				while let Some(term) = Self::parse_rec(chars) {
 					terms.push(term);
-					match chars.peek() {
-						Some(',') => {
-							chars.next();
-						},
-						Some(']') => {
-							chars.next();
-							break;
-						},
-						_ => {},
+					if let Some(']') = chars.next() {
+						break;
 					}
 				}
 				Some(Term::List(terms))
@@ -69,67 +37,52 @@ impl Term {
 			_ => None,
 		}
 	}
-	
-	fn divider(n: usize) -> Term {
-		Term::List(vec![Term::List(vec![Term::Iconst(n)])])
+}
+
+impl Ord for Term {
+	fn cmp(&self, right: &Self) -> std::cmp::Ordering {
+		match (self, right) {
+			(Self::Iconst(li), Self::Iconst(ri)) => li.cmp(ri),
+			(Self::List(ll), Self::List(rl)) => ll
+				.iter()
+				.zip(rl.iter())
+				.find_map(|(lterm, rterm)| {
+					let result = lterm.cmp(rterm);
+					result.is_ne().then_some(result)
+				})
+				.unwrap_or_else(|| ll.len().cmp(&rl.len())),
+			(Self::Iconst(li), Self::List(_)) => Term::List(vec![self.clone()]).cmp(right),
+			(Self::List(_), Self::Iconst(ri)) => self.cmp(&Term::List(vec![right.clone()])),
+		}
 	}
 }
 
 impl PartialOrd for Term {
 	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-		Some(self.total_cmp(other))
-	}
-}
-
-impl Ord for Term {
-	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-		self.total_cmp(other)
-	}
-}
-
-impl Display for Term {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		match self {
-			Term::Iconst(a) => a.fmt(f),
-			Term::List(list) => {
-				f.write_char('[')?;
-				for (idx, term) in list.iter().enumerate() {
-					term.fmt(f)?;
-					if idx != list.len() - 1 {
-						f.write_char(',')?;
-					}
-				}
-				f.write_char(']')
-			},
-		}
+		Some(self.cmp(other)) //ordering is total
 	}
 }
 
 pub fn a(input: &str) -> impl Display {
-	let mut result = 0;
-	for (index_minus_one, chunk) in chunks(input).iter().enumerate() {
-		if let (Some(a), Some(b)) = (Term::parse(chunk[0]), Term::parse(chunk[1])) {
-			if a < b {
-				result += index_minus_one + 1;
-			}
-		}
-	}
-
-	result
+	chunks(input)
+		.iter()
+		.enumerate()
+		.filter_map(|(index_minus_one, chunk)| match (Term::parse(chunk[0]), Term::parse(chunk[1])) {
+			(Some(a), Some(b)) if a < b => Some(index_minus_one + 1),
+			_ => None,
+		})
+		.sum::<usize>()
 }
 
 pub fn b(input: &str) -> impl Display {
 	let mut terms: Vec<Term> = input.lines().filter_map(Term::parse).collect();
-	
-	terms.push(Term::divider(2));
-	terms.push(Term::divider(6));
-	
-	terms.sort();
-	
-	let a = 1 + terms.iter().enumerate().find(|x| *x.1 == Term::divider(2)).expect("2 is still there").0;
-	let b = 1 + terms.iter().enumerate().find(|x| *x.1 == Term::divider(6)).expect("6 is still there").0;
-	
-	a * b
+
+	let (d2, d6) = (Term::parse("[[2]]").unwrap(), Term::parse("[[6]]").unwrap());
+	terms.push(d2.clone());
+	terms.push(d6.clone());
+
+	terms.sort(); //Ord :)
+	(1 + terms.iter().enumerate().find(|x| *x.1 == d2).unwrap().0) * (1 + terms.iter().enumerate().find(|x| *x.1 == d6).unwrap().0)
 }
 
 #[cfg(test)]
@@ -149,3 +102,21 @@ mod test {
 		assert_eq!(b(&input_as_string(13)).to_string(), "21909");
 	}
 }
+
+// impl Display for Term {
+// 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+// 		match self {
+// 			Term::Iconst(a) => a.fmt(f),
+// 			Term::List(list) => {
+// 				f.write_char('[')?;
+// 				for (idx, term) in list.iter().enumerate() {
+// 					term.fmt(f)?;
+// 					if idx != list.len() - 1 {
+// 						f.write_char(',')?;
+// 					}
+// 				}
+// 				f.write_char(']')
+// 			},
+// 		}
+// 	}
+// }
