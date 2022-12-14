@@ -47,8 +47,8 @@ impl Term {
 impl Ord for Term {
 	fn cmp(&self, right: &Self) -> std::cmp::Ordering {
 		match (self, right) {
-			(Self::Iconst(left_int), Self::Iconst(right_int)) => left_int.cmp(right_int),
-			(Self::List(left_list), Self::List(right_list)) => left_list
+			(Term::Iconst(left_int), Term::Iconst(right_int)) => left_int.cmp(right_int),
+			(Term::List(left_list), Term::List(right_list)) => left_list
 				.iter()
 				.zip(right_list.iter())
 				.find_map(|(left_term, right_term)| {
@@ -56,8 +56,8 @@ impl Ord for Term {
 					result.is_ne().then_some(result)
 				})
 				.unwrap_or_else(|| left_list.len().cmp(&right_list.len())),
-			(Self::Iconst(_), Self::List(_)) => Term::List(vec![self.clone()]).cmp(right),
-			(Self::List(_), Self::Iconst(_)) => self.cmp(&Term::List(vec![right.clone()])),
+			(Term::Iconst(_), Term::List(_)) => Term::List(vec![self.clone()]).cmp(right),
+			(Term::List(_), Term::Iconst(_)) => self.cmp(&Term::List(vec![right.clone()])),
 		}
 	}
 }
