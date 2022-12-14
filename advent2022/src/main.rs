@@ -1,5 +1,6 @@
 #![allow(dead_code, unused_variables)]
 #![feature(iter_array_chunks)] //hehe
+#![feature(array_windows)] //hehe
 #![warn(clippy::pedantic)]
 #![allow(clippy::wildcard_imports)] //I like them.
 #![allow(clippy::must_use_candidate)] //I don't really care about this.
@@ -26,6 +27,7 @@ mod day10;
 mod day11;
 mod day12;
 mod day13;
+mod day14;
 
 mod tools;
 
@@ -73,6 +75,8 @@ fn do_it(mut output: impl FnMut(String)) {
 	output(format!("12 b {}", day12::b(&input_as_string(12))));
 	output(format!("13 a {}", day13::a(&input_as_string(13))));
 	output(format!("13 b {}", day13::b(&input_as_string(13))));
+	output(format!("14 a {}", day14::a(&input_as_string(14))));
+	output(format!("14 b {}", day14::b(&input_as_string(14))));
 }
 
 // input handling //
