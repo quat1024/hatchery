@@ -56,8 +56,8 @@ impl Ord for Term {
 					result.is_ne().then_some(result)
 				})
 				.unwrap_or_else(|| left_list.len().cmp(&right_list.len())),
-			(Self::Iconst(left_int), Self::List(_)) => Term::List(vec![self.clone()]).cmp(right),
-			(Self::List(_), Self::Iconst(right_int)) => self.cmp(&Term::List(vec![right.clone()])),
+			(Self::Iconst(_), Self::List(_)) => Term::List(vec![self.clone()]).cmp(right),
+			(Self::List(_), Self::Iconst(_)) => self.cmp(&Term::List(vec![right.clone()])),
 		}
 	}
 }
