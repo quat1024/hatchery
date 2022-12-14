@@ -69,6 +69,10 @@ impl Term {
 			_ => None,
 		}
 	}
+	
+	fn divider(n: usize) -> Term {
+		Term::List(vec![Term::List(vec![Term::Iconst(n)])])
+	}
 }
 
 impl PartialOrd for Term {
@@ -105,7 +109,6 @@ pub fn a(input: &str) -> impl Display {
 	let mut result = 0;
 	for (index_minus_one, chunk) in chunks(input).iter().enumerate() {
 		if let (Some(a), Some(b)) = (Term::parse(chunk[0]), Term::parse(chunk[1])) {
-			println!("parsed complete block: {a}\n{b}\n");
 			if a < b {
 				result += index_minus_one + 1;
 			}
@@ -116,7 +119,17 @@ pub fn a(input: &str) -> impl Display {
 }
 
 pub fn b(input: &str) -> impl Display {
-	"x"
+	let mut terms: Vec<Term> = input.lines().filter_map(Term::parse).collect();
+	
+	terms.push(Term::divider(2));
+	terms.push(Term::divider(6));
+	
+	terms.sort();
+	
+	let a = 1 + terms.iter().enumerate().find(|x| *x.1 == Term::divider(2)).expect("2 is still there").0;
+	let b = 1 + terms.iter().enumerate().find(|x| *x.1 == Term::divider(6)).expect("6 is still there").0;
+	
+	a * b
 }
 
 #[cfg(test)]
@@ -126,13 +139,13 @@ mod test {
 	#[test]
 	fn test() {
 		assert_eq!(a(&test_input_as_string(13)).to_string(), "13");
-		//assert_eq!(b(&test_input_as_string(13)).to_string(), "x");
+		assert_eq!(b(&test_input_as_string(13)).to_string(), "140");
 	}
 
 	#[test]
 	fn real() {
 		assert_ne!(a(&input_as_string(13)).to_string(), "5969"); //too low
 		assert_eq!(a(&input_as_string(13)).to_string(), "6101");
-		//assert_eq!(b(&input_as_string(13)).to_string(), "x");
+		assert_eq!(b(&input_as_string(13)).to_string(), "21909");
 	}
 }
