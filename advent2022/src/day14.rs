@@ -11,9 +11,8 @@ fn parse_coord(x: &str) -> Option<Coord> {
 	Some((row, col))
 }
 
-#[derive(Clone, Copy, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 enum Tile {
-	#[default]
 	Air,
 	Wall,
 	Sand,
@@ -37,7 +36,7 @@ impl From<Tile> for char {
 
 impl Display for Tile {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		f.write_char(<Tile as Into<char>>::into(*self)) //wtf rust
+		f.write_char(<Tile as Into<char>>::into(*self)) //HUHH
 	}
 }
 
@@ -50,7 +49,7 @@ impl Map {
 	#[allow(clippy::manual_map)] //Im gonna change it
 	fn get(&self, coord: Coord) -> Option<Tile> {
 		if let Some(row) = self.map.get(coord.0 as usize) {
-			//TODO not shit
+			//TODO not bad
 			Some(row.get(coord.1 as usize).copied().unwrap_or(Tile::Air))
 		} else {
 			None
@@ -60,10 +59,11 @@ impl Map {
 	#[allow(clippy::cast_sign_loss)]
 	#[allow(clippy::cast_possible_wrap)]
 	fn set(&mut self, coord: Coord, tile: Tile) {
-		//TODO not shit
+		//TODO not badbad bad
 		if (self.map[coord.0 as usize].len() as isize) <= coord.1 {
-			self.map[coord.0 as usize].extend(std::iter::repeat(Tile::Air).take(40)); //and we hope it's good enough
+			self.map[coord.0 as usize].extend(std::iter::repeat(Tile::Air).take(40)); //i dont wanna Calculate it my brain fried
 		}
+		//If you fall off of the left side of the grid... Ummm uh.. skill issue
 
 		self.map[coord.0 as usize][coord.1 as usize] = tile;
 	}
@@ -88,12 +88,12 @@ impl Map {
 					cursor.0 += drow;
 					cursor.1 += dcol;
 				}
-				map.set(cursor, Tile::Wall);
+				map.set(cursor, Tile::Wall); //THANK YOU JULIAN I LOST LIKE 1858 YEARS DEBUGGING THIS
 			}
 		}
 
 		if part2funny {
-			for col in 0..max_row + 1000 {
+			for col in 0..max_row + 1000 { //PROBABLY GOOD ENOUGH
 				map.set(((max_row + 2).try_into().unwrap(), col.try_into().unwrap()), Tile::Wall);
 			}
 		}
