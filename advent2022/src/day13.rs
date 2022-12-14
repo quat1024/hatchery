@@ -64,7 +64,7 @@ impl PartialOrd for Term {
 }
 
 pub fn a(input: &str) -> impl Display {
-	chunks(input)
+	crate::tools::chunks(input)
 		.iter()
 		.enumerate()
 		.filter_map(|(index_minus_one, chunk)| match (Term::parse(chunk[0]), Term::parse(chunk[1])) {

@@ -2,13 +2,13 @@ use crate::*;
 
 pub fn a(input: &str) -> impl Display {
 	//do the whole problem in a sexy unmaintainable oneliner
-	chunks(input).into_iter().map(|chunk| chunk.into_iter().map(str::parse::<usize>).filter_map(Result::ok).sum::<usize>()).max().unwrap()
+	crate::tools::chunks(input).into_iter().map(|chunk| chunk.into_iter().map(str::parse::<usize>).filter_map(Result::ok).sum::<usize>()).max().unwrap()
 }
 
 pub fn b(input: &str) -> impl Display {
 	//map into the amount of calories carried by one elf
 	let mut calories: Vec<usize> =
-		chunks(input).into_iter().map(|chunk| chunk.into_iter().map(str::parse::<usize>).filter_map(Result::ok).sum::<usize>()).collect();
+		crate::tools::chunks(input).into_iter().map(|chunk| chunk.into_iter().map(str::parse::<usize>).filter_map(Result::ok).sum::<usize>()).collect();
 
 	//sort and take the top three (lazy way to do it)
 	calories.sort_unstable();
