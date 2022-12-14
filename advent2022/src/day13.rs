@@ -15,21 +15,26 @@ impl Term {
 
 	fn parse_rec(chars: &mut Peekable<impl Iterator<Item = char>>) -> Option<Term> {
 		match chars.next() {
-			Some(x) if x.is_ascii_digit() => {
+			Some(c) if c.is_ascii_digit() => {
 				//Cheating by leveraging how the only two-digit number to appear in the input is 10
 				if let Some('0') = chars.peek() {
 					chars.next();
 					Some(Term::Iconst(10))
 				} else {
-					Some(Term::Iconst((x as u8 - b'0') as usize))
+					Some(Term::Iconst((c as u8 - b'0') as usize))
 				}
 			},
 			Some('[') => {
 				let mut terms = Vec::new();
-				while let Some(term) = Self::parse_rec(chars) {
-					terms.push(term);
-					if let Some(']') = chars.next() {
-						break;
+				if let Some(']') = chars.peek() {
+					chars.next();
+				} else {
+					while let Some(term) = Self::parse_rec(chars) {
+						terms.push(term);
+						if let Some(']') = chars.next() {
+							//also discards commas
+							break;
+						}
 					}
 				}
 				Some(Term::List(terms))
@@ -42,17 +47,17 @@ impl Term {
 impl Ord for Term {
 	fn cmp(&self, right: &Self) -> std::cmp::Ordering {
 		match (self, right) {
-			(Self::Iconst(li), Self::Iconst(ri)) => li.cmp(ri),
-			(Self::List(ll), Self::List(rl)) => ll
+			(Self::Iconst(left_int), Self::Iconst(right_int)) => left_int.cmp(right_int),
+			(Self::List(left_list), Self::List(right_list)) => left_list
 				.iter()
-				.zip(rl.iter())
-				.find_map(|(lterm, rterm)| {
-					let result = lterm.cmp(rterm);
+				.zip(right_list.iter())
+				.find_map(|(left_term, right_term)| {
+					let result = left_term.cmp(right_term);
 					result.is_ne().then_some(result)
 				})
-				.unwrap_or_else(|| ll.len().cmp(&rl.len())),
-			(Self::Iconst(li), Self::List(_)) => Term::List(vec![self.clone()]).cmp(right),
-			(Self::List(_), Self::Iconst(ri)) => self.cmp(&Term::List(vec![right.clone()])),
+				.unwrap_or_else(|| left_list.len().cmp(&right_list.len())),
+			(Self::Iconst(left_int), Self::List(_)) => Term::List(vec![self.clone()]).cmp(right),
+			(Self::List(_), Self::Iconst(right_int)) => self.cmp(&Term::List(vec![right.clone()])),
 		}
 	}
 }
