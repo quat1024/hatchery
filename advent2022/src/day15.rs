@@ -68,10 +68,10 @@ pub fn b(input: &str) -> impl Display {
 		0..=4_000_000
 	};
 	
-	//Because the distress beacon's position is unique, it must be touching at least one of the diamonds
-	//formed by taking the sensor's position and finding all points closer than or equidistant from its beacon.
-	//If it was not touching the edge of a sensor's diamond, there'd be a nearby location which was, which
-	//would mean the position is not unique anymore.
+	//By "a sensor's diamond", I mean "the shape you get when you take a sensor and color in all points
+	//with distance <= the distance to their closest known beacon". Because the distress beacon's position
+	//is unique (in the problem statement), it must be touching at least one sensor's diamond. If not,
+	//there'd be a nearby location which was, making the position not unique anymore.
 	for s in &sensors {
 		let border_dist = s.distance_to_closest_beacon + 1;
 		
