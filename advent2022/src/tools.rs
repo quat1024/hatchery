@@ -117,10 +117,10 @@ pub fn number_from_soup(line: &str) -> Option<usize> {
 }
 
 //todo still doesn't handle negatives
-pub fn numbers_from_soup<T: FromStr>(line: &str) -> Vec<T> {
+pub fn numbers_from_soup_2<T: FromStr>(line: &str) -> Vec<T> {
 	let mut indexed_char_iter = line.chars().enumerate();
 	let mut result = Vec::new();
-	while let Some((start, _)) = indexed_char_iter.find(|c| c.1.is_ascii_digit()) {
+	while let Some((start, _)) = indexed_char_iter.find(|c| c.1.is_ascii_digit() || c.1 == '-') {
 		if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) {
 			if let Ok(num) = line[start..end].parse() {
 				result.push(num);
