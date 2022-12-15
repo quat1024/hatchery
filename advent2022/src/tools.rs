@@ -103,12 +103,12 @@ pub fn chunks<'a>(input: &'a str) -> Vec<Vec<&'a str>> {
 	chunks
 }
 
-///Grabs the first positive integer out of a string.
-///Won't work on negative numbers, doesn't help you parse more than one, and has other shortcomings.
-pub fn number_from_soup(line: &str) -> Option<usize> {
+///Grabs the first integer out of a string. You pick the integer type.
+///If `ALLOW_MINUS` is set, the `-` character is allowed to begin a number and will be sent to the parser.
+pub fn number_from_soup<const ALLOW_MINUS: bool, T: FromStr>(line: &str) -> Option<T> {
 	let mut indexed_char_iter = line.chars().enumerate();
 
-	let (start, _) = indexed_char_iter.find(|c| c.1.is_ascii_digit())?;
+	let (start, _) = indexed_char_iter.find(|c| c.1.is_ascii_digit() || (ALLOW_MINUS && c.1 == '-'))?;
 	if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) {
 		line[start..end].parse().ok()
 	} else {
@@ -116,11 +116,13 @@ pub fn number_from_soup(line: &str) -> Option<usize> {
 	}
 }
 
-//todo still doesn't handle negatives
-pub fn numbers_from_soup_2<T: FromStr>(line: &str) -> Vec<T> {
+///Grabs all the integers out of a string. You pick the integer type.
+///If `ALLOW_MINUS` is set, the `-` character is allowed to begin a number, and will be sent to the parser.
+///Possible footgun, "1-2" is parsed as "1 2" and not "1 -2", even with `ALLOW_MINUS`.
+pub fn numbers_from_soup<const ALLOW_MINUS: bool, T: FromStr>(line: &str) -> Vec<T> {
 	let mut indexed_char_iter = line.chars().enumerate();
 	let mut result = Vec::new();
-	while let Some((start, _)) = indexed_char_iter.find(|c| c.1.is_ascii_digit() || c.1 == '-') {
+	while let Some((start, _)) = indexed_char_iter.find(|c| c.1.is_ascii_digit() || (ALLOW_MINUS && c.1 == '-')) {
 		if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) {
 			if let Ok(num) = line[start..end].parse() {
 				result.push(num);
@@ -195,10 +197,23 @@ part3"
 
 	#[test]
 	fn test_number_from_soup() {
-		assert_eq!(number_from_soup("Monkey 0:"), Some(0));
-		assert_eq!(number_from_soup("12345 yeah"), Some(12345));
-		assert_eq!(number_from_soup("If true: throw to monkey 2"), Some(2));
-		assert_eq!(number_from_soup(""), None);
-		assert_eq!(number_from_soup("No numbers here :("), None);
+		assert_eq!(number_from_soup::<false, usize>("Monkey 0:"), Some(0));
+		assert_eq!(number_from_soup::<false, usize>("12345 yeah"), Some(12345));
+		assert_eq!(number_from_soup::<false, usize>("If true: throw to monkey 2"), Some(2));
+		assert_eq!(number_from_soup::<false, usize>(""), None);
+		assert_eq!(number_from_soup::<false, usize>("No numbers here :("), None);
+		
+		assert_eq!(number_from_soup::<false, isize>("-1234"), Some(1234));
+		assert_eq!(number_from_soup::<true, isize>("-1234"), Some(-1234));
+		assert_eq!(number_from_soup::<false, isize>("hi-1234"), Some(1234));
+		assert_eq!(number_from_soup::<true, isize>("hi-1234"), Some(-1234));
+		assert_eq!(number_from_soup::<false, isize>("-1234hi"), Some(1234));
+		assert_eq!(number_from_soup::<true, isize>("-1234hi"), Some(-1234));
+		
+		assert_eq!(numbers_from_soup::<false, usize>("1 2 3 4"), vec![1, 2, 3, 4]);
+		assert_eq!(numbers_from_soup::<false, usize>("i1 declare 2 a thumb3 4war"), vec![1, 2, 3, 4]);
+		//fun fact: this doesn't work if you remove the spaces
+		//i guess the minus sign is consumed by the check to see if it's a digit or not
+		assert_eq!(numbers_from_soup::<true, isize>("1 -2 3 -4"), vec![1, -2, 3, -4]);
 	}
 }

@@ -42,13 +42,13 @@ struct Monkey {
 
 impl Monkey {
 	fn parse<'iterator, 'line>(lines: &'iterator mut impl Iterator<Item = &'line str>) -> Option<Self> {
-		let id = number_from_soup(lines.next()?)?;
-		let items = lines.next()?.trim_start_matches("  Starting items: ").split(", ").map(str::parse).collect::<Result<VecDeque<_>, _>>().ok()?;
+		let id = number_from_soup::<false, usize>(lines.next()?)?;
+		let items = numbers_from_soup::<false, usize>(lines.next()?).into();
 
 		let op = Expr::parse(lines.next()?.trim_start_matches("  Operation: new = "))?;
 
-		let test = number_from_soup(lines.next()?)?;
-		let result = (number_from_soup(lines.next()?)?, number_from_soup(lines.next()?)?);
+		let test = number_from_soup::<false, usize>(lines.next()?)?;
+		let result = (number_from_soup::<false, usize>(lines.next()?)?, number_from_soup::<false, usize>(lines.next()?)?);
 
 		Some(Self { id, items: RefCell::new(items), op, test, result })
 	}

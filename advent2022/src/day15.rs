@@ -32,7 +32,7 @@ struct Sensor {
 
 impl Sensor {
 	fn parse(line: &str) -> Sensor {
-		let numbers = numbers_from_soup_2::<isize>(line);
+		let numbers = numbers_from_soup::<true, isize>(line);
 		let sensor = (numbers[0], numbers[1]).into();
 		let closest_beacon = (numbers[2], numbers[3]).into();
 		Sensor { sensor, closest_beacon, distance_to_closest_beacon: sensor.manhattan_distance(closest_beacon) }
