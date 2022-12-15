@@ -1,6 +1,7 @@
 use std::ops::Div;
 use std::ops::Mul;
 use std::ops::Rem;
+use std::str::FromStr;
 
 ///A collection of small-integer related traits.
 ///A little bit num-traits inspired, but way smaller, cause num-traits seems to make my compile times really bad.
@@ -113,6 +114,23 @@ pub fn number_from_soup(line: &str) -> Option<usize> {
 	} else {
 		line[start..].parse().ok()
 	}
+}
+
+//todo still doesn't handle negatives
+pub fn numbers_from_soup<T: FromStr>(line: &str) -> Vec<T> {
+	let mut indexed_char_iter = line.chars().enumerate();
+	let mut result = Vec::new();
+	while let Some((start, _)) = indexed_char_iter.find(|c| c.1.is_ascii_digit()) {
+		if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) {
+			if let Ok(num) = line[start..end].parse() {
+				result.push(num);
+			}
+		} else if let Ok(num) = line[start..].parse() {
+			result.push(num);
+		}
+	}
+
+	result
 }
 
 ///Trait for borrowing two things from a slice at once.

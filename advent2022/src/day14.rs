@@ -93,7 +93,8 @@ impl Map {
 		}
 
 		if part2funny {
-			for col in 0..max_row + 1000 { //PROBABLY GOOD ENOUGH
+			for col in 0..max_row + 1000 {
+				//PROBABLY GOOD ENOUGH
 				map.set(((max_row + 2).try_into().unwrap(), col.try_into().unwrap()), Tile::Wall);
 			}
 		}
