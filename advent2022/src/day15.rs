@@ -52,29 +52,31 @@ pub fn a(input: &str) -> impl Display {
 	//hack to get it to work in the test input lol. This number is not part of the input, but the problem statement
 	let y = if min_x == -8 { 10 } else { 2_000_000 };
 
-	(min_x..=max_x).filter(|x| {
-		let cursor: Coord = (*x, y).into();
-		sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon) && sensors.iter().all(|s| cursor != s.closest_beacon)
-	}).count()
+	(min_x..=max_x)
+		.filter(|x| {
+			let cursor: Coord = (*x, y).into();
+			sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon) && sensors.iter().all(|s| cursor != s.closest_beacon)
+		})
+		.count()
 }
 
 pub fn b(input: &str) -> impl Display {
 	let sensors: Vec<_> = input.lines().map(Sensor::parse).collect();
-	
+
 	let range = if sensors.iter().map(|s| s.sensor.x - s.distance_to_closest_beacon).min().unwrap() == -8 {
 		//demo mode
 		0..=20
 	} else {
 		0..=4_000_000
 	};
-	
+
 	//By "a sensor's diamond", I mean "the shape you get when you take a sensor and color in all points
 	//with distance <= the distance to their closest known beacon". Because the distress beacon's position
 	//is unique (in the problem statement), it must be touching at least one sensor's diamond. If not,
 	//there'd be a nearby location which was, making the position not unique anymore.
 	for s in &sensors {
 		let border_dist = s.distance_to_closest_beacon + 1;
-		
+
 		let bottom_stop: Coord = (s.sensor.x, s.sensor.y + border_dist).into();
 		let right_stop: Coord = (s.sensor.x + border_dist, s.sensor.y).into();
 		let top_stop: Coord = (s.sensor.x, s.sensor.y - border_dist).into();
@@ -82,28 +84,40 @@ pub fn b(input: &str) -> impl Display {
 		let mut cursor: Coord = bottom_stop;
 		//COPY PASTE CODING TIME
 		while cursor != right_stop {
-			if range.contains(&cursor.x) && range.contains(&cursor.y) && !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon) {
+			if range.contains(&cursor.x)
+				&& range.contains(&cursor.y)
+				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
+			{
 				return cursor.tuning_frequency().to_string();
 			}
 			cursor.x += 1;
 			cursor.y -= 1;
 		}
 		while cursor != top_stop {
-			if range.contains(&cursor.x) && range.contains(&cursor.y) && !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon) {
+			if range.contains(&cursor.x)
+				&& range.contains(&cursor.y)
+				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
+			{
 				return cursor.tuning_frequency().to_string();
 			}
 			cursor.x -= 1;
 			cursor.y -= 1;
 		}
 		while cursor != left_stop {
-			if range.contains(&cursor.x) && range.contains(&cursor.y) && !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon) {
+			if range.contains(&cursor.x)
+				&& range.contains(&cursor.y)
+				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
+			{
 				return cursor.tuning_frequency().to_string();
 			}
 			cursor.x -= 1;
 			cursor.y += 1;
 		}
 		while cursor != bottom_stop {
-			if range.contains(&cursor.x) && range.contains(&cursor.y) && !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon) {
+			if range.contains(&cursor.x)
+				&& range.contains(&cursor.y)
+				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
+			{
 				return cursor.tuning_frequency().to_string();
 			}
 			cursor.x += 1;

@@ -123,11 +123,7 @@ pub fn numbers_from_soup<const ALLOW_MINUS: bool, T: FromStr>(line: &str) -> Vec
 	let mut indexed_char_iter = line.chars().enumerate();
 	let mut result = Vec::new();
 	while let Some((start, _)) = indexed_char_iter.find(|c| c.1.is_ascii_digit() || (ALLOW_MINUS && c.1 == '-')) {
-		if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) {
-			if let Ok(num) = line[start..end].parse() {
-				result.push(num);
-			}
-		} else if let Ok(num) = line[start..].parse() {
+		if let Ok(num) = (if let Some((end, _)) = indexed_char_iter.find(|c| !c.1.is_ascii_digit()) { &line[start..end] } else { &line[start..] }).parse() {
 			result.push(num);
 		}
 	}
@@ -202,14 +198,14 @@ part3"
 		assert_eq!(number_from_soup::<false, usize>("If true: throw to monkey 2"), Some(2));
 		assert_eq!(number_from_soup::<false, usize>(""), None);
 		assert_eq!(number_from_soup::<false, usize>("No numbers here :("), None);
-		
+
 		assert_eq!(number_from_soup::<false, isize>("-1234"), Some(1234));
 		assert_eq!(number_from_soup::<true, isize>("-1234"), Some(-1234));
 		assert_eq!(number_from_soup::<false, isize>("hi-1234"), Some(1234));
 		assert_eq!(number_from_soup::<true, isize>("hi-1234"), Some(-1234));
 		assert_eq!(number_from_soup::<false, isize>("-1234hi"), Some(1234));
 		assert_eq!(number_from_soup::<true, isize>("-1234hi"), Some(-1234));
-		
+
 		assert_eq!(numbers_from_soup::<false, usize>("1 2 3 4"), vec![1, 2, 3, 4]);
 		assert_eq!(numbers_from_soup::<false, usize>("i1 declare 2 a thumb3 4war"), vec![1, 2, 3, 4]);
 		//fun fact: this doesn't work if you remove the spaces
