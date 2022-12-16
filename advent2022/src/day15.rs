@@ -75,53 +75,22 @@ pub fn b(input: &str) -> impl Display {
 	//is unique (in the problem statement), it must be touching at least one sensor's diamond. If not,
 	//there'd be a nearby location which was, making the position not unique anymore.
 	for s in &sensors {
-		let border_dist = s.distance_to_closest_beacon + 1;
-
-		let bottom_stop: Coord = (s.sensor.x, s.sensor.y + border_dist).into();
-		let right_stop: Coord = (s.sensor.x + border_dist, s.sensor.y).into();
-		let top_stop: Coord = (s.sensor.x, s.sensor.y - border_dist).into();
-		let left_stop: Coord = (s.sensor.x - border_dist, s.sensor.y).into();
-		let mut cursor: Coord = bottom_stop;
-		//COPY PASTE CODING TIME
-		while cursor != right_stop {
-			if range.contains(&cursor.x)
-				&& range.contains(&cursor.y)
-				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
-			{
-				return cursor.tuning_frequency().to_string();
-			}
-			cursor.x += 1;
-			cursor.y -= 1;
-		}
-		while cursor != top_stop {
-			if range.contains(&cursor.x)
-				&& range.contains(&cursor.y)
-				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
-			{
-				return cursor.tuning_frequency().to_string();
-			}
-			cursor.x -= 1;
-			cursor.y -= 1;
-		}
-		while cursor != left_stop {
-			if range.contains(&cursor.x)
-				&& range.contains(&cursor.y)
-				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
-			{
-				return cursor.tuning_frequency().to_string();
-			}
-			cursor.x -= 1;
-			cursor.y += 1;
-		}
-		while cursor != bottom_stop {
-			if range.contains(&cursor.x)
-				&& range.contains(&cursor.y)
-				&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
-			{
-				return cursor.tuning_frequency().to_string();
-			}
-			cursor.x += 1;
-			cursor.y += 1;
+		let border_dist = s.distance_to_closest_beacon + 1; //also the diamond's side length
+		if let Some(found) = (0..=border_dist)
+			.flat_map(|n| {
+				[
+					(s.sensor.x + n, s.sensor.y + (border_dist - n)).into(),
+					(s.sensor.x + n, s.sensor.y - (border_dist - n)).into(),
+					(s.sensor.x - n, s.sensor.y - (border_dist - n)).into(),
+					(s.sensor.x - n, s.sensor.y + (border_dist - n)).into(),
+				]
+			})
+			.find(|cursor: &Coord| {
+				range.contains(&cursor.x)
+					&& range.contains(&cursor.y)
+					&& !sensors.iter().any(|s| cursor.manhattan_distance(s.sensor) <= s.distance_to_closest_beacon)
+			}) {
+			return found.tuning_frequency().to_string();
 		}
 	}
 
