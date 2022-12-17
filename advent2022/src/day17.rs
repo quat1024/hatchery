@@ -5,6 +5,8 @@ use crate::*;
 
 type Coord = (isize, isize); //column, row
 
+type HeightProfile = [isize; 7];
+
 #[derive(Copy, Clone, Debug)]
 enum RockShape {
 	Flat,
@@ -15,8 +17,8 @@ enum RockShape {
 }
 
 impl RockShape {
-	fn cycle() -> impl Iterator<Item = Self> {
-		[RockShape::Flat, RockShape::Plus, RockShape::BackwardL, RockShape::I, RockShape::O].iter().copied().cycle()
+	fn all() -> Vec<RockShape> {
+		[RockShape::Flat, RockShape::Plus, RockShape::BackwardL, RockShape::I, RockShape::O].into()
 	}
 
 	//(column, row)
@@ -59,7 +61,15 @@ impl Well {
 	}
 
 	fn max_height(&self) -> isize {
-		*self.columns.iter().map(|column| column.keys().max().unwrap_or(&-1)).max().unwrap_or(&-1)
+		self.columns.iter().map(Self::max_column_height).max().unwrap_or(-1)
+	}
+
+	fn max_column_height(col: &HashMap<isize, bool>) -> isize {
+		*col.keys().max().unwrap_or(&-1isize)
+	}
+
+	fn answer(&self) -> isize {
+		self.max_height() + 1
 	}
 
 	fn hit_test(&self, coord: Coord) -> HitResult {
@@ -89,6 +99,54 @@ impl Well {
 				assert!(!old, "paste_rock overwrote a rock while pasting {shape:?} at {coord:?}, well state \n{self}");
 			}
 		}
+
+		self.clean();
+	}
+
+	fn clean(&mut self) {
+		let floor = self.max_height() - 1000;
+
+		for col in 0..7 {
+			let col = self.get_column_mut(col);
+			col.retain(|k, v| k > &floor);
+		}
+	}
+
+	fn height_profile(&self) -> HeightProfile {
+		let max_height = self.max_height();
+
+		let mut result = [0isize; 7];
+
+		for (idx, result) in result.iter_mut().enumerate() {
+			*result = max_height - Self::max_column_height(self.get_column(idx as isize));
+		}
+
+		result
+	}
+
+	fn drop_one<T>(&mut self, gusts: &mut impl Iterator<Item = (T, char)>, rock: RockShape) {
+		let mut rock_coord = (2, self.max_height() + 4);
+
+		loop {
+			let blow_offset = match gusts.next() {
+				Some((_, '<')) => -1,
+				Some((_, '>')) => 1,
+				_ => panic!("unexpected item in bagging area"),
+			};
+
+			let blown_rock_coord = (rock_coord.0 + blow_offset, rock_coord.1);
+			if self.hit_test_rock(rock, blown_rock_coord).is_air() {
+				rock_coord = (blown_rock_coord.0, blown_rock_coord.1);
+			}
+
+			let rock_coord_below = (rock_coord.0, rock_coord.1 - 1);
+			if self.hit_test_rock(rock, rock_coord_below).is_air() {
+				rock_coord = rock_coord_below;
+			} else {
+				self.paste_rock(rock, rock_coord);
+				break;
+			}
+		}
 	}
 }
 
@@ -109,42 +167,69 @@ impl Display for Well {
 }
 
 pub fn a(input: &str) -> impl Display {
-	let mut gusts = input.lines().next().unwrap().trim().chars().cycle();
-	let mut rocks = RockShape::cycle();
+	let mut gusts = input.lines().next().unwrap().trim().chars().enumerate().cycle().peekable();
+
+	let rocksdontdroppls = RockShape::all(); //i hate rust
+	let mut rocks = rocksdontdroppls.iter().copied().cycle();
 
 	let mut well = Well::default();
-	'next_rock: for i in 1..=2022 {
-		let rock = rocks.next().unwrap();
+
+	for i in 1..=2022 {
+		well.drop_one(&mut gusts, rocks.next().unwrap());
+	}
+
+	well.answer()
+}
+
+pub fn b(input: &str) -> impl Display {
+	const HUGE_PT2_NUM: usize = 1_000_000_000_000;
+	
+	#[derive(Clone, Copy, Default, Hash, Eq, PartialEq, Debug)]
+	struct StateKey {
+		gust_index: usize,
+		rock_index: usize,
+		height_profile: [isize; 7],
+	}
+
+	#[derive(Clone, Copy, Default, Hash, Eq, PartialEq, Debug)]
+	struct StateValue {
+		rock_index: usize,
+		well_height: isize,
+	}
+
+	//putting enumerate() before cycle() so that the index is an index within the cycle
+	let mut gusts = input.lines().next().unwrap().trim().chars().enumerate().cycle().peekable();
+
+	let rocksdontdroppls = RockShape::all(); //i hate rust
+	let mut rocks = rocksdontdroppls.iter().copied().enumerate().cycle().peekable();
+
+	let mut well = Well::default();
+
+	let mut cache_real = Some(HashMap::<StateKey, StateValue>::new());
+	let mut bonus = 0;
+	
+	let mut rock_index = 0;
+	while rock_index < HUGE_PT2_NUM {
+		rock_index += 1;
 		
-		let mut rock_coord = (2, well.max_height() + 4);
-		
-		loop {
-			let blow_offset = match gusts.next() {
-				Some('<') => -1,
-				Some('>') => 1,
-				_ => panic!("unexpected item in bagging area"),
-			};
-			
-			let blown_rock_coord = (rock_coord.0 + blow_offset, rock_coord.1);
-			if well.hit_test_rock(rock, blown_rock_coord).is_air() {
-				rock_coord = (blown_rock_coord.0, blown_rock_coord.1);
-			}
-			
-			let rock_coord_below = (rock_coord.0, rock_coord.1 - 1);
-			if well.hit_test_rock(rock, rock_coord_below).is_air() {
-				rock_coord = rock_coord_below;
-			} else {
-				well.paste_rock(rock, rock_coord);
-				continue 'next_rock;
+		well.drop_one(&mut gusts, rocks.next().unwrap().1);
+
+		if let Some(ref mut cache) = cache_real {
+			let skey = StateKey { gust_index: gusts.peek().unwrap().0, rock_index: rocks.peek().unwrap().0, height_profile: well.height_profile() };
+			let svalue = StateValue { rock_index, well_height: well.max_height() };
+			if let Some(last_value) = cache.insert(skey, svalue) {
+				let cycle_length = rock_index - last_value.rock_index;
+				let cycles_to_go = (HUGE_PT2_NUM - rock_index) / cycle_length; //flooring division
+				
+				bonus = (cycles_to_go as isize) * (svalue.well_height - last_value.well_height);
+				rock_index += cycles_to_go * cycle_length;
+				
+				cache_real.take(); //don't need it anymore
 			}
 		}
 	}
 
-	well.max_height() + 1
-}
-
-pub fn b(input: &str) -> impl Display {
-	"x"
+	well.answer() + bonus
 }
 
 #[cfg(test)]
@@ -154,12 +239,12 @@ mod test {
 	#[test]
 	fn test() {
 		assert_eq!(a(&test_input_as_string(17)).to_string(), "3068");
-		assert_eq!(b(&test_input_as_string(17)).to_string(), "x");
+		assert_eq!(b(&test_input_as_string(17)).to_string(), "1514285714288");
 	}
 
 	#[test]
 	fn real() {
 		assert_eq!(a(&input_as_string(17)).to_string(), "3217");
-		assert_eq!(b(&input_as_string(17)).to_string(), "x");
+		assert_eq!(b(&input_as_string(17)).to_string(), "1585673352422");
 	}
 }
