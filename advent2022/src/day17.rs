@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fmt::Write;
 
 use crate::*;
 
@@ -95,20 +94,7 @@ impl Well {
 
 	fn paste_rock(&mut self, shape: RockShape, coord: Coord) {
 		for rock_cell in shape.cells() {
-			if let Some(old) = self.get_column_mut(coord.0 + rock_cell.0).insert(coord.1 + rock_cell.1, true) {
-				assert!(!old, "paste_rock overwrote a rock while pasting {shape:?} at {coord:?}, well state \n{self}");
-			}
-		}
-
-		self.clean();
-	}
-
-	fn clean(&mut self) {
-		let floor = self.max_height() - 1000;
-
-		for col in 0..7 {
-			let col = self.get_column_mut(col);
-			col.retain(|k, v| k > &floor);
+			self.get_column_mut(coord.0 + rock_cell.0).insert(coord.1 + rock_cell.1, true);
 		}
 	}
 
@@ -117,7 +103,6 @@ impl Well {
 		let max_height = self.max_height();
 
 		let mut result = [0isize; 7];
-
 		for (idx, result) in result.iter_mut().enumerate() {
 			*result = max_height - Self::max_column_height(self.get_column(idx as isize));
 		}
@@ -151,23 +136,8 @@ impl Well {
 	}
 }
 
-impl Display for Well {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		for row in (0..=self.max_height() + 2).rev() {
-			f.write_char('|')?;
-
-			for col in 0..7 {
-				f.write_char(if *self.get_column(col).get(&row).unwrap_or(&false) { '#' } else { '.' })?;
-			}
-
-			f.write_fmt(format_args!("| {row}\n"))?;
-		}
-		f.write_str("+0123456+\n")?;
-		Ok(())
-	}
-}
-
 ///Hope you're on 64 bit! Yeah i should use explicity sized types huh
+#[allow(clippy::cast_possible_wrap)]
 fn drop_it_like_its_hot<const LIMIT: usize>(input: &str) -> isize {
 	#[derive(Clone, Copy, Default, Hash, Eq, PartialEq, Debug)]
 	struct StateKey {
@@ -182,16 +152,13 @@ fn drop_it_like_its_hot<const LIMIT: usize>(input: &str) -> isize {
 		well_height: isize,
 	}
 
-	//putting enumerate() before cycle() so that the index is the index within the cycle
+	//putting enumerate() before cycle() so that the index is *within* the cycle
 	let mut gusts = input.lines().next().unwrap().trim().chars().enumerate().cycle().peekable();
-
 	let rocks_dont_drop_pls = RockShape::all(); //i hate rust
 	let mut rocks = rocks_dont_drop_pls.iter().copied().enumerate().cycle().peekable();
-
 	let mut well = Well::default();
 
-	let mut cache_holder = Some(HashMap::<StateKey, StateValue>::new());
-	let mut bonus = 0;
+	let mut cache = HashMap::<StateKey, StateValue>::new();
 
 	let mut rock_index = 0;
 	while rock_index < LIMIT {
@@ -199,24 +166,28 @@ fn drop_it_like_its_hot<const LIMIT: usize>(input: &str) -> isize {
 
 		well.drop_one(&mut gusts, rocks.next().unwrap().1);
 
-		if let Some(ref mut cache) = cache_holder {
-			let skey = StateKey { gust_index: gusts.peek().unwrap().0, rock_index: rocks.peek().unwrap().0, height_profile: well.height_profile() };
-			let svalue = StateValue { rock_index, well_height: well.max_height() };
+		let skey = StateKey { gust_index: gusts.peek().unwrap().0, rock_index: rocks.peek().unwrap().0, height_profile: well.height_profile() };
+		let svalue = StateValue { rock_index, well_height: well.max_height() };
+		if let Some(last_value) = cache.insert(skey, svalue) {
+			let cycle_length = rock_index - last_value.rock_index;
+			let cycles_to_go = (LIMIT - rock_index) / cycle_length; //flooring division
 
-			#[allow(clippy::cast_possible_wrap)]
-			if let Some(last_value) = cache.insert(skey, svalue) {
-				println!("cache hit");
-				let cycle_length = rock_index - last_value.rock_index;
-				let cycles_to_go = (LIMIT - rock_index) / cycle_length; //flooring division
+			//how many rocks to fast-forward
+			rock_index += cycles_to_go * cycle_length;
+			//how many tiles of height we fast forwarded though
+			let bonus = (cycles_to_go as isize) * (svalue.well_height - last_value.well_height);
 
-				rock_index += cycles_to_go * cycle_length; //fast forward
-				bonus = (cycles_to_go as isize) * (svalue.well_height - last_value.well_height); //how many tiles of height we fast forwarded though
-				cache_holder.take(); //don't need this anymore
+			//finish up the last cycle
+			for _ in rock_index..LIMIT {
+				well.drop_one(&mut gusts, rocks.next().unwrap().1);
 			}
+			
+			return well.answer() + bonus;
 		}
 	}
 
-	well.answer() + bonus
+	//i guess there wasn't a cycle. fancy that
+	well.answer()
 }
 
 pub fn a(input: &str) -> impl Display {
