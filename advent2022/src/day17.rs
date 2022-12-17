@@ -112,6 +112,7 @@ impl Well {
 		}
 	}
 
+	#[allow(clippy::cast_possible_wrap)]
 	fn height_profile(&self) -> HeightProfile {
 		let max_height = self.max_height();
 
@@ -166,24 +167,8 @@ impl Display for Well {
 	}
 }
 
-pub fn a(input: &str) -> impl Display {
-	let mut gusts = input.lines().next().unwrap().trim().chars().enumerate().cycle().peekable();
-
-	let rocksdontdroppls = RockShape::all(); //i hate rust
-	let mut rocks = rocksdontdroppls.iter().copied().cycle();
-
-	let mut well = Well::default();
-
-	for i in 1..=2022 {
-		well.drop_one(&mut gusts, rocks.next().unwrap());
-	}
-
-	well.answer()
-}
-
-pub fn b(input: &str) -> impl Display {
-	const HUGE_PT2_NUM: usize = 1_000_000_000_000;
-	
+///Hope you're on 64 bit! Yeah i should use explicity sized types huh
+fn drop_it_like_its_hot<const LIMIT: usize>(input: &str) -> isize {
 	#[derive(Clone, Copy, Default, Hash, Eq, PartialEq, Debug)]
 	struct StateKey {
 		gust_index: usize,
@@ -197,39 +182,49 @@ pub fn b(input: &str) -> impl Display {
 		well_height: isize,
 	}
 
-	//putting enumerate() before cycle() so that the index is an index within the cycle
+	//putting enumerate() before cycle() so that the index is the index within the cycle
 	let mut gusts = input.lines().next().unwrap().trim().chars().enumerate().cycle().peekable();
 
-	let rocksdontdroppls = RockShape::all(); //i hate rust
-	let mut rocks = rocksdontdroppls.iter().copied().enumerate().cycle().peekable();
+	let rocks_dont_drop_pls = RockShape::all(); //i hate rust
+	let mut rocks = rocks_dont_drop_pls.iter().copied().enumerate().cycle().peekable();
 
 	let mut well = Well::default();
 
-	let mut cache_real = Some(HashMap::<StateKey, StateValue>::new());
+	let mut cache_holder = Some(HashMap::<StateKey, StateValue>::new());
 	let mut bonus = 0;
-	
+
 	let mut rock_index = 0;
-	while rock_index < HUGE_PT2_NUM {
+	while rock_index < LIMIT {
 		rock_index += 1;
-		
+
 		well.drop_one(&mut gusts, rocks.next().unwrap().1);
 
-		if let Some(ref mut cache) = cache_real {
+		if let Some(ref mut cache) = cache_holder {
 			let skey = StateKey { gust_index: gusts.peek().unwrap().0, rock_index: rocks.peek().unwrap().0, height_profile: well.height_profile() };
 			let svalue = StateValue { rock_index, well_height: well.max_height() };
+
+			#[allow(clippy::cast_possible_wrap)]
 			if let Some(last_value) = cache.insert(skey, svalue) {
+				println!("cache hit");
 				let cycle_length = rock_index - last_value.rock_index;
-				let cycles_to_go = (HUGE_PT2_NUM - rock_index) / cycle_length; //flooring division
-				
-				bonus = (cycles_to_go as isize) * (svalue.well_height - last_value.well_height);
-				rock_index += cycles_to_go * cycle_length;
-				
-				cache_real.take(); //don't need it anymore
+				let cycles_to_go = (LIMIT - rock_index) / cycle_length; //flooring division
+
+				rock_index += cycles_to_go * cycle_length; //fast forward
+				bonus = (cycles_to_go as isize) * (svalue.well_height - last_value.well_height); //how many tiles of height we fast forwarded though
+				cache_holder.take(); //don't need this anymore
 			}
 		}
 	}
 
 	well.answer() + bonus
+}
+
+pub fn a(input: &str) -> impl Display {
+	drop_it_like_its_hot::<2022>(input)
+}
+
+pub fn b(input: &str) -> impl Display {
+	drop_it_like_its_hot::<1_000_000_000_000>(input)
 }
 
 #[cfg(test)]
