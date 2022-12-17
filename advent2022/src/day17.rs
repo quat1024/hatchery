@@ -32,19 +32,6 @@ impl RockShape {
 	}
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
-enum HitResult {
-	Air,
-	RockOrGround,
-	Wall,
-}
-
-impl HitResult {
-	fn is_air(self) -> bool {
-		self == HitResult::Air
-	}
-}
-
 #[derive(Default, Clone)]
 struct Well {
 	columns: [HashMap<isize, bool>; 7],
@@ -71,25 +58,17 @@ impl Well {
 		self.max_height() + 1
 	}
 
-	fn hit_test(&self, coord: Coord) -> HitResult {
-		if !(0..=6).contains(&coord.0) {
-			HitResult::Wall
-		} else if coord.1 < 0 || self.get_column(coord.0).contains_key(&coord.1) {
-			HitResult::RockOrGround
-		} else {
-			HitResult::Air
-		}
+	fn hit_something(&self, coord: Coord) -> bool {
+		!(0..=6).contains(&coord.0) || coord.1 < 0 || self.get_column(coord.0).contains_key(&coord.1)
 	}
 
-	fn hit_test_rock(&self, shape: RockShape, coord: Coord) -> HitResult {
+	fn rock_hit_something(&self, shape: RockShape, coord: Coord) -> bool {
 		for rock_cell in shape.cells() {
-			match self.hit_test((coord.0 + rock_cell.0, coord.1 + rock_cell.1)) {
-				HitResult::Air => {},
-				HitResult::RockOrGround => return HitResult::RockOrGround,
-				HitResult::Wall => return HitResult::Wall,
+			if self.hit_something((coord.0 + rock_cell.0, coord.1 + rock_cell.1)) {
+				return true;
 			}
 		}
-		HitResult::Air
+		false
 	}
 
 	fn paste_rock(&mut self, shape: RockShape, coord: Coord) {
@@ -121,17 +100,17 @@ impl Well {
 			};
 
 			let blown_rock_coord = (rock_coord.0 + blow_offset, rock_coord.1);
-			if self.hit_test_rock(rock, blown_rock_coord).is_air() {
+			if !self.rock_hit_something(rock, blown_rock_coord) {
 				rock_coord = (blown_rock_coord.0, blown_rock_coord.1);
 			}
 
 			let rock_coord_below = (rock_coord.0, rock_coord.1 - 1);
-			if self.hit_test_rock(rock, rock_coord_below).is_air() {
-				rock_coord = rock_coord_below;
-			} else {
+			if self.rock_hit_something(rock, rock_coord_below) {
 				self.paste_rock(rock, rock_coord);
 				break;
 			}
+			
+			rock_coord = rock_coord_below;
 		}
 	}
 }
