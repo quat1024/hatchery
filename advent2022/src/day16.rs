@@ -216,7 +216,7 @@ impl Map {
 			let mut new_turned = already_turned.clone();
 			new_turned.insert(src);
 			let flow_rate = flow_rate + self.power[&src];
-			
+
 			next = next.max(self.wander_around_and_cause_problems(src, budget - 1, score, flow_rate, &new_turned, true));
 		}
 
@@ -228,7 +228,7 @@ impl Map {
 					continue;
 				}
 				walked = true;
-				
+
 				//I spent {cost} minutes moving, increment the score by the elapsed time
 				let score = score + flow_rate * cost;
 				next = next.max(self.wander_around_and_cause_problems(*dst, budget - *cost, score, flow_rate, already_turned, false));
@@ -237,7 +237,7 @@ impl Map {
 			//Wait.
 			if !walked && budget > 1 {
 				let score = score + flow_rate;
-				
+
 				next = next.max(self.wander_around_and_cause_problems(src, budget - 1, score, flow_rate, already_turned, false));
 			}
 		}
@@ -249,7 +249,8 @@ impl Map {
 pub fn a(input: &str) -> impl Display {
 	let map = Map::from(input);
 	println!("{map}");
-	map.wander_around_and_cause_problems(Node::start(), 30, 0, 0, &HashSet::new(), true)
+	//map.wander_around_and_cause_problems(Node::start(), 30, 0, 0, &HashSet::new(), true)
+	"x"
 }
 
 pub fn b(input: &str) -> impl Display {
@@ -268,7 +269,7 @@ mod test {
 
 	#[test]
 	fn real() {
-		//assert_eq!(a(&input_as_string(16)).to_string(), "???");
+		assert_eq!(a(&input_as_string(16)).to_string(), "???");
 		assert_eq!(b(&input_as_string(16)).to_string(), "x");
 	}
 }

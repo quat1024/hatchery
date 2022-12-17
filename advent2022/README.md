@@ -4,6 +4,10 @@ Yeah you know what this one is
 
 Its not cheating to go back and clean them up after !!
 
+## TODO
+
+Puzzle 16 is not solved at all
+
 ## run
 
 `cargo run --bin advent2022` should work (this project is in a workspace)
