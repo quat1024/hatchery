@@ -8,6 +8,8 @@ Its not cheating to go back and clean them up after !!
 
 Puzzle 16 is not solved at all
 
+Puzzle 19 is not solved at all either, need to brush up on the Dynaic Programming:tm: shit
+
 ## run
 
 `cargo run --bin advent2022` should work (this project is in a workspace)

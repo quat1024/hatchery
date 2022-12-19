@@ -32,6 +32,7 @@ mod day15;
 mod day16;
 mod day17;
 mod day18;
+mod day19;
 
 mod tools;
 
@@ -89,6 +90,8 @@ fn do_it(mut output: impl FnMut(String)) {
 	output(format!("17 b {}", day17::b(&input_as_string(17))));
 	output(format!("18 a {}", day18::a(&input_as_string(18))));
 	output(format!("18 b {}", day18::b(&input_as_string(18))));
+	output(format!("19 a {}", day19::a(&input_as_string(19))));
+	output(format!("19 b {}", day19::b(&input_as_string(19))));
 }
 
 // input handling //
