@@ -109,7 +109,7 @@ impl Well {
 				self.paste_rock(rock, rock_coord);
 				break;
 			}
-			
+
 			rock_coord = rock_coord_below;
 		}
 	}
@@ -160,7 +160,7 @@ fn drop_it_like_its_hot<const LIMIT: usize>(input: &str) -> isize {
 			for _ in rock_index..LIMIT {
 				well.drop_one(&mut gusts, rocks.next().unwrap().1);
 			}
-			
+
 			return well.answer() + bonus;
 		}
 	}
